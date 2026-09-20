@@ -70,7 +70,10 @@
 
   createDropdown(wrapper);
 
-  if (wrapper.classList.contains('open')) {
+  const isOpen =
+    wrapper.classList.contains('open');
+
+  if (isOpen) {
 
     wrapper.style.height =
       wrapper.scrollHeight + 'px';
@@ -83,10 +86,16 @@
 
   } else {
 
+    wrapper.style.height = '0px';
+
     wrapper.classList.add('open');
 
-    wrapper.style.height =
-      wrapper.scrollHeight + 'px';
+    requestAnimationFrame(() => {
+
+      wrapper.style.height =
+        wrapper.scrollHeight + 'px';
+
+    });
 
   }
 
