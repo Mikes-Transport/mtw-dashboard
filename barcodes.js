@@ -73,14 +73,22 @@ console.log("LOADED ASS CHGEEJS");
   createDropdown(wrapper);
 
   const isOpen =
-    wrapper.classList.contains('open');
+    wrapper.dataset.open === 'true';
 
   if (isOpen) {
-    wrapper.classList.remove('open');
-    console.log("closed & removed");
+
+    wrapper.dataset.open = 'false';
+    wrapper.style.display = 'none';
+
+    console.log("closed & hidden");
+
   } else {
-    wrapper.classList.add('open');
-    console.log("open & applied");
+
+    wrapper.dataset.open = 'true';
+    wrapper.style.display = 'block';
+
+    console.log("open & shown");
+
   }
 
 }
