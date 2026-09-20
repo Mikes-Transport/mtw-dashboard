@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("LOADED ASS CHGEEJS");
+console.log("LOADED ASS CHGEEJS AGE");
 
 (function () {
 
@@ -72,15 +72,34 @@ console.log("LOADED ASS CHGEEJS");
 
   createDropdown(wrapper);
 
+  const cards =
+    wrapper.querySelectorAll(
+      '.db-list-dropdown-card'
+    );
+
   const isOpen =
     wrapper.classList.contains('open');
 
   if (isOpen) {
+
     wrapper.classList.remove('open');
-    console.log('CLOSED', wrapper.className);
+
+    cards.forEach(card => {
+      card.style.display = 'none';
+    });
+
+    console.log('CLOSED');
+
   } else {
+
     wrapper.classList.add('open');
-    console.log('OPEN', wrapper.className);
+
+    cards.forEach(card => {
+      card.style.display = '';
+    });
+
+    console.log('OPEN');
+
   }
 
 }
