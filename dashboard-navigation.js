@@ -40,7 +40,7 @@ const { $, $$ } = window.MTW;
 
     const selector = TOOLS[id];
 
-    if (!selector) return;
+    if (!selector && id !== 'barcodes') return;
 
     hideAll();
 
