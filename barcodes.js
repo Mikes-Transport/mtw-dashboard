@@ -75,8 +75,10 @@
 
   if (isOpen) {
     wrapper.classList.remove('open');
+    console.log("closed & removed")
   } else {
     wrapper.classList.add('open');
+    console.log("open & applied")
   }
 
 }
