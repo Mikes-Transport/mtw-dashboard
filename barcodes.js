@@ -92,16 +92,6 @@ console.log("LOADED ASS CHGEEJS AGAE");
 
   if (!card) return;
 
-  const wrapper =
-    document.querySelector(
-      '.db-list-dropdown-wrapper'
-    );
-
-  if (wrapper) {
-    wrapper.dataset.open = 'false';
-    wrapper.style.display = 'none';
-  }
-
   if (card.dataset.barcodeReady === 'true') {
     return;
   }
