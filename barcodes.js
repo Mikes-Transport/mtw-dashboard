@@ -86,14 +86,14 @@
 
     card.style.cursor = 'pointer';
 
-    card.onclick = function (e) {
+    card.addEventListener('click', function (e) {
 
       e.preventDefault();
-      e.stopPropagation();
-
+      e.stopImmediatePropagation();
+    
       createDropdown(card);
-
-    };
+    
+    });
 
   }
 
