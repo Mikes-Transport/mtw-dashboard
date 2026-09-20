@@ -11,7 +11,7 @@ const { $, $$ } = window.MTW;
     'csv-config': '.csv-tool-panel',
     'mte-config': '.master-list-config',
     'promotion-label': '.et-body-wrapper',
-    'barcodes': '.placeholder'
+    'barcodes': null
   };
 
   const NAMES = {
