@@ -1,5 +1,7 @@
 'use strict';
 
+onsole.log("LOADED ASS CHGEEJS")
+
 (function () {
 
   const TEMPLATES = {
