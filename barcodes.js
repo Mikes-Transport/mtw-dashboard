@@ -61,18 +61,36 @@
 
   function toggleDropdown() {
 
-    const wrapper =
-      document.querySelector(
-        '.db-list-dropdown-wrapper'
-      );
+  const wrapper =
+    document.querySelector(
+      '.db-list-dropdown-wrapper'
+    );
 
-    if (!wrapper) return;
+  if (!wrapper) return;
 
-    createDropdown(wrapper);
+  createDropdown(wrapper);
 
-    wrapper.classList.toggle('open');
+  if (wrapper.classList.contains('open')) {
+
+    wrapper.style.height =
+      wrapper.scrollHeight + 'px';
+
+    requestAnimationFrame(() => {
+      wrapper.style.height = '0px';
+    });
+
+    wrapper.classList.remove('open');
+
+  } else {
+
+    wrapper.classList.add('open');
+
+    wrapper.style.height =
+      wrapper.scrollHeight + 'px';
 
   }
+
+}
 
  function init() {
 
