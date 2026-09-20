@@ -70,34 +70,7 @@
 
   createDropdown(wrapper);
 
-  const isOpen =
-    wrapper.classList.contains('open');
-
-  if (isOpen) {
-
-    wrapper.style.height =
-      wrapper.scrollHeight + 'px';
-
-    requestAnimationFrame(() => {
-      wrapper.style.height = '0px';
-    });
-
-    wrapper.classList.remove('open');
-
-  } else {
-
-    wrapper.style.height = '0px';
-
-    wrapper.classList.add('open');
-
-    requestAnimationFrame(() => {
-
-      wrapper.style.height =
-        wrapper.scrollHeight + 'px';
-
-    });
-
-  }
+  wrapper.classList.toggle('open');
 
 }
 
