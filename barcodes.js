@@ -74,30 +74,30 @@
 
   }
 
-  function init() {
+ function init() {
 
-    const card =
-      document.querySelector('#barcode-drop');
+  const card =
+    document.querySelector('#barcode-drop');
 
-    if (!card) return;
+  if (!card) return;
 
-    if (card.dataset.barcodeReady === 'true') {
-      return;
-    }
-
-    card.dataset.barcodeReady = 'true';
-    card.style.cursor = 'pointer';
-
-    card.addEventListener('click', function (e) {
-
-      e.preventDefault();
-      e.stopImmediatePropagation();
-
-      toggleDropdown();
-
-    });
-
+  if (card.dataset.barcodeReady === 'true') {
+    return;
   }
+
+  card.dataset.barcodeReady = 'true';
+  card.style.cursor = 'pointer';
+
+  card.addEventListener('click', function (e) {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    toggleDropdown();
+
+  });
+
+}
 
   document.addEventListener(
     'db-tool-open',
