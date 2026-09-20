@@ -2,10 +2,6 @@
 
 (function () {
 
-  console.log(
-    '[Barcodes] Module loaded'
-  );
-
   const TEMPLATES = {
     standard: {
       name: 'x2 Label Template'
@@ -28,48 +24,22 @@
     }
   };
 
+  let MENU = null;
+
   function init() {
 
-    console.log(
-      '[Barcodes] Starting'
-    );
-
     const CARD =
-      document.querySelector(
-        '#barcode-drop'
-      );
+      document.querySelector('#barcode-drop');
 
-    if (!CARD) {
+    if (!CARD) return;
 
-      console.log(
-        '[Barcodes] #barcode-drop not found'
-      );
+    if (MENU) return;
 
-      return;
-    }
-
-    console.log(
-      '[Barcodes] #barcode-drop found'
-    );
-
-    if (
-      document.querySelector(
-        '.barcode-dropdown-menu'
-      )
-    ) {
-
-      console.log(
-        '[Barcodes] Already initialized'
-      );
-
-      return;
-    }
-
-    const MENU =
+    MENU =
       document.createElement('div');
 
     MENU.className =
-      'barcode-dropdown-menu';
+      'db-list-dropdown';
 
     Object.entries(TEMPLATES)
       .forEach(([id, template]) => {
@@ -78,147 +48,78 @@
           document.createElement('div');
 
         item.className =
-          'barcode-dropdown-item';
+          'db-list-dropdown-card';
 
         item.dataset.barcodeTemplate =
           id;
 
-        item.textContent =
+        const heading =
+          document.createElement('div');
+
+        heading.className =
+          'db-headingd-list';
+
+        heading.textContent =
           template.name;
+
+        item.appendChild(heading);
 
         MENU.appendChild(item);
 
       });
 
-    const divider =
-      document.createElement('div');
+    CARD.parentElement.appendChild(MENU);
 
-    divider.className =
-      'barcode-dropdown-divider';
+    CARD.addEventListener('click', e => {
 
-    MENU.appendChild(divider);
+      e.preventDefault();
+      e.stopPropagation();
 
-    const history =
-      document.createElement('div');
+      MENU.classList.toggle('open');
 
-    history.className =
-      'barcode-dropdown-item';
-
-    history.dataset.barcodeHistory =
-      '';
-
-    history.textContent =
-      'Print History';
-
-    MENU.appendChild(history);
-
-    CARD.parentElement.appendChild(
-      MENU
-    );
-
-    console.log(
-      '[Barcodes] Dropdown created'
-    );
-
-    CARD.addEventListener(
-      'click',
-      e => {
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        MENU.classList.toggle(
-          'open'
-        );
-
-        console.log(
-          '[Barcodes] Dropdown toggled'
-        );
-
-      }
-    );
+    });
 
     MENU
       .querySelectorAll(
-        '[data-barcode-template]'
+        '.db-list-dropdown-card'
       )
       .forEach(item => {
 
-        item.addEventListener(
-          'click',
-          e => {
+        item.addEventListener('click', e => {
 
-            e.preventDefault();
-            e.stopPropagation();
+          e.preventDefault();
+          e.stopPropagation();
 
-            const template =
-              item.dataset
-                .barcodeTemplate;
+          const template =
+            item.dataset.barcodeTemplate;
 
-            console.log(
-              '[Barcodes] Template selected:',
-              template
-            );
+          MENU.classList.remove('open');
 
-            MENU.classList.remove(
-              'open'
-            );
-
-            document.dispatchEvent(
-              new CustomEvent(
-                'barcode-template-select',
-                {
-                  detail: {
-                    template
-                  }
+          document.dispatchEvent(
+            new CustomEvent(
+              'barcode-template-select',
+              {
+                detail: {
+                  template
                 }
-              )
-            );
+              }
+            )
+          );
 
-          }
-        );
+        });
 
       });
 
-    history.addEventListener(
-      'click',
-      e => {
+    document.addEventListener('click', e => {
 
-        e.preventDefault();
-        e.stopPropagation();
-
-        console.log(
-          '[Barcodes] History selected'
-        );
-
-        MENU.classList.remove(
-          'open'
-        );
-
-        document.dispatchEvent(
-          new CustomEvent(
-            'barcode-history-open'
-          )
-        );
-
+      if (
+        !CARD.contains(e.target) &&
+        !MENU.contains(e.target)
+      ) {
+        MENU.classList.remove('open');
       }
-    );
 
-    document.addEventListener(
-      'click',
-      e => {
-
-        if (
-          !CARD.contains(e.target) &&
-          !MENU.contains(e.target)
-        ) {
-          MENU.classList.remove(
-            'open'
-          );
-        }
-
-      }
-    );
+    });
 
   }
 
@@ -226,18 +127,11 @@
     'db-tool-open',
     e => {
 
-      console.log(
-        '[Barcodes] db-tool-open:',
-        e.detail
-      );
-
       if (
-        e.detail?.id !== 'barcodes'
+        e.detail?.id === 'barcodes'
       ) {
-        return;
+        init();
       }
-
-      init();
 
     }
   );
