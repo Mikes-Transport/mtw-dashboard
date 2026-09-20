@@ -24,78 +24,65 @@
     }
   };
 
-  function createDropdown(card) {
+  function createDropdown() {
 
-    let dropdown =
-      card.parentElement.querySelector(
-        '.db-list-dropdown'
-      );
-
-    if (dropdown) {
-      dropdown.classList.toggle('open');
-      return;
-    }
-
-    dropdown =
-      document.createElement('div');
-
-    dropdown.className =
-      'db-list-dropdown';
-
-    Object.entries(TEMPLATES)
-      .forEach(([id, template]) => {
-
-        const item =
-          document.createElement('div');
-
-        item.className =
-          'db-list-dropdown-card';
-
-        item.dataset.barcodeTemplate =
-          id;
-
-        const heading =
-          document.createElement('div');
-
-        heading.className =
-          'db-headingd-list';
-
-        heading.textContent =
-          template.name;
-
-        item.appendChild(heading);
-        dropdown.appendChild(item);
-
-      });
-
-    card.parentElement.insertBefore(
-      dropdown,
-      card.nextSibling
+  const wrapper =
+    document.querySelector(
+      '.db-list-dropdown-wrapper'
     );
-    
-    dropdown.classList.add('open');
 
-  }
+  if (!wrapper) return;
+
+  wrapper.innerHTML = '';
+
+  Object.entries(TEMPLATES)
+    .forEach(([id, template]) => {
+
+      const item =
+        document.createElement('div');
+
+      item.className =
+        'db-list-dropdown-card';
+
+      item.dataset.barcodeTemplate =
+        id;
+
+      const heading =
+        document.createElement('div');
+
+      heading.className =
+        'db-headingd-list';
+
+      heading.textContent =
+        template.name;
+
+      item.appendChild(heading);
+      wrapper.appendChild(item);
+
+    });
+
+  wrapper.classList.add('open');
+}
 
   function init() {
 
-    const card =
-      document.querySelector('#barcode-drop');
+  const card =
+    document.querySelector('#barcode-drop');
 
-    if (!card) return;
+  if (!card) return;
 
-    card.style.cursor = 'pointer';
+  card.style.cursor = 'pointer';
 
-    card.addEventListener('click', function (e) {
+  card.onclick = function (e) {
 
-      e.preventDefault();
-      e.stopImmediatePropagation();
-    
-      createDropdown(card);
-    
-    });
+    e.preventDefault();
+    e.stopPropagation();
 
-  }
+    createDropdown();
+
+  };
+
+}
 
   document.addEventListener(
     'db-tool-open',
