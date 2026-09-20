@@ -1,6 +1,6 @@
 'use strict';
 
-onsole.log("LOADED ASS CHGEEJS")
+console.log("LOADED ASS CHGEEJS");
 
 (function () {
 
@@ -77,10 +77,10 @@ onsole.log("LOADED ASS CHGEEJS")
 
   if (isOpen) {
     wrapper.classList.remove('open');
-    console.log("closed & removed")
+    console.log("closed & removed");
   } else {
     wrapper.classList.add('open');
-    console.log("open & applied")
+    console.log("open & applied");
   }
 
 }
