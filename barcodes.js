@@ -68,11 +68,12 @@
 
       });
 
-    card.parentElement.appendChild(dropdown);
-
-    requestAnimationFrame(() => {
-      dropdown.classList.add('open');
-    });
+    card.parentElement.insertBefore(
+      dropdown,
+      card.nextSibling
+    );
+    
+    dropdown.classList.add('open');
 
   }
 
