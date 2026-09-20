@@ -24,75 +24,88 @@
     }
   };
 
-  function createDropdown() {
+  function createDropdown(wrapper) {
 
-  const wrapper =
-    document.querySelector(
-      '.db-list-dropdown-wrapper'
-    );
+    if (wrapper.dataset.loaded === 'true') {
+      return;
+    }
 
-  if (!wrapper) return;
+    Object.entries(TEMPLATES)
+      .forEach(([id, template]) => {
 
-  wrapper.innerHTML = '';
+        const item =
+          document.createElement('div');
 
-  Object.entries(TEMPLATES)
-    .forEach(([id, template]) => {
+        item.className =
+          'db-list-dropdown-card';
 
-      const item =
-        document.createElement('div');
+        item.dataset.barcodeTemplate =
+          id;
 
-      item.className =
-        'db-list-dropdown-card';
+        const heading =
+          document.createElement('div');
 
-      item.dataset.barcodeTemplate =
-        id;
+        heading.className =
+          'db-headingd-list';
 
-      const heading =
-        document.createElement('div');
+        heading.textContent =
+          template.name;
 
-      heading.className =
-        'db-headingd-list';
+        item.appendChild(heading);
+        wrapper.appendChild(item);
 
-      heading.textContent =
-        template.name;
+      });
 
-      item.appendChild(heading);
-      wrapper.appendChild(item);
+    wrapper.dataset.loaded = 'true';
+  }
 
-    });
+  function toggleDropdown() {
 
-  wrapper.classList.add('open');
-}
+    const wrapper =
+      document.querySelector(
+        '.db-list-dropdown-wrapper'
+      );
+
+    if (!wrapper) return;
+
+    createDropdown(wrapper);
+
+    wrapper.classList.toggle('open');
+
+  }
 
   function init() {
 
-  const card =
-    document.querySelector('#barcode-drop');
+    const card =
+      document.querySelector('#barcode-drop');
 
-  if (!card) return;
+    if (!card) return;
 
-  card.style.cursor = 'pointer';
+    if (card.dataset.barcodeReady === 'true') {
+      return;
+    }
 
-  card.onclick = function (e) {
+    card.dataset.barcodeReady = 'true';
+    card.style.cursor = 'pointer';
 
-    e.preventDefault();
-    e.stopPropagation();
+    card.addEventListener('click', function (e) {
 
-    createDropdown();
+      e.preventDefault();
+      e.stopImmediatePropagation();
 
-  };
+      toggleDropdown();
 
-}
+    });
+
+  }
 
   document.addEventListener(
     'db-tool-open',
     e => {
 
-      if (e.detail?.id !== 'barcodes') {
-        return;
+      if (e.detail?.id === 'barcodes') {
+        init();
       }
-
-      init();
 
     }
   );
