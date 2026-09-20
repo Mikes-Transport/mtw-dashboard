@@ -70,7 +70,14 @@
 
   createDropdown(wrapper);
 
-  wrapper.classList.toggle('open');
+  const isOpen =
+    wrapper.classList.contains('open');
+
+  if (isOpen) {
+    wrapper.classList.remove('open');
+  } else {
+    wrapper.classList.add('open');
+  }
 
 }
 
