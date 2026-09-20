@@ -24,21 +24,22 @@
     }
   };
 
-  let MENU = null;
+  function createDropdown(card) {
 
-  function init() {
+    let dropdown =
+      card.parentElement.querySelector(
+        '.db-list-dropdown'
+      );
 
-    const CARD =
-      document.querySelector('#barcode-drop');
+    if (dropdown) {
+      dropdown.classList.toggle('open');
+      return;
+    }
 
-    if (!CARD) return;
-
-    if (MENU) return;
-
-    MENU =
+    dropdown =
       document.createElement('div');
 
-    MENU.className =
+    dropdown.className =
       'db-list-dropdown';
 
     Object.entries(TEMPLATES)
@@ -63,63 +64,35 @@
           template.name;
 
         item.appendChild(heading);
-
-        MENU.appendChild(item);
+        dropdown.appendChild(item);
 
       });
 
-    CARD.parentElement.appendChild(MENU);
+    card.parentElement.appendChild(dropdown);
 
-    CARD.addEventListener('click', e => {
+    requestAnimationFrame(() => {
+      dropdown.classList.add('open');
+    });
+
+  }
+
+  function init() {
+
+    const card =
+      document.querySelector('#barcode-drop');
+
+    if (!card) return;
+
+    card.style.cursor = 'pointer';
+
+    card.onclick = function (e) {
 
       e.preventDefault();
       e.stopPropagation();
 
-      MENU.classList.toggle('open');
+      createDropdown(card);
 
-    });
-
-    MENU
-      .querySelectorAll(
-        '.db-list-dropdown-card'
-      )
-      .forEach(item => {
-
-        item.addEventListener('click', e => {
-
-          e.preventDefault();
-          e.stopPropagation();
-
-          const template =
-            item.dataset.barcodeTemplate;
-
-          MENU.classList.remove('open');
-
-          document.dispatchEvent(
-            new CustomEvent(
-              'barcode-template-select',
-              {
-                detail: {
-                  template
-                }
-              }
-            )
-          );
-
-        });
-
-      });
-
-    document.addEventListener('click', e => {
-
-      if (
-        !CARD.contains(e.target) &&
-        !MENU.contains(e.target)
-      ) {
-        MENU.classList.remove('open');
-      }
-
-    });
+    };
 
   }
 
@@ -127,11 +100,11 @@
     'db-tool-open',
     e => {
 
-      if (
-        e.detail?.id === 'barcodes'
-      ) {
-        init();
+      if (e.detail?.id !== 'barcodes') {
+        return;
       }
+
+      init();
 
     }
   );
