@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("LOADED ASS CHGEEJS AGAE");
+console.log("LOADED ASS CHGEEJS");
 
 (function () {
 
