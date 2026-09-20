@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("LOADED ASS CHGEEJS AGA");
+console.log("LOADED ASS CHGEEJS AGAE");
 
 (function () {
 
@@ -99,6 +99,16 @@ console.log("LOADED ASS CHGEEJS AGA");
     document.querySelector('#barcode-drop');
 
   if (!card) return;
+
+  const wrapper =
+    document.querySelector(
+      '.db-list-dropdown-wrapper'
+    );
+
+  if (wrapper) {
+    wrapper.dataset.open = 'false';
+    wrapper.style.display = 'none';
+  }
 
   if (card.dataset.barcodeReady === 'true') {
     return;
