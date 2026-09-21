@@ -1831,7 +1831,7 @@ console.log("YOUOK AAAa");
    * This avoids Webflow/dashboard containers interfering
    * with what the browser sends to print.
    */
-  function preparePrint() {
+ function preparePrint() {
 
   // Remove any previous print copy
   const old =
@@ -1843,17 +1843,48 @@ console.log("YOUOK AAAa");
     old.remove();
   }
 
-  // Get the actual rendered barcode pages.
-  // These are the pages containing everything the user sees.
+  // Get the currently selected template
+  const config =
+    TEMPLATES[state.current];
+
+  if (!config) {
+
+    console.warn(
+      '[barcode] No template selected to print.'
+    );
+
+    return null;
+
+  }
+
+  // Only search inside the selected template panel.
+  const panel =
+    document.querySelector(
+      config.panel
+    );
+
+  if (!panel) {
+
+    console.warn(
+      '[barcode] Selected template panel not found:',
+      config.panel
+    );
+
+    return null;
+
+  }
+
+  // Get ONLY the pages belonging to the selected template.
   const pages =
-    document.querySelectorAll(
+    panel.querySelectorAll(
       '.barcode-page'
     );
 
   if (!pages.length) {
 
     console.warn(
-      '[barcode] No .barcode-page elements found to print.'
+      '[barcode] No .barcode-page elements found in selected template:',
+      state.current
     );
 
     return null;
@@ -1866,13 +1897,13 @@ console.log("YOUOK AAAa");
   printRoot.id =
     'barcode-print-root';
 
-  // Clone EVERY actual barcode-page.
+  // Clone every page from ONLY the selected template.
   pages.forEach(page => {
 
     const clone =
       page.cloneNode(true);
 
-    // Remove editing/click overlays only.
+    // Remove interactive overlays only.
     // Everything else inside .barcode-page stays.
     clone
       .querySelectorAll(
