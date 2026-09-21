@@ -1,165 +1,241 @@
 'use strict';
 
-console.log("LOADED BARCODE JS");
+console.log("YOUOK ADJASJD");
 
 (function () {
 
   const TEMPLATES = {
     standard: {
       name: 'x2 Label Template',
-      selector: '.standard-barcode'
+      card: '.standard-barcode',
+      grid: '.barcode-standard-grid',
+      header: '.standard-barcode-header',
+      capacity: 2
     },
 
     small: {
       name: 'x4 Label Template',
-      selector: '.small-barcode'
+      card: '.small-barcode',
+      grid: '.barcode-small-grid',
+      header: '.small-barcode-header',
+      capacity: 4
     },
 
     medium: {
       name: 'x8 Label Template',
-      selector: '.medium-barcode'
+      card: '.medium-barcode',
+      grid: '.barcode-medium-grid',
+      header: '.medium-barcode-header',
+      capacity: 8
     },
 
     large: {
       name: 'x10 Label Template',
-      selector: '.large-barcode'
+      card: '.large-barcode',
+      grid: '.barcode-large-grid',
+      header: '.large-barcode-header',
+      capacity: 10
     },
 
     xlarge: {
       name: 'x30 Label Template',
-      selector: '.xlarge-barcode'
+      card: '.xlarge-barcode',
+      grid: '.barcode-xlarge-grid',
+      header: '.xlarge-barcode-header',
+      capacity: 30
     }
+  };
+
+  const FONT_URL =
+    'https://raw.githubusercontent.com/Mikes-Transport/mtw-dashboard/main/IDAutomationHC39M%20Free%20Version.ttf';
+
+  const DEFAULTS = {
+    template: 'standard',
+    partNumber: '',
+    subtext: '',
+    partNumberSize: 32,
+    subtextSize: 18,
+    barcodeSize: 54
   };
 
   const state = {
     cards: []
   };
 
+  let counter = 0;
   let editing = null;
-  let uid = 0;
+  let ready = false;
 
+  const $ = s => document.querySelector(s);
 
-  /* ---------- DROPDOWN ---------- */
+  const els = {};
 
-  function createDropdown(wrapper) {
+  function cache() {
 
-    if (wrapper.dataset.loaded === 'true') {
+    els.tool = $('.barcode-label-panels');
+    els.header = $('.barcode-header-wrapper');
+
+    els.add = $('.barcode-add-card-button');
+    els.print = $('.barcode-print-card-button');
+
+    els.dropdown = $('.db-list-dropdown-wrapper');
+
+    els.pages = $('.barcode-page-wrapper');
+
+  }
+
+  function injectStyles() {
+
+    if ($('#barcode-tool-styles')) {
       return;
     }
 
-    Object.entries(TEMPLATES).forEach(([id, template]) => {
+    const style =
+      document.createElement('style');
 
-      const item =
-        document.createElement('div');
+    style.id = 'barcode-tool-styles';
 
-      item.className =
-        'db-list-dropdown-card';
+    style.textContent = `
 
-      item.dataset.barcodeTemplate =
-        id;
+      @font-face {
+        font-family: 'IDAutomationHC39M';
+        src: url('${FONT_URL}') format('truetype');
+        font-display: block;
+      }
 
-      const heading =
-        document.createElement('div');
+      .barcode-card {
+        position: relative;
+      }
 
-      heading.className =
-        'db-headingd-list';
+      .barcode-card-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        cursor: pointer;
+      }
 
-      heading.textContent =
-        template.name;
+      .barcode-populate {
+        font-family: 'IDAutomationHC39M', monospace;
+      }
 
-      item.appendChild(heading);
-      wrapper.appendChild(item);
+      .barcode-edit-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
 
-      item.addEventListener('click', function (e) {
+      .barcode-edit-content {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
 
-        e.preventDefault();
-        e.stopPropagation();
+      .barcode-edit-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
 
-        openTemplate(id);
+      .barcode-edit-field span {
+        font-size: 12px;
+      }
 
-      });
+      .barcode-edit-field input {
+        width: 100%;
+        box-sizing: border-box;
+      }
 
-    });
+      .barcode-edit-footer {
+        display: flex;
+        gap: 10px;
+      }
 
-    wrapper.dataset.loaded = 'true';
+      .barcode-edit-footer button {
+        cursor: pointer;
+      }
+
+      @media print {
+
+        .barcode-header-wrapper,
+        .barcode-add-card-wrapper,
+        .barcode-print-card-wrapper,
+        .barcode-card-overlay,
+        .barcode-edit-panel,
+        .db-list-dropdown-wrapper {
+          display: none !important;
+        }
+
+        .barcode-page-wrapper {
+          display: block !important;
+          width: 210mm !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        .barcode-page {
+          width: 210mm !important;
+          height: 297mm !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          break-after: page;
+          page-break-after: always;
+          overflow: hidden !important;
+        }
+
+        .barcode-page:last-child {
+          break-after: auto;
+          page-break-after: auto;
+        }
+
+      }
+
+    `;
+
+    document.head.appendChild(style);
+
   }
-
-
-  function toggleDropdown() {
-
-    const wrapper =
-      document.querySelector(
-        '.db-list-dropdown-wrapper'
-      );
-
-    if (!wrapper) return;
-
-    createDropdown(wrapper);
-
-    const cards =
-      wrapper.querySelectorAll(
-        '.db-list-dropdown-card'
-      );
-
-    const isOpen =
-      wrapper.classList.contains('open');
-
-    if (isOpen) {
-
-      wrapper.classList.remove('open');
-
-      cards.forEach(card => {
-        card.style.display = 'none';
-      });
-
-    } else {
-
-      wrapper.classList.add('open');
-
-      cards.forEach(card => {
-        card.style.display = '';
-      });
-
-    }
-
-  }
-
-
-  /* ---------- CARDS ---------- */
 
   function cardData(data = {}) {
 
-    return {
+    counter++;
 
+    return {
       id:
         data.id ||
-        `barcode-${++uid}`,
+        'barcode-' + counter,
 
       template:
         data.template ||
-        'standard',
+        DEFAULTS.template,
 
       partNumber:
-        data.partNumber ||
-        '',
+        data.partNumber ??
+        DEFAULTS.partNumber,
 
       subtext:
-        data.subtext ||
-        ''
+        data.subtext ??
+        DEFAULTS.subtext,
 
+      partNumberSize:
+        Number(data.partNumberSize) ||
+        DEFAULTS.partNumberSize,
+
+      subtextSize:
+        Number(data.subtextSize) ||
+        DEFAULTS.subtextSize,
+
+      barcodeSize:
+        Number(data.barcodeSize) ||
+        DEFAULTS.barcodeSize
     };
 
   }
 
-
   function get(id) {
-
     return state.cards.find(
       card => card.id === id
     );
-
   }
-
 
   function add(data = {}) {
 
@@ -168,98 +244,149 @@ console.log("LOADED BARCODE JS");
 
     state.cards.push(card);
 
-    renderCard(card);
-    renderList();
-
-    openEdit(card);
+    render();
 
     return card;
 
   }
 
+  function remove(id) {
 
-  function del(id) {
-
-    const index =
-      state.cards.findIndex(
-        card => card.id === id
+    state.cards =
+      state.cards.filter(
+        card => card.id !== id
       );
-
-    if (index === -1) return;
-
-    state.cards.splice(index, 1);
-
-    const el =
-      document.querySelector(
-        `[data-barcode-card="${id}"]`
-      );
-
-    if (el) {
-      el.remove();
-    }
 
     if (editing === id) {
       hideEdit();
     }
 
-    renderList();
+    render();
 
   }
 
+  function cleanPartNumber(value) {
 
-  /* ---------- TEMPLATE ---------- */
+    return String(value || '')
+      .trim()
+      .replace(/^#/, '')
+      .trim();
 
-  function openTemplate(template) {
+  }
 
-    const existing =
-      state.cards.find(
-        card => card.template === template
+  function barcodeValue(value) {
+
+    const clean =
+      cleanPartNumber(value);
+
+    if (!clean) {
+      return '';
+    }
+
+    return `*${clean}*`;
+
+  }
+
+  function populateCard(card, data) {
+
+    const header =
+      card.querySelector(
+        '.text-input-header > *,' +
+        ' .standard-barcode-header,' +
+        ' .small-barcode-header,' +
+        ' .medium-barcode-header,' +
+        ' .large-barcode-header,' +
+        ' .xlarge-barcode-header'
       );
 
-    if (existing) {
+    const subtext =
+      card.querySelector(
+        '.text-input-subtext > *,' +
+        ' .text-input-subtext'
+      );
 
-      openEdit(existing);
+    const barcode =
+      card.querySelector(
+        '.barcode-populate'
+      );
 
-      return;
+    if (header) {
+
+      header.textContent =
+        data.partNumber || '';
+
+      header.style.fontSize =
+        data.partNumberSize + 'px';
 
     }
 
-    add({
-      template
-    });
+    if (subtext) {
+
+      subtext.textContent =
+        data.subtext || '';
+
+      subtext.style.fontSize =
+        data.subtextSize + 'px';
+
+    }
+
+    if (barcode) {
+
+      barcode.textContent =
+        barcodeValue(
+          data.partNumber
+        );
+
+      barcode.style.fontSize =
+        data.barcodeSize + 'px';
+
+    }
 
   }
 
+  function createCard(data) {
 
-  function renderCard(card) {
+    const config =
+      TEMPLATES[data.template] ||
+      TEMPLATES.standard;
 
-    const template =
+    const source =
       document.querySelector(
-        TEMPLATES[card.template].selector
+        config.card
       );
 
-    if (!template) {
+    if (!source) {
 
       console.warn(
         'Barcode template not found:',
-        card.template
+        config.card
       );
 
-      return;
+      return null;
 
     }
 
-    const el =
-      template.cloneNode(true);
+    const card =
+      source.cloneNode(true);
 
-    el.removeAttribute('id');
+    card.classList.add(
+      'barcode-card'
+    );
 
-    el.style.display = '';
+    card.dataset.cardId =
+      data.id;
 
-    el.dataset.barcodeCard =
-      card.id;
+    card.dataset.barcodeTemplate =
+      data.template;
 
-    updateCard(el, card);
+    card.style.display = '';
+
+    card.removeAttribute('id');
+
+    populateCard(
+      card,
+      data
+    );
 
     const overlay =
       document.createElement('div');
@@ -274,180 +401,200 @@ console.log("LOADED BARCODE JS");
         e.preventDefault();
         e.stopPropagation();
 
-        openEdit(card);
+        openEdit(data);
 
       }
     );
 
-    el.appendChild(overlay);
+    card.appendChild(
+      overlay
+    );
 
-    const wrapper =
-      document.querySelector(
-        '.barcode-cards-wrapper'
-      );
-
-    if (wrapper) {
-      wrapper.appendChild(el);
-    }
+    return card;
 
   }
 
+  function createGrid(template) {
 
-  function updateCard(el, card) {
+    const config =
+      TEMPLATES[template] ||
+      TEMPLATES.standard;
 
-    /*
-      These selectors need to be replaced
-      with the actual elements already inside
-      your barcode templates.
-    */
+    const grid =
+      document.createElement('div');
 
-    const part =
-      el.querySelector(
-        '.barcode-part-number'
-      );
+    grid.className =
+      config.grid.replace('.', '');
 
-    const sub =
-      el.querySelector(
-        '.barcode-subtext'
-      );
+    grid.dataset.barcodeTemplate =
+      template;
 
-    if (part) {
-      part.textContent =
-        card.partNumber;
-    }
-
-    if (sub) {
-      sub.textContent =
-        card.subtext;
-    }
+    return grid;
 
   }
 
+  function chunk(cards, size) {
 
-  function refreshCard(card) {
+    const pages = [];
 
-    const el =
-      document.querySelector(
-        `[data-barcode-card="${card.id}"]`
+    for (
+      let i = 0;
+      i < cards.length;
+      i += size
+    ) {
+      pages.push(
+        cards.slice(i, i + size)
       );
+    }
 
-    if (!el) return;
-
-    updateCard(el, card);
+    return pages;
 
   }
 
+  function render() {
 
-  /* ---------- LIST ---------- */
+    if (!els.pages) {
+      return;
+    }
 
-  function renderList() {
+    els.pages.innerHTML = '';
 
-    const list =
-      document.querySelector(
-        '.barcode-card-list'
-      );
+    if (!state.cards.length) {
+      return;
+    }
 
-    if (!list) return;
-
-    list.innerHTML = '';
+    const byTemplate = {};
 
     state.cards.forEach(card => {
 
-      const row =
-        document.createElement('div');
-
-      row.className =
-        'barcode-card-row';
-
-      row.dataset.cardId =
-        card.id;
-
-      row.innerHTML = `
-        <div class="barcode-card-row-info">
-          <strong>${escapeHTML(card.partNumber || 'New Card')}</strong>
-          <span>${escapeHTML(card.subtext || '')}</span>
-        </div>
-
-        <button type="button"
-          class="barcode-card-edit">
-          Edit
-        </button>
-
-        <button type="button"
-          class="barcode-card-delete">
-          ×
-        </button>
-      `;
-
-      row.querySelector(
-        '.barcode-card-edit'
-      ).onclick = () =>
-        openEdit(card);
-
-      row.querySelector(
-        '.barcode-card-delete'
-      ).onclick = () =>
-        del(card.id);
-
-      list.appendChild(row);
-
-    });
-
-  }
-
-
-  /* ---------- EDITOR ---------- */
-
-  function openEdit(card) {
-
-    hideEdit();
-
-    editing =
-      card.id;
-
-    const panel =
-      buildPanel(card);
-
-    document.body.appendChild(panel);
-
-    requestAnimationFrame(() => {
-
-      panel.classList.add('open');
-
-      const input =
-        panel.querySelector(
-          '.barcode-edit-part-number'
-        );
-
-      if (input) {
-
-        input.focus();
-        input.select();
-
+      if (!byTemplate[card.template]) {
+        byTemplate[card.template] = [];
       }
 
+      byTemplate[card.template].push(card);
+
+    });
+
+    Object.entries(byTemplate)
+      .forEach(
+        ([template, cards]) => {
+
+          const config =
+            TEMPLATES[template] ||
+            TEMPLATES.standard;
+
+          const groups =
+            chunk(
+              cards,
+              config.capacity
+            );
+
+          groups.forEach(group => {
+
+            const page =
+              document.createElement('div');
+
+            page.className =
+              'barcode-page';
+
+            page.dataset.barcodeTemplate =
+              template;
+
+            const grid =
+              createGrid(template);
+
+            group.forEach(cardData => {
+
+              const card =
+                createCard(cardData);
+
+              if (card) {
+                grid.appendChild(card);
+              }
+
+            });
+
+            page.appendChild(grid);
+
+            els.pages.appendChild(page);
+
+          });
+
+        }
+      );
+
+  }
+
+  function live(data) {
+
+    if (!els.pages) {
+      return;
+    }
+
+    const matches =
+      els.pages.querySelectorAll(
+        `[data-card-id="${data.id}"]`
+      );
+
+    matches.forEach(card => {
+
+      populateCard(
+        card,
+        data
+      );
+
     });
 
   }
 
+  function createField(
+    label,
+    value,
+    type,
+    callback
+  ) {
 
-  function hideEdit() {
+    const wrapper =
+      document.createElement('label');
 
-    const panel =
-      document.querySelector(
-        '.barcode-edit-panel'
-      );
+    wrapper.className =
+      'barcode-edit-field';
 
-    if (panel) {
-      panel.remove();
+    const title =
+      document.createElement('span');
+
+    title.textContent =
+      label;
+
+    const input =
+      document.createElement('input');
+
+    input.type = type;
+    input.value = value ?? '';
+
+    if (type === 'number') {
+      input.min = '1';
     }
 
-    editing = null;
+    input.addEventListener(
+      'input',
+      function () {
+
+        callback(
+          input.value
+        );
+
+      }
+    );
+
+    wrapper.appendChild(title);
+    wrapper.appendChild(input);
+
+    return wrapper;
 
   }
 
-
-  function buildPanel(card) {
+  function buildEditPanel(card) {
 
     const panel =
       document.createElement('div');
@@ -455,211 +602,559 @@ console.log("LOADED BARCODE JS");
     panel.className =
       'barcode-edit-panel';
 
-    panel.innerHTML = `
+    const heading =
+      document.createElement('h3');
 
-      <div class="barcode-edit-inner">
+    heading.textContent =
+      'Edit Barcode';
 
-        <div class="barcode-edit-header">
+    panel.appendChild(
+      heading
+    );
 
-          <h3>Edit Barcode</h3>
+    const content =
+      document.createElement('div');
 
-          <button
-            type="button"
-            class="barcode-edit-close">
-            ×
-          </button>
+    content.className =
+      'barcode-edit-content';
 
-        </div>
+    content.appendChild(
+      createField(
+        'Part Number',
+        card.partNumber,
+        'text',
+        value => {
 
-        <label>
-          Part Number
+          card.partNumber =
+            value;
 
-          <input
-            type="text"
-            class="barcode-edit-part-number"
-            value="${escapeHTML(card.partNumber)}"
-          >
+          live(card);
 
-        </label>
+        }
+      )
+    );
 
-        <label>
-          Description
+    content.appendChild(
+      createField(
+        'Description',
+        card.subtext,
+        'text',
+        value => {
 
-          <input
-            type="text"
-            class="barcode-edit-subtext"
-            value="${escapeHTML(card.subtext)}"
-          >
+          card.subtext =
+            value;
 
-        </label>
+          live(card);
 
-        <div class="barcode-edit-actions">
+        }
+      )
+    );
 
-          <button
-            type="button"
-            class="barcode-edit-delete">
-            Delete
-          </button>
+    content.appendChild(
+      createField(
+        'Part Number Font Size',
+        card.partNumberSize,
+        'number',
+        value => {
 
-          <button
-            type="button"
-            class="barcode-edit-save">
-            Save
-          </button>
+          card.partNumberSize =
+            Number(value) ||
+            DEFAULTS.partNumberSize;
 
-        </div>
+          live(card);
 
-      </div>
+        }
+      )
+    );
 
-    `;
+    content.appendChild(
+      createField(
+        'Description Font Size',
+        card.subtextSize,
+        'number',
+        value => {
 
+          card.subtextSize =
+            Number(value) ||
+            DEFAULTS.subtextSize;
 
-    const part =
-      panel.querySelector(
-        '.barcode-edit-part-number'
-      );
+          live(card);
 
-    const sub =
-      panel.querySelector(
-        '.barcode-edit-subtext'
-      );
+        }
+      )
+    );
 
+    content.appendChild(
+      createField(
+        'Barcode Size',
+        card.barcodeSize,
+        'number',
+        value => {
 
-    part.addEventListener(
-      'input',
+          card.barcodeSize =
+            Number(value) ||
+            DEFAULTS.barcodeSize;
+
+          live(card);
+
+        }
+      )
+    );
+
+    panel.appendChild(
+      content
+    );
+
+    const footer =
+      document.createElement('div');
+
+    footer.className =
+      'barcode-edit-footer';
+
+    const reset =
+      document.createElement('button');
+
+    reset.type = 'button';
+    reset.textContent = 'Reset';
+
+    reset.onclick =
       function () {
 
         card.partNumber =
-          part.value;
-
-        refreshCard(card);
-        renderList();
-
-      }
-    );
-
-
-    sub.addEventListener(
-      'input',
-      function () {
+          DEFAULTS.partNumber;
 
         card.subtext =
-          sub.value;
+          DEFAULTS.subtext;
 
-        refreshCard(card);
-        renderList();
+        card.partNumberSize =
+          DEFAULTS.partNumberSize;
 
-      }
+        card.subtextSize =
+          DEFAULTS.subtextSize;
+
+        card.barcodeSize =
+          DEFAULTS.barcodeSize;
+
+        render();
+
+        openEdit(card);
+
+      };
+
+    const copy =
+      document.createElement('button');
+
+    copy.type = 'button';
+    copy.textContent = 'Copy';
+
+    copy.onclick =
+      function () {
+
+        const copy =
+          add({
+            template:
+              card.template,
+
+            partNumber:
+              card.partNumber,
+
+            subtext:
+              card.subtext,
+
+            partNumberSize:
+              card.partNumberSize,
+
+            subtextSize:
+              card.subtextSize,
+
+            barcodeSize:
+              card.barcodeSize
+          });
+
+        openEdit(copy);
+
+      };
+
+    const removeBtn =
+      document.createElement('button');
+
+    removeBtn.type = 'button';
+    removeBtn.textContent = 'Delete';
+
+    removeBtn.onclick =
+      function () {
+
+        remove(card.id);
+
+      };
+
+    const save =
+      document.createElement('button');
+
+    save.type = 'button';
+    save.textContent = 'Save';
+
+    save.onclick =
+      function () {
+
+        render();
+        hideEdit();
+
+      };
+
+    footer.appendChild(reset);
+    footer.appendChild(copy);
+    footer.appendChild(removeBtn);
+    footer.appendChild(save);
+
+    panel.appendChild(
+      footer
     );
-
-
-    panel.querySelector(
-      '.barcode-edit-close'
-    ).onclick =
-      hideEdit;
-
-
-    panel.querySelector(
-      '.barcode-edit-save'
-    ).onclick =
-      hideEdit;
-
-
-    panel.querySelector(
-      '.barcode-edit-delete'
-    ).onclick =
-      () => del(card.id);
-
 
     return panel;
 
   }
 
+  function openEdit(card) {
 
-  function escapeHTML(value) {
-
-    return String(value || '')
-      .replace(/&/g, '&amp;')
-      .replace(/"/g, '&quot;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-
-  }
-
-
-  /* ---------- INIT ---------- */
-
-  function init() {
-
-    const card =
-      document.querySelector(
-        '#barcode-drop'
-      );
-
-    if (!card) return;
-
-    if (
-      card.dataset.barcodeReady === 'true'
-    ) {
+    if (!els.tool) {
       return;
     }
 
-    card.dataset.barcodeReady =
-      'true';
+    hideEdit();
 
-    card.style.cursor =
-      'pointer';
+    editing =
+      card.id;
 
-    card.addEventListener(
-      'click',
-      function (e) {
+    const panel =
+      buildEditPanel(card);
 
-        e.preventDefault();
-        e.stopPropagation();
-
-        toggleDropdown();
-
-      }
+    els.tool.appendChild(
+      panel
     );
 
   }
 
+  function hideEdit() {
+
+    editing = null;
+
+    if (!els.tool) {
+      return;
+    }
+
+    const panel =
+      els.tool.querySelector(
+        '.barcode-edit-panel'
+      );
+
+    if (panel) {
+      panel.remove();
+    }
+
+  }
+
+  function createDropdown(wrapper) {
+
+    if (
+      wrapper.dataset.loaded === 'true'
+    ) {
+      return;
+    }
+
+    Object.entries(
+      TEMPLATES
+    ).forEach(
+      ([id, template]) => {
+
+        const item =
+          document.createElement('div');
+
+        item.className =
+          'db-list-dropdown-card';
+
+        item.dataset.barcodeTemplate =
+          id;
+
+        const heading =
+          document.createElement('div');
+
+        heading.className =
+          'db-headingd-list';
+
+        heading.textContent =
+          template.name;
+
+        item.appendChild(
+          heading
+        );
+
+        wrapper.appendChild(
+          item
+        );
+
+        item.addEventListener(
+          'click',
+          function (e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            add({
+              template: id
+            });
+
+            closeDropdown();
+
+            const newest =
+              state.cards[
+                state.cards.length - 1
+              ];
+
+            openEdit(newest);
+
+          }
+        );
+
+      }
+    );
+
+    wrapper.dataset.loaded =
+      'true';
+
+  }
+
+  function closeDropdown() {
+
+    if (!els.dropdown) {
+      return;
+    }
+
+    els.dropdown.classList.remove(
+      'open'
+    );
+
+    els.dropdown
+      .querySelectorAll(
+        '.db-list-dropdown-card'
+      )
+      .forEach(card => {
+
+        card.style.display =
+          'none';
+
+      });
+
+  }
+
+  function toggleDropdown() {
+
+    if (!els.dropdown) {
+      return;
+    }
+
+    createDropdown(
+      els.dropdown
+    );
+
+    const open =
+      els.dropdown.classList.contains(
+        'open'
+      );
+
+    if (open) {
+
+      closeDropdown();
+
+      return;
+
+    }
+
+    els.dropdown.classList.add(
+      'open'
+    );
+
+    els.dropdown
+      .querySelectorAll(
+        '.db-list-dropdown-card'
+      )
+      .forEach(card => {
+
+        card.style.display =
+          '';
+
+      });
+
+  }
+
+  function preparePrint() {
+
+    if (!els.pages) {
+      return;
+    }
+
+    let node =
+      els.pages;
+
+    while (node) {
+
+      node.style.overflow =
+        'visible';
+
+      node.style.height =
+        'auto';
+
+      node.style.maxHeight =
+        'none';
+
+      node.style.transform =
+        'none';
+
+      node =
+        node.parentElement;
+
+    }
+
+  }
+
+  function init() {
+
+    cache();
+
+    if (
+      !els.tool ||
+      !els.pages
+    ) {
+
+      setTimeout(
+        init,
+        100
+      );
+
+      return;
+
+    }
+
+    if (!ready) {
+
+      ready = true;
+
+      injectStyles();
+
+      if (els.add) {
+
+        els.add.addEventListener(
+          'click',
+          function (e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const card =
+              add();
+
+            openEdit(card);
+
+          }
+        );
+
+      }
+
+      if (els.print) {
+
+        els.print.addEventListener(
+          'click',
+          function (e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            preparePrint();
+
+            window.print();
+
+          }
+        );
+
+      }
+
+      const drop =
+        $('#barcode-drop');
+
+      if (drop) {
+
+        drop.style.cursor =
+          'pointer';
+
+        drop.addEventListener(
+          'click',
+          function (e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            toggleDropdown();
+
+          }
+        );
+
+      }
+
+      window.addEventListener(
+        'beforeprint',
+        preparePrint
+      );
+
+    }
+
+    createDropdown(
+      els.dropdown
+    );
+
+    render();
+
+  }
 
   document.addEventListener(
     'db-tool-open',
-    e => {
+    function (e) {
 
       if (
-        e.detail?.id === 'barcodes'
+        e.detail?.id !== 'barcodes'
       ) {
-        init();
+        return;
       }
+
+      init();
 
     }
   );
 
+  if (
+    document.readyState ===
+    'loading'
+  ) {
 
-  window.MTWBarcodeCards = {
+    document.addEventListener(
+      'DOMContentLoaded',
+      init,
+      { once: true }
+    );
 
+  } else {
+
+    init();
+
+  }
+
+  window.MTWBarcodeTool = {
     state,
-
     addCard: add,
-
-    deleteCard: del,
-
     getCard: get,
-
-    openTemplate,
-
-    showEditPanel: openEdit,
-
-    hideEditPanel: hideEdit,
-
-    renderList
-
+    deleteCard: remove,
+    render,
+    openEdit,
+    hideEdit
   };
-
-
-  init();
 
 })();
