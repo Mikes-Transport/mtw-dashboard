@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("YOUOK K");
+console.log("YOUOK MOMALS");
 
 (function () {
 
@@ -49,6 +49,8 @@ console.log("YOUOK K");
   const FONT_URL =
     'https://raw.githubusercontent.com/Mikes-Transport/mtw-dashboard/main/IDAutomationHC39M%20Free%20Version.ttf';
 
+  const DROPDOWN_OPEN_CLASS = 'barcode-dropdown-open';
+
   const DEFAULTS = {
     template: 'standard',
     partNumber: '',
@@ -70,6 +72,29 @@ console.log("YOUOK K");
 
   const els = {};
 
+  // Find the dropdown wrapper that belongs to #barcode-drop
+  // (not just the first .db-list-dropdown-wrapper on the page)
+  function findDropdown() {
+
+    const drop = $('#barcode-drop');
+
+    if (!drop) {
+      return $('.db-list-dropdown-wrapper');
+    }
+
+    return (
+      drop.querySelector('.db-list-dropdown-wrapper') ||
+      (
+        drop.nextElementSibling &&
+        drop.nextElementSibling.matches('.db-list-dropdown-wrapper')
+          ? drop.nextElementSibling
+          : null
+      ) ||
+      $('.db-list-dropdown-wrapper')
+    );
+
+  }
+
   function cache() {
 
     els.panel = $('.barcode-label-panels');
@@ -78,7 +103,7 @@ console.log("YOUOK K");
     els.add = $('.barcode-add-card-button');
     els.print = $('.barcode-print-card-button');
 
-    els.dropdown = $('.db-list-dropdown-wrapper');
+    els.dropdown = findDropdown();
 
     els.pages = $('.barcode-page-wrapper');
 
@@ -88,8 +113,15 @@ console.log("YOUOK K");
 
     if (!els.panel) return;
 
-    els.panel.style.display = '';
     els.panel.classList.add('open');
+
+    // Clear any inline display we may have set earlier
+    els.panel.style.display = '';
+
+    // If a stylesheet (e.g. a Webflow class) is still hiding it, force it visible
+    if (getComputedStyle(els.panel).display === 'none') {
+      els.panel.style.display = 'flex'; // use 'block' if your layout isn't flex
+    }
 
   }
 
@@ -118,6 +150,16 @@ console.log("YOUOK K");
         font-family: 'IDAutomationHC39M';
         src: url('${FONT_URL}') format('truetype');
         font-display: block;
+      }
+
+      /* Template dropdown: closed by default, opened by adding the class */
+      .db-list-dropdown-wrapper:not(.${DROPDOWN_OPEN_CLASS})
+      .db-list-dropdown-card[data-barcode-template] {
+        display: none !important;
+      }
+
+      .db-list-dropdown-card[data-barcode-template] {
+        cursor: pointer;
       }
 
       .barcode-card {
@@ -173,7 +215,11 @@ console.log("YOUOK K");
 
       @media print {
 
-        .barcode-header-wrapper,
+        /* Hide the panel header, but NOT a header that lives inside a label */
+        .barcode-header-wrapper:not(.barcode-card .barcode-header-wrapper) {
+          display: none !important;
+        }
+
         .barcode-add-card-wrapper,
         .barcode-print-card-wrapper,
         .barcode-card-overlay,
@@ -927,32 +973,48 @@ console.log("YOUOK K");
           item
         );
 
-        item.addEventListener(
-          'click',
-          function (e) {
+      }
+    );
 
-            e.preventDefault();
-            e.stopPropagation();
+    // One delegated listener in the CAPTURE phase, so nothing above it
+    // (the toolcard toggle, dashboard click handlers) can swallow the click.
+    wrapper.addEventListener(
+      'click',
+      function (e) {
 
-            const selectedTemplate =
-              item.dataset.barcodeTemplate;
+        const item =
+          e.target.closest(
+            '.db-list-dropdown-card[data-barcode-template]'
+          );
 
-            openBarcodePanel();
+        if (!item) {
+          return;
+        }
 
-            const card =
-              add({
-                template:
-                  selectedTemplate
-              });
+        e.preventDefault();
+        e.stopPropagation();
 
-            closeDropdown();
+        const selectedTemplate =
+          item.dataset.barcodeTemplate;
 
-            openEdit(card);
-
-          }
+        console.log(
+          '[barcode] template picked:',
+          selectedTemplate
         );
 
-      }
+        const card =
+          add({
+            template:
+              selectedTemplate
+          });
+
+        closeDropdown();
+
+        // openEdit() also opens the barcode panel
+        openEdit(card);
+
+      },
+      true
     );
 
     wrapper.dataset.loaded =
@@ -967,19 +1029,8 @@ console.log("YOUOK K");
     }
 
     els.dropdown.classList.remove(
-      'open'
+      DROPDOWN_OPEN_CLASS
     );
-
-    els.dropdown
-      .querySelectorAll(
-        '.db-list-dropdown-card'
-      )
-      .forEach(card => {
-
-        card.style.display =
-          'none';
-
-      });
 
   }
 
@@ -989,33 +1040,9 @@ console.log("YOUOK K");
       return;
     }
 
-    const open =
-      els.dropdown.classList.contains(
-        'open'
-      );
-
-    if (open) {
-
-      closeDropdown();
-
-      return;
-
-    }
-
-    els.dropdown.classList.add(
-      'open'
+    els.dropdown.classList.toggle(
+      DROPDOWN_OPEN_CLASS
     );
-
-    els.dropdown
-      .querySelectorAll(
-        '.db-list-dropdown-card'
-      )
-      .forEach(card => {
-
-        card.style.display =
-          '';
-
-      });
 
   }
 
@@ -1126,6 +1153,15 @@ console.log("YOUOK K");
         drop.addEventListener(
           'click',
           function (e) {
+
+            // Clicks inside the dropdown are handled by createDropdown(),
+            // so don't toggle here
+            if (
+              els.dropdown &&
+              els.dropdown.contains(e.target)
+            ) {
+              return;
+            }
 
             e.preventDefault();
             e.stopPropagation();
