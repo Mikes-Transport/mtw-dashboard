@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("YOUOK ADJASJD");
+console.log("YOUOK K);
 
 (function () {
 
@@ -988,10 +988,6 @@ console.log("YOUOK ADJASJD");
     if (!els.dropdown) {
       return;
     }
-
-    createDropdown(
-      els.dropdown
-    );
 
     const open =
       els.dropdown.classList.contains(
