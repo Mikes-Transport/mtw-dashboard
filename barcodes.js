@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("YOUOK MOMALS");
+console.log("YOUOK");
 
 (function () {
 
@@ -84,6 +84,7 @@ console.log("YOUOK MOMALS");
 
     return (
       drop.querySelector('.db-list-dropdown-wrapper') ||
+      drop.closest('.db-list-dropdown-wrapper') ||
       (
         drop.nextElementSibling &&
         drop.nextElementSibling.matches('.db-list-dropdown-wrapper')
@@ -1154,11 +1155,13 @@ console.log("YOUOK MOMALS");
           'click',
           function (e) {
 
-            // Clicks inside the dropdown are handled by createDropdown(),
-            // so don't toggle here
+            // Clicks on a template card are handled by createDropdown(),
+            // so don't toggle here. (Don't test els.dropdown.contains() —
+            // the wrapper can be an ancestor of #barcode-drop itself.)
             if (
-              els.dropdown &&
-              els.dropdown.contains(e.target)
+              e.target.closest(
+                '.db-list-dropdown-card[data-barcode-template]'
+              )
             ) {
               return;
             }
