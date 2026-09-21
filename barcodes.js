@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("YOUOK");
+console.log("YOUOK AAA");
 
 (function () {
 
@@ -51,8 +51,13 @@ console.log("YOUOK");
     }
   };
 
-  const FONT_URL =
-    'https://raw.githubusercontent.com/Mikes-Transport/mtw-dashboard/main/IDAutomationHC39M%20Free%20Version.ttf';
+  // Tried in order. raw.githubusercontent.com is last because it gets
+  // connection-reset on some networks.
+  const FONT_URLS = [
+    'https://raw.githack.com/Mikes-Transport/mtw-dashboard/main/IDAutomationHC39M%20Free%20Version.ttf',
+    'https://rawcdn.githack.com/Mikes-Transport/mtw-dashboard/main/IDAutomationHC39M%20Free%20Version.ttf',
+    'https://raw.githubusercontent.com/Mikes-Transport/mtw-dashboard/main/IDAutomationHC39M%20Free%20Version.ttf'
+  ];
 
   const DROPDOWN_OPEN_CLASS = 'barcode-dropdown-open';
 
@@ -351,8 +356,8 @@ console.log("YOUOK");
 
   // Loaded through the FontFace API (instead of a CSS @font-face) so that a
   // failure shows up in the console instead of silently falling back to
-  // plain text.
-  function loadBarcodeFont() {
+  // plain text. Tries each URL in FONT_URLS until one works.
+  function loadBarcodeFont(index = 0) {
 
     if (
       typeof FontFace === 'undefined' ||
@@ -361,10 +366,24 @@ console.log("YOUOK");
       return;
     }
 
+    if (index >= FONT_URLS.length) {
+
+      console.error(
+        '[barcode] barcode font FAILED to load from every URL:',
+        FONT_URLS
+      );
+
+      return;
+
+    }
+
+    const url =
+      FONT_URLS[index];
+
     const face =
       new FontFace(
         'IDAutomationHC39M',
-        'url("' + FONT_URL + '") format("truetype")',
+        'url("' + url + '") format("truetype")',
         { display: 'block' }
       );
 
@@ -375,17 +394,19 @@ console.log("YOUOK");
         document.fonts.add(loaded);
 
         console.log(
-          '[barcode] barcode font loaded'
+          '[barcode] barcode font loaded from ' + url
         );
 
       })
       .catch(err => {
 
-        console.error(
-          '[barcode] barcode font FAILED to load from ' + FONT_URL +
-          ' - check the Network tab and any Content-Security-Policy for this URL.',
+        console.warn(
+          '[barcode] barcode font failed from ' + url +
+          ' - trying next source.',
           err
         );
+
+        loadBarcodeFont(index + 1);
 
       });
 
