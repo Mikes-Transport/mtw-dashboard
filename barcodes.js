@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("YOUOK K);
+console.log("YOUOK K");
 
 (function () {
 
@@ -9,7 +9,7 @@ console.log("YOUOK K);
       name: 'x2 Label Template',
       card: '.standard-barcode',
       grid: '.barcode-standard-grid',
-      header: '.standard-barcode-header',
+      header: '.barcode-header-wrapper',
       capacity: 2
     },
 
@@ -17,7 +17,7 @@ console.log("YOUOK K);
       name: 'x4 Label Template',
       card: '.small-barcode',
       grid: '.barcode-small-grid',
-      header: '.small-barcode-header',
+      header: '.barcode-header-wrapper',
       capacity: 4
     },
 
@@ -25,7 +25,7 @@ console.log("YOUOK K);
       name: 'x8 Label Template',
       card: '.medium-barcode',
       grid: '.barcode-medium-grid',
-      header: '.medium-barcode-header',
+      header: '.barcode-header-wrapper',
       capacity: 8
     },
 
@@ -33,7 +33,7 @@ console.log("YOUOK K);
       name: 'x10 Label Template',
       card: '.large-barcode',
       grid: '.barcode-large-grid',
-      header: '.large-barcode-header',
+      header: '.barcode-header-wrapper',
       capacity: 10
     },
 
@@ -41,7 +41,7 @@ console.log("YOUOK K);
       name: 'x30 Label Template',
       card: '.xlarge-barcode',
       grid: '.barcode-xlarge-grid',
-      header: '.xlarge-barcode-header',
+      header: '.barcode-header-wrapper',
       capacity: 30
     }
   };
