@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("YOUOK AAAa222");
+console.log("YOUOK AA22");
 
 (function () {
 
@@ -55,9 +55,9 @@ console.log("YOUOK AAAa222");
     template: 'standard',
     partNumber: '',
     subtext: '',
-    partNumberSize: 32,
-    subtextSize: 18,
-    barcodeSize: 54
+    partNumberSize: 20,
+    subtextSize: 8,
+    barcodeSize: 15
   };
 
   const state = {
@@ -913,35 +913,21 @@ console.log("YOUOK AAAa222");
     }
 
     if (header) {
-
-      header.textContent =
-        data.partNumber || '';
-
-      header.style.fontSize =
-        data.partNumberSize + 'px';
-
+      header.textContent = data.partNumber || '';
+      header.style.fontSize = data.partNumberSize + 'px';
+      header.style.lineHeight = data.partNumberSize + 'px';
     }
-
+    
     if (subtext) {
-
-      subtext.textContent =
-        data.subtext || '';
-
-      subtext.style.fontSize =
-        data.subtextSize + 'px';
-
+      subtext.textContent = data.subtext || '';
+      subtext.style.fontSize = data.subtextSize + 'px';
+      subtext.style.lineHeight = data.subtextSize + 'px';
     }
-
+    
     if (barcode) {
-
-      barcode.textContent =
-        barcodeValue(
-          data.partNumber
-        );
-
-      barcode.style.fontSize =
-        data.barcodeSize + 'px';
-
+      barcode.textContent = barcodeValue(data.partNumber);
+      barcode.style.fontSize = data.barcodeSize + 'px';
+      barcode.style.lineHeight = data.barcodeSize + 'px';
     }
 
   }
