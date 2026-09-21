@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("YOUOK AAAa");
+console.log("YOUOK AAAa222");
 
 (function () {
 
