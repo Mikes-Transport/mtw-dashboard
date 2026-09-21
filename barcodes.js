@@ -1,13 +1,23 @@
 'use strict';
 
-console.log("YOUOK AAAA");
+console.log("MOMMMMMAAAA");
 
 (function () {
+
+  // Webflow structure (per template):
+  //   .barcode-label-panels
+  //     .standard-barcode            <- whole template panel, hidden in Webflow
+  //       .barcode-page-wrapper
+  //         .barcode-page
+  //           .barcode-standard-grid
+  //             .barcode-text-input-wrapper   <- ONE label
+  //           Image
+  const LABEL = '.barcode-text-input-wrapper';
 
   const TEMPLATES = {
     standard: {
       name: 'x2 Label Template',
-      card: '.standard-barcode',
+      panel: '.standard-barcode',
       grid: '.barcode-standard-grid',
       header: '.barcode-header-wrapper',
       capacity: 2
@@ -15,7 +25,7 @@ console.log("YOUOK AAAA");
 
     small: {
       name: 'x4 Label Template',
-      card: '.small-barcode',
+      panel: '.small-barcode',
       grid: '.barcode-small-grid',
       header: '.barcode-header-wrapper',
       capacity: 4
@@ -23,7 +33,7 @@ console.log("YOUOK AAAA");
 
     medium: {
       name: 'x8 Label Template',
-      card: '.medium-barcode',
+      panel: '.medium-barcode',
       grid: '.barcode-medium-grid',
       header: '.barcode-header-wrapper',
       capacity: 8
@@ -31,7 +41,7 @@ console.log("YOUOK AAAA");
 
     large: {
       name: 'x10 Label Template',
-      card: '.large-barcode',
+      panel: '.large-barcode',
       grid: '.barcode-large-grid',
       header: '.barcode-header-wrapper',
       capacity: 10
@@ -39,7 +49,7 @@ console.log("YOUOK AAAA");
 
     xlarge: {
       name: 'x30 Label Template',
-      card: '.xlarge-barcode',
+      panel: '.xlarge-barcode',
       grid: '.barcode-xlarge-grid',
       header: '.barcode-header-wrapper',
       capacity: 30
@@ -72,9 +82,8 @@ console.log("YOUOK AAAA");
 
   const els = {};
 
-  // Pristine copies of the hidden template cards, taken ONCE at init.
-  // render() empties .barcode-page-wrapper, so if the templates live inside it
-  // they would be wiped before anyone could clone them.
+  // Pristine copies of each template's page + label, taken ONCE at init,
+  // before render() starts emptying the .barcode-page-wrapper elements.
   const sources = {};
 
   function getSource(templateId) {
@@ -83,33 +92,166 @@ console.log("YOUOK AAAA");
       TEMPLATES[templateId] ||
       TEMPLATES.standard;
 
-    if (sources[config.card]) {
-      return sources[config.card];
+    if (sources[config.panel]) {
+      return sources[config.panel];
     }
 
-    const found =
-      document.querySelector(
-        config.card + ':not(.barcode-card)'
-      );
+    const panel =
+      document.querySelector(config.panel);
 
-    if (!found) {
+    if (!panel) {
       return null;
     }
 
-    const copy =
-      found.cloneNode(true);
+    const page =
+      panel.querySelector(
+        '.barcode-page:not([data-generated])'
+      );
 
-    copy.removeAttribute('id');
+    if (!page) {
+      return null;
+    }
 
-    sources[config.card] = copy;
+    const label =
+      page.querySelector(
+        LABEL + ':not(.barcode-card)'
+      );
 
-    return copy;
+    if (!label) {
+      return null;
+    }
+
+    const pageCopy =
+      page.cloneNode(true);
+
+    const labelCopy =
+      label.cloneNode(true);
+
+    // avoid duplicate ids once these get cloned repeatedly
+    pageCopy.removeAttribute('id');
+    labelCopy.removeAttribute('id');
+
+    pageCopy
+      .querySelectorAll('[id]')
+      .forEach(e => e.removeAttribute('id'));
+
+    labelCopy
+      .querySelectorAll('[id]')
+      .forEach(e => e.removeAttribute('id'));
+
+    sources[config.panel] = {
+      page: pageCopy,
+      label: labelCopy
+    };
+
+    return sources[config.panel];
 
   }
 
   function cacheSources() {
 
-    Object.keys(TEMPLATES).forEach(getSource);
+    Object.keys(TEMPLATES).forEach(
+      id => getSource(id)
+    );
+
+  }
+
+  function describe(el) {
+
+    const cs =
+      getComputedStyle(el);
+
+    const cls =
+      typeof el.className === 'string' &&
+      el.className.trim()
+        ? '.' + el.className.trim().split(/\s+/).join('.')
+        : '';
+
+    return (
+      el.tagName.toLowerCase() + cls +
+      '  [display:' + cs.display +
+      ' visibility:' + cs.visibility +
+      ' opacity:' + cs.opacity +
+      ' height:' +
+      Math.round(el.getBoundingClientRect().height) +
+      'px]'
+    );
+
+  }
+
+  // Prints one console group showing what the page looks like.
+  // Runs automatically after a template is picked; also: MTWBarcodeTool.diagnose()
+  function diagnose() {
+
+    console.group('[barcode] diagnose');
+
+    console.log('elements found:', {
+      panel: !!els.panel,
+      pages: !!els.pages,
+      left: !!els.left,
+      menu: !!els.menu,
+      dropdown: !!els.dropdown
+    });
+
+    Object.entries(TEMPLATES).forEach(
+      ([id, t]) => {
+
+        const panel =
+          document.querySelector(t.panel);
+
+        console.log(
+          id + '  ' + t.panel,
+          '| panel elements:',
+          document.querySelectorAll(t.panel).length,
+          '| page+label cached:',
+          !!sources[t.panel],
+          '| cards:',
+          state.cards.filter(c => c.template === id).length,
+          '| generated pages:',
+          panel
+            ? panel.querySelectorAll('.barcode-page[data-generated]').length
+            : 0,
+          '| panel display:',
+          panel
+            ? getComputedStyle(panel).display
+            : 'n/a'
+        );
+
+      }
+    );
+
+    const labels =
+      els.panel
+        ? els.panel.querySelectorAll('.barcode-card')
+        : [];
+
+    console.log(
+      'labels rendered (.barcode-card):',
+      labels.length
+    );
+
+    const probe =
+      labels[0] || els.panel;
+
+    if (probe) {
+
+      console.log(
+        'chain from ' +
+        (labels[0] ? 'first label' : '.barcode-label-panels') +
+        ' up to <html> (look for display:none or height:0):'
+      );
+
+      for (
+        let n = probe;
+        n && n !== document.documentElement;
+        n = n.parentElement
+      ) {
+        console.log('   ' + describe(n));
+      }
+
+    }
+
+    console.groupEnd();
 
   }
 
@@ -120,29 +262,15 @@ console.log("YOUOK AAAA");
     if (!el) return;
 
     if (getComputedStyle(el).display === 'none') {
+
+      console.log(
+        '[barcode] forcing visible:',
+        el.className || el.tagName
+      );
+
       el.style.setProperty('display', display, 'important');
+
     }
-
-  }
-
-  function unhideRendered() {
-
-    if (!els.pages) return;
-
-    unhide(els.pages, 'block');
-
-    els.pages
-      .querySelectorAll('.barcode-page')
-      .forEach(page => {
-
-        unhide(page, 'block');
-        unhide(page.firstElementChild, 'grid');
-
-      });
-
-    els.pages
-      .querySelectorAll('.barcode-card')
-      .forEach(card => unhide(card, 'block'));
 
   }
 
@@ -189,18 +317,18 @@ console.log("YOUOK AAAA");
 
   }
 
+  // .barcode-label-panels is hidden in Webflow (display:none), so showing it
+  // has to be done explicitly.
   function openBarcodePanel() {
 
     if (!els.panel) return;
 
     els.panel.classList.add('open');
 
-    // Clear any inline display we may have set earlier
-    els.panel.style.display = '';
+    els.panel.style.removeProperty('display');
 
-    // If a stylesheet (e.g. a Webflow class) is still hiding it, force it visible
     if (getComputedStyle(els.panel).display === 'none') {
-      els.panel.style.display = 'flex'; // use 'block' if your layout isn't flex
+      els.panel.style.setProperty('display', 'block', 'important');
     }
 
   }
@@ -210,6 +338,8 @@ console.log("YOUOK AAAA");
     if (!els.panel) return;
 
     els.panel.classList.remove('open');
+
+    els.panel.style.removeProperty('display');
 
   }
 
@@ -255,6 +385,13 @@ console.log("YOUOK AAAA");
 
       .barcode-populate {
         font-family: 'IDAutomationHC39M', monospace;
+      }
+
+      .barcode-populate-auto {
+        display: block;
+        text-align: center;
+        line-height: 1.1;
+        white-space: nowrap;
       }
 
       /* ---- edit panel (mirrors the promo tool's panel) ---- */
@@ -572,10 +709,28 @@ console.log("YOUOK AAAA");
         '.text-input-subtext'
       );
 
-    const barcode =
+    let barcode =
       card.querySelector(
         '.barcode-populate'
       );
+
+    // The Webflow label only has a header + subtext. If there's no
+    // .barcode-populate element, add one so the barcode can render.
+    // (Add a Text Block with class "barcode-populate" inside
+    // .barcode-text-input-wrapper in Webflow to control its placement.)
+    if (!barcode) {
+
+      barcode =
+        document.createElement('div');
+
+      barcode.className =
+        'barcode-populate barcode-populate-auto';
+
+      card.appendChild(
+        barcode
+      );
+
+    }
 
     if (header) {
 
@@ -613,20 +768,14 @@ console.log("YOUOK AAAA");
 
   function createCard(data) {
 
-    const config =
-      TEMPLATES[data.template] ||
-      TEMPLATES.standard;
+    const src =
+      getSource(data.template);
 
-    const source =
-      getSource(
-        data.template
-      );
-
-    if (!source) {
+    if (!src) {
 
       console.warn(
-        'Barcode template not found:',
-        config.card
+        '[barcode] template not found for:',
+        data.template
       );
 
       return null;
@@ -634,7 +783,7 @@ console.log("YOUOK AAAA");
     }
 
     const card =
-      source.cloneNode(true);
+      src.label.cloneNode(true);
 
     card.classList.add(
       'barcode-card'
@@ -645,11 +794,6 @@ console.log("YOUOK AAAA");
 
     card.dataset.barcodeTemplate =
       data.template;
-
-    card.style.display =
-      'block';
-
-    card.removeAttribute('id');
 
     populateCard(
       card,
@@ -682,25 +826,6 @@ console.log("YOUOK AAAA");
 
   }
 
-  function createGrid(template) {
-
-    const config =
-      TEMPLATES[template] ||
-      TEMPLATES.standard;
-
-    const grid =
-      document.createElement('div');
-
-    grid.className =
-      config.grid.replace('.', '');
-
-    grid.dataset.barcodeTemplate =
-      template;
-
-    return grid;
-
-  }
-
   function chunk(cards, size) {
 
     const pages = [];
@@ -721,102 +846,156 @@ console.log("YOUOK AAAA");
 
   }
 
-  function render() {
+  // Builds the pages for ONE template inside that template's own panel
+  // (e.g. .standard-barcode) and then un-hides that panel.
+  function renderTemplate(id) {
 
-    if (!els.pages) {
+    const config =
+      TEMPLATES[id];
+
+    const panel =
+      document.querySelector(config.panel);
+
+    if (!panel) {
       return;
     }
 
-    els.pages.innerHTML = '';
+    const cards =
+      state.cards.filter(
+        c => c.template === id
+      );
 
-    if (!state.cards.length) {
+    const wrapper =
+      panel.querySelector('.barcode-page-wrapper') ||
+      panel;
+
+    // No labels for this template: drop generated pages and let the
+    // panel go back to its hidden Webflow state
+    if (!cards.length) {
+
+      wrapper
+        .querySelectorAll('.barcode-page[data-generated]')
+        .forEach(p => p.remove());
+
+      panel.style.removeProperty('display');
+
       return;
+
     }
 
-    const byTemplate = {};
+    const src =
+      getSource(id);
 
-    state.cards.forEach(card => {
+    if (!src) {
 
-      if (!byTemplate[card.template]) {
-        byTemplate[card.template] = [];
+      console.warn(
+        '[barcode] cannot render — template panel/page/label not found:',
+        config.panel,
+        '(needs ' + config.panel +
+        ' > .barcode-page > ' + config.grid +
+        ' > ' + LABEL + ')'
+      );
+
+      return;
+
+    }
+
+    wrapper.innerHTML = '';
+
+    chunk(
+      cards,
+      config.capacity
+    ).forEach(group => {
+
+      const page =
+        src.page.cloneNode(true);
+
+      page.dataset.generated =
+        'true';
+
+      const grid =
+        page.querySelector(config.grid) ||
+        page.querySelector('[class*="-grid"]');
+
+      if (!grid) {
+
+        console.warn(
+          '[barcode] grid not found in page:',
+          config.grid
+        );
+
+        return;
+
       }
 
-      byTemplate[card.template].push(card);
+      grid.innerHTML = '';
+
+      group.forEach(data => {
+
+        const card =
+          createCard(data);
+
+        if (card) {
+          grid.appendChild(card);
+        }
+
+      });
+
+      wrapper.appendChild(page);
+
+      // Now connected: make sure nothing is still display:none
+      unhide(wrapper, 'block');
+      unhide(page, 'block');
+      unhide(grid, 'grid');
+
+      grid
+        .querySelectorAll('.barcode-card')
+        .forEach(c => unhide(c, 'block'));
 
     });
 
-    Object.entries(
-      byTemplate
-    ).forEach(
-      ([template, cards]) => {
+    // THE template switch: show this template's panel
+    panel.style.setProperty('display', 'block', 'important');
 
-        const config =
-          TEMPLATES[template] ||
-          TEMPLATES.standard;
+  }
 
-        const groups =
-          chunk(
-            cards,
-            config.capacity
-          );
+  function render() {
 
-        groups.forEach(group => {
+    // If the dashboard replaced/moved the tool's DOM, re-grab fresh references
+    if (!els.panel || !els.panel.isConnected) {
+      cache();
+    }
 
-          const page =
-            document.createElement('div');
+    if (!els.panel) {
+      return;
+    }
 
-          page.className =
-            'barcode-page';
+    Object.keys(TEMPLATES).forEach(renderTemplate);
 
-          page.dataset.barcodeTemplate =
-            template;
-
-          const grid =
-            createGrid(template);
-
-          group.forEach(cardData => {
-
-            const card =
-              createCard(cardData);
-
-            if (card) {
-              grid.appendChild(card);
-            }
-
-          });
-
-          page.appendChild(grid);
-
-          els.pages.appendChild(page);
-
-        });
-
-      }
-    );
-
-    unhideRendered();
+    if (!state.cards.length) {
+      closeBarcodePanel();
+    }
 
   }
 
   function live(data) {
 
-    if (!els.pages) {
+    if (!els.panel) {
       return;
     }
 
-    const matches =
-      els.pages.querySelectorAll(
+    els.panel
+      .querySelectorAll(
         `[data-card-id="${data.id}"]`
-      );
+      )
+      .forEach(card => {
 
-    matches.forEach(card => {
+        populateCard(
+          card,
+          data
+        );
 
-      populateCard(
-        card,
-        data
-      );
-
-    });
+      });
 
   }
 
@@ -1332,6 +1511,8 @@ console.log("YOUOK AAAA");
               selectedTemplate
           });
 
+        setTimeout(diagnose, 50);
+
         closeDropdown();
 
         // openEdit() also opens the barcode panel
@@ -1372,31 +1553,37 @@ console.log("YOUOK AAAA");
 
   function preparePrint() {
 
-    if (!els.pages) {
+    if (!els.panel) {
       return;
     }
 
-    let node =
-      els.pages;
+    els.panel
+      .querySelectorAll('.barcode-page-wrapper')
+      .forEach(wrapper => {
 
-    while (node) {
+        let node =
+          wrapper;
 
-      node.style.overflow =
-        'visible';
+        while (node) {
 
-      node.style.height =
-        'auto';
+          node.style.overflow =
+            'visible';
 
-      node.style.maxHeight =
-        'none';
+          node.style.height =
+            'auto';
 
-      node.style.transform =
-        'none';
+          node.style.maxHeight =
+            'none';
 
-      node =
-        node.parentElement;
+          node.style.transform =
+            'none';
 
-    }
+          node =
+            node.parentElement;
+
+        }
+
+      });
 
   }
 
@@ -1555,7 +1742,8 @@ console.log("YOUOK AAAA");
     deleteCard: remove,
     render,
     openEdit,
-    hideEdit
+    hideEdit,
+    diagnose
   };
 
 })();
