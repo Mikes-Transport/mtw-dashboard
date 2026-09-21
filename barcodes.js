@@ -14,7 +14,7 @@ grid: '.barcode-standard-grid',
 capacity: 2
 },
 
-```
+
 small: {
   name: 'x4 Label Template',
   panel: '.small-barcode',
@@ -42,7 +42,7 @@ xlarge: {
   grid: '.barcode-xlarge-grid',
   capacity: 30
 }
-```
+
 
 };
 
@@ -62,11 +62,11 @@ const DROPDOWN_OPEN_CLASS = 'barcode-dropdown-open';
   */
   const TEMPLATE_DEFAULTS = {
 
-```
-standard: {
-```
 
-```
+standard: {
+
+
+
   partNumberSize: 130,
   subtextSize: 43,
   barcodeSize: 50
@@ -95,7 +95,7 @@ xlarge: {
   subtextSize: 10,
   barcodeSize: 13
 }
-```
+
 
 };
 
@@ -122,18 +122,18 @@ const sources = {};
 
 function getTemplateDefaults(template) {
 
-```
+
 return (
   TEMPLATE_DEFAULTS[template] ||
   TEMPLATE_DEFAULTS.standard
 );
-```
+
 
 }
 
 function getSource(templateId) {
 
-```
+
 const config =
   TEMPLATES[templateId] ||
   TEMPLATES.standard;
@@ -194,23 +194,23 @@ sources[config.panel] = {
 };
 
 return sources[config.panel];
-```
+
 
 }
 
 function cacheSources() {
 
-```
+
 Object.keys(TEMPLATES).forEach(
   id => getSource(id)
 );
-```
+
 
 }
 
 function describe(el) {
 
-```
+
 const cs =
   getComputedStyle(el);
 
@@ -238,13 +238,13 @@ return (
   ) +
   'px]'
 );
-```
+
 
 }
 
 function diagnose() {
 
-```
+
 console.group('[barcode] diagnose');
 
 console.log(
@@ -352,13 +352,13 @@ if (probe) {
 }
 
 console.groupEnd();
-```
+
 
 }
 
 function unhide(el, display) {
 
-```
+
 if (!el) return;
 
 if (
@@ -373,13 +373,13 @@ if (
   );
 
 }
-```
+
 
 }
 
 function findDropdown() {
 
-```
+
 const drop =
   $('#barcode-drop');
 
@@ -408,13 +408,13 @@ return (
   ) ||
   $('.db-list-dropdown-wrapper')
 );
-```
+
 
 }
 
 function cache() {
 
-```
+
 els.panel =
   $('.barcode-label-panels');
 
@@ -444,13 +444,13 @@ els.left =
 
 els.menu =
   $('.db-menu-list');
-```
+
 
 }
 
 function openBarcodePanel() {
 
-```
+
 if (!els.panel) return;
 
 els.panel.classList.add('open');
@@ -472,13 +472,13 @@ if (
   );
 
 }
-```
+
 
 }
 
 function closeBarcodePanel() {
 
-```
+
 if (!els.panel) return;
 
 els.panel.classList.remove('open');
@@ -486,13 +486,13 @@ els.panel.classList.remove('open');
 els.panel.style.removeProperty(
   'display'
 );
-```
+
 
 }
 
 function loadBarcodeFont(index = 0) {
 
-```
+
 if (
   typeof FontFace === 'undefined' ||
   !document.fonts
@@ -561,13 +561,13 @@ face
 
     }
   );
-```
+
 
 }
 
 function injectStyles() {
 
-```
+
 if ($('#barcode-tool-styles')) {
   return;
 }
@@ -841,13 +841,13 @@ style.textContent = `
 document.head.appendChild(
   style
 );
-```
+
 
 }
 
 function cardData(data = {}) {
 
-```
+
 counter++;
 
 const template =
@@ -895,24 +895,24 @@ return {
     defaults.barcodeSize
 
 };
-```
+
 
 }
 
 function get(id) {
 
-```
+
 return state.cards.find(
   card =>
     card.id === id
 );
-```
+
 
 }
 
 function add(data = {}) {
 
-```
+
 const card =
   cardData(data);
 
@@ -926,13 +926,13 @@ state.current =
 render();
 
 return card;
-```
+
 
 }
 
 function remove(id) {
 
-```
+
 const deleted =
   get(id);
 
@@ -1004,24 +1004,24 @@ if (editing === id) {
 }
 
 render();
-```
+
 
 }
 
 function cleanPartNumber(value) {
 
-```
+
 return String(value || '')
   .trim()
   .replace(/^#/, '')
   .trim();
-```
+
 
 }
 
 function barcodeValue(value) {
 
-```
+
 const clean =
   cleanPartNumber(value);
 
@@ -1030,7 +1030,7 @@ if (!clean) {
 }
 
 return `*${clean}*`;
-```
+
 
 }
 
@@ -1054,11 +1054,11 @@ return `*${clean}*`;
   template
   ) {
 
-```
-let text =
-```
 
-```
+let text =
+
+
+
   String(value ?? '')
     .replace(
       /[\r\n\t]+/g,
@@ -1088,7 +1088,7 @@ if (
 }
 
 return text;
-```
+
 
 }
 
@@ -1097,7 +1097,7 @@ card,
 data
 ) {
 
-```
+
 const header =
   card.querySelector(
     '.text-input-header > *'
@@ -1213,13 +1213,13 @@ if (barcode) {
     'border-box';
 
 }
-```
+
 
 }
 
 function createCard(data) {
 
-```
+
 const src =
   getSource(
     data.template
@@ -1283,7 +1283,7 @@ card.appendChild(
 );
 
 return card;
-```
+
 
 }
 
@@ -1292,7 +1292,7 @@ cards,
 size
 ) {
 
-```
+
 const pages = [];
 
 for (
@@ -1311,13 +1311,13 @@ for (
 }
 
 return pages;
-```
+
 
 }
 
 function renderTemplate(id) {
 
-```
+
 const config =
   TEMPLATES[id];
 
@@ -1474,13 +1474,13 @@ panel.style.setProperty(
   'block',
   'important'
 );
-```
+
 
 }
 
 function render() {
 
-```
+
 if (
   !els.panel ||
   !els.panel.isConnected
@@ -1503,13 +1503,13 @@ Object.keys(
 if (!state.current) {
   closeBarcodePanel();
 }
-```
+
 
 }
 
 function live(data) {
 
-```
+
 if (!els.panel) {
   return;
 }
@@ -1528,7 +1528,7 @@ els.panel
 
     }
   );
-```
+
 
 }
 
@@ -1538,7 +1538,7 @@ value,
 callback
 ) {
 
-```
+
 const wrap =
   document.createElement(
     'div'
@@ -1586,7 +1586,7 @@ wrap.append(
 );
 
 return wrap;
-```
+
 
 }
 
@@ -1596,7 +1596,7 @@ value,
 callback
 ) {
 
-```
+
 const wrap =
   document.createElement(
     'div'
@@ -1647,7 +1647,7 @@ wrap.append(
 );
 
 return wrap;
-```
+
 
 }
 
@@ -1656,7 +1656,7 @@ title,
 children
 ) {
 
-```
+
 const s =
   document.createElement(
     'div'
@@ -1686,7 +1686,7 @@ children.forEach(
 );
 
 return s;
-```
+
 
 }
 
@@ -1696,7 +1696,7 @@ className,
 onClick
 ) {
 
-```
+
 const b =
   document.createElement(
     'button'
@@ -1715,7 +1715,7 @@ b.onclick =
   onClick;
 
 return b;
-```
+
 
 }
 
@@ -1723,7 +1723,7 @@ function buildEditPanel(
 card
 ) {
 
-```
+
 const panel =
   document.createElement(
     'div'
@@ -1973,13 +1973,13 @@ panel.appendChild(
 );
 
 return panel;
-```
+
 
 }
 
 function openEdit(card) {
 
-```
+
 if (!card) {
   return;
 }
@@ -2038,13 +2038,13 @@ requestAnimationFrame(
 
   }
 );
-```
+
 
 }
 
 function hideEdit() {
 
-```
+
 editing = null;
 
 [
@@ -2081,13 +2081,13 @@ if (els.menu) {
     '';
 
 }
-```
+
 
 }
 
 function selectTemplate(id) {
 
-```
+
 if (!TEMPLATES[id]) {
   return;
 }
@@ -2114,7 +2114,7 @@ if (editing) {
 render();
 
 openBarcodePanel();
-```
+
 
 }
 
@@ -2122,7 +2122,7 @@ function createDropdown(
 wrapper
 ) {
 
-```
+
 if (!wrapper) {
   return;
 }
@@ -2210,13 +2210,13 @@ wrapper.addEventListener(
 
 wrapper.dataset.loaded =
   'true';
-```
+
 
 }
 
 function closeDropdown() {
 
-```
+
 if (!els.dropdown) {
   return;
 }
@@ -2224,13 +2224,13 @@ if (!els.dropdown) {
 els.dropdown.classList.remove(
   DROPDOWN_OPEN_CLASS
 );
-```
+
 
 }
 
 function toggleDropdown() {
 
-```
+
 if (!els.dropdown) {
   return;
 }
@@ -2238,13 +2238,13 @@ if (!els.dropdown) {
 els.dropdown.classList.toggle(
   DROPDOWN_OPEN_CLASS
 );
-```
+
 
 }
 
 function preparePrint() {
 
-```
+
 const old =
   document.getElementById(
     'barcode-print-root'
@@ -2337,13 +2337,13 @@ document.body.appendChild(
 );
 
 return printRoot;
-```
+
 
 }
 
 function parseCSV(text) {
 
-```
+
 const rows = [];
 
 let row = [];
@@ -2507,7 +2507,7 @@ return rows.map(
 
   }
 );
-```
+
 
 }
 
@@ -2525,11 +2525,11 @@ return rows.map(
   */
   function importCSV() {
 
-```
-const input =
-```
 
-```
+const input =
+
+
+
   document.createElement(
     'input'
   );
@@ -2738,13 +2738,13 @@ input.addEventListener(
 );
 
 input.click();
-```
+
 
 }
 
 function init() {
 
-```
+
 cache();
 
 if (
@@ -2923,7 +2923,7 @@ createDropdown(
 );
 
 render();
-```
+
 
 }
 
@@ -2931,7 +2931,7 @@ document.addEventListener(
 'db-tool-open',
 function (e) {
 
-```
+
   if (
     e.detail?.id !== 'barcodes'
   ) {
@@ -2943,7 +2943,7 @@ function (e) {
   init();
 
 }
-```
+
 
 );
 
@@ -2952,25 +2952,25 @@ document.readyState ===
 'loading'
 ) {
 
-```
+
 document.addEventListener(
   'DOMContentLoaded',
   init,
   { once: true }
 );
-```
+
 
 } else {
 
-```
+
 init();
-```
+
 
 }
 
 window.MTWBarcodeTool = {
 
-```
+
 state,
 
 addCard:
@@ -2993,7 +2993,7 @@ selectTemplate,
 importCSV,
 
 diagnose
-```
+
 
 };
 
