@@ -637,58 +637,73 @@ console.log("YOUOK AAA232");
       /* PRINT */
 
       #barcode-print-root {
-        display: none;
-      }
+  display: none;
+}
 
-      @media print {
+@media print {
 
-        body > *:not(#barcode-print-root) {
-          display: none !important;
-        }
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+  }
 
-        #barcode-print-root {
-          display: block !important;
-          position: static !important;
-          width: 100% !important;
-          height: auto !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          overflow: visible !important;
-        }
+  body > *:not(#barcode-print-root) {
+    display: none !important;
+  }
 
-        #barcode-print-root .barcode-page-wrapper {
-          display: block !important;
-          width: 210mm !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          overflow: visible !important;
-        }
+  #barcode-print-root {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
 
-        #barcode-print-root .barcode-page {
-          display: block !important;
-          width: 210mm !important;
-          height: 297mm !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          overflow: hidden !important;
-          break-after: page;
-          page-break-after: always;
-        }
+  #barcode-print-root .barcode-page {
+    display: block !important;
+    position: relative !important;
 
-        #barcode-print-root .barcode-page:last-child {
-          break-after: auto;
-          page-break-after: auto;
-        }
+    width: 210mm !important;
+    height: 297mm !important;
 
-        #barcode-print-root .barcode-card-overlay {
-          display: none !important;
-        }
+    margin: 0 !important;
+    padding: 0 !important;
 
-        #barcode-print-root .barcode-edit-panel {
-          display: none !important;
-        }
+    overflow: hidden !important;
 
-      }
+    break-after: page;
+    page-break-after: always;
+
+    box-sizing: border-box !important;
+  }
+
+  #barcode-print-root .barcode-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  /*
+   * The print copy is already the actual barcode-page,
+   * so don't hide its contents.
+   */
+  #barcode-print-root .barcode-page * {
+    visibility: visible !important;
+  }
+
+  /*
+   * Only remove things that are specifically interactive.
+   */
+  #barcode-print-root .barcode-card-overlay,
+  #barcode-print-root .barcode-edit-panel {
+    display: none !important;
+  }
+
+}
 
     `;
 
@@ -1818,37 +1833,47 @@ console.log("YOUOK AAA232");
    */
   function preparePrint() {
 
-    if (!els.panel) {
-      return null;
-    }
+  // Remove any previous print copy
+  const old =
+    document.getElementById(
+      'barcode-print-root'
+    );
 
-    const wrapper =
-      els.panel.querySelector(
-        '.barcode-page-wrapper'
-      );
+  if (old) {
+    old.remove();
+  }
 
-    if (!wrapper) {
-      return null;
-    }
+  // Get the actual rendered barcode pages.
+  // These are the pages containing everything the user sees.
+  const pages =
+    document.querySelectorAll(
+      '.barcode-page'
+    );
 
-    const old =
-      document.getElementById(
-        'barcode-print-root'
-      );
+  if (!pages.length) {
 
-    if (old) {
-      old.remove();
-    }
+    console.warn(
+      '[barcode] No .barcode-page elements found to print.'
+    );
 
-    const printRoot =
-      document.createElement('div');
+    return null;
 
-    printRoot.id =
-      'barcode-print-root';
+  }
+
+  const printRoot =
+    document.createElement('div');
+
+  printRoot.id =
+    'barcode-print-root';
+
+  // Clone EVERY actual barcode-page.
+  pages.forEach(page => {
 
     const clone =
-      wrapper.cloneNode(true);
+      page.cloneNode(true);
 
+    // Remove editing/click overlays only.
+    // Everything else inside .barcode-page stays.
     clone
       .querySelectorAll(
         '.barcode-card-overlay, .barcode-edit-panel'
@@ -1861,13 +1886,15 @@ console.log("YOUOK AAA232");
       clone
     );
 
-    document.body.appendChild(
-      printRoot
-    );
+  });
 
-    return printRoot;
+  document.body.appendChild(
+    printRoot
+  );
 
-  }
+  return printRoot;
+
+}
 
   function init() {
 
