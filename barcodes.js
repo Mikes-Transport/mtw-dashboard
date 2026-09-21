@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("YOUOK");
+console.log("YOUOK AAAA");
 
 (function () {
 
@@ -72,6 +72,80 @@ console.log("YOUOK");
 
   const els = {};
 
+  // Pristine copies of the hidden template cards, taken ONCE at init.
+  // render() empties .barcode-page-wrapper, so if the templates live inside it
+  // they would be wiped before anyone could clone them.
+  const sources = {};
+
+  function getSource(templateId) {
+
+    const config =
+      TEMPLATES[templateId] ||
+      TEMPLATES.standard;
+
+    if (sources[config.card]) {
+      return sources[config.card];
+    }
+
+    const found =
+      document.querySelector(
+        config.card + ':not(.barcode-card)'
+      );
+
+    if (!found) {
+      return null;
+    }
+
+    const copy =
+      found.cloneNode(true);
+
+    copy.removeAttribute('id');
+
+    sources[config.card] = copy;
+
+    return copy;
+
+  }
+
+  function cacheSources() {
+
+    Object.keys(TEMPLATES).forEach(getSource);
+
+  }
+
+  // If an element computes to display:none (e.g. a Webflow class it shares),
+  // force it visible. Only looks at the element itself, never its ancestors.
+  function unhide(el, display) {
+
+    if (!el) return;
+
+    if (getComputedStyle(el).display === 'none') {
+      el.style.setProperty('display', display, 'important');
+    }
+
+  }
+
+  function unhideRendered() {
+
+    if (!els.pages) return;
+
+    unhide(els.pages, 'block');
+
+    els.pages
+      .querySelectorAll('.barcode-page')
+      .forEach(page => {
+
+        unhide(page, 'block');
+        unhide(page.firstElementChild, 'grid');
+
+      });
+
+    els.pages
+      .querySelectorAll('.barcode-card')
+      .forEach(card => unhide(card, 'block'));
+
+  }
+
   // Find the dropdown wrapper that belongs to #barcode-drop
   // (not just the first .db-list-dropdown-wrapper on the page)
   function findDropdown() {
@@ -107,6 +181,11 @@ console.log("YOUOK");
     els.dropdown = findDropdown();
 
     els.pages = $('.barcode-page-wrapper');
+
+    // Sidebar container + menu list. The edit panel mounts here,
+    // exactly like the promo tool's edit panel does.
+    els.left = $('.db-left-content');
+    els.menu = $('.db-menu-list');
 
   }
 
@@ -178,40 +257,158 @@ console.log("YOUOK");
         font-family: 'IDAutomationHC39M', monospace;
       }
 
-      .barcode-edit-panel {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
+      /* ---- edit panel (mirrors the promo tool's panel) ---- */
+
+      .db-left-content.editing {
+        width: 100% !important;
+        height: calc(100vh - 120px) !important;
+        min-height: 0 !important;
+        max-height: calc(100vh - 120px) !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overscroll-behavior: contain !important;
       }
 
-      .barcode-edit-content {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
+      .db-left-content.editing .barcode-edit-panel {
+        flex: 1 1 auto !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        padding-right: 10px !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: thin;
+        touch-action: pan-y;
       }
 
-      .barcode-edit-field {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
+      .barcode-edit-panel::-webkit-scrollbar {
+        width: 6px;
       }
 
-      .barcode-edit-field span {
+      .barcode-edit-panel::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .barcode-edit-panel::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
+      }
+
+      .barcode-edit-panel::-webkit-scrollbar-thumb:hover {
+        background: #aaa;
+      }
+
+      .barcode-edit-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex: 0 0 auto;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .barcode-edit-panel-title {
+        font-weight: 700;
+        font-size: 18px;
+      }
+
+      .barcode-edit-panel-close {
+        border: 0;
+        background: none;
+        font-size: 24px;
+        cursor: pointer;
+        line-height: 1;
+      }
+
+      .barcode-edit-section {
+        border-top: 1px solid #eee;
+        padding-top: 16px;
+        margin-top: 16px;
+      }
+
+      .barcode-edit-section-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+
+      .barcode-field-group {
+        margin-bottom: 12px;
+      }
+
+      .barcode-field-label,
+      .barcode-control-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: #444;
+        margin-bottom: 5px;
+      }
+
+      .barcode-field-input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font: inherit;
         font-size: 12px;
       }
 
-      .barcode-edit-field input {
-        width: 100%;
-        box-sizing: border-box;
-      }
-
-      .barcode-edit-footer {
+      .barcode-control-row {
         display: flex;
+        align-items: center;
+        justify-content: space-between;
         gap: 10px;
+        margin-bottom: 8px;
       }
 
-      .barcode-edit-footer button {
+      .barcode-control {
+        min-width: 120px;
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background: #fff;
+        font: inherit;
+        font-size: 11px;
+      }
+
+      .barcode-number {
+        width: 80px;
+        min-width: 80px;
+      }
+
+      .barcode-edit-panel-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        margin-top: 18px;
+        padding-top: 14px;
+        border-top: 1px solid #eee;
+      }
+
+      .barcode-edit-button {
+        border: 1px solid #ccc;
+        background: #fff;
+        border-radius: 5px;
+        padding: 8px 12px;
         cursor: pointer;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .barcode-edit-button.primary {
+        background: #111;
+        color: #fff;
+        border-color: #111;
       }
 
       @media print {
@@ -421,8 +618,8 @@ console.log("YOUOK");
       TEMPLATES.standard;
 
     const source =
-      document.querySelector(
-        config.card
+      getSource(
+        data.template
       );
 
     if (!source) {
@@ -597,6 +794,8 @@ console.log("YOUOK");
       }
     );
 
+    unhideRendered();
+
   }
 
   function live(data) {
@@ -621,50 +820,132 @@ console.log("YOUOK");
 
   }
 
-  function createField(
-    label,
-    value,
-    type,
-    callback
-  ) {
+  function textField(label, value, callback) {
 
-    const wrapper =
+    const wrap =
+      document.createElement('div');
+
+    wrap.className =
+      'barcode-field-group';
+
+    const l =
       document.createElement('label');
 
-    wrapper.className =
-      'barcode-edit-field';
+    l.className =
+      'barcode-field-label';
 
-    const title =
-      document.createElement('span');
-
-    title.textContent =
+    l.textContent =
       label;
 
     const input =
       document.createElement('input');
 
-    input.type = type;
-    input.value = value ?? '';
+    input.className =
+      'barcode-field-input';
 
-    if (type === 'number') {
-      input.min = '1';
-    }
+    input.type =
+      'text';
+
+    input.value =
+      value ?? '';
 
     input.addEventListener(
       'input',
-      function () {
-
-        callback(
-          input.value
-        );
-
-      }
+      () => callback(input.value)
     );
 
-    wrapper.appendChild(title);
-    wrapper.appendChild(input);
+    wrap.append(l, input);
 
-    return wrapper;
+    return wrap;
+
+  }
+
+  function numberField(label, value, callback) {
+
+    const wrap =
+      document.createElement('div');
+
+    wrap.className =
+      'barcode-control-row';
+
+    const l =
+      document.createElement('label');
+
+    l.className =
+      'barcode-control-label';
+
+    l.textContent =
+      label;
+
+    const input =
+      document.createElement('input');
+
+    input.className =
+      'barcode-control barcode-number';
+
+    input.type =
+      'number';
+
+    input.min =
+      '1';
+
+    input.value =
+      value ?? '';
+
+    input.addEventListener(
+      'input',
+      () => callback(input.value)
+    );
+
+    wrap.append(l, input);
+
+    return wrap;
+
+  }
+
+  function section(title, children) {
+
+    const s =
+      document.createElement('div');
+
+    s.className =
+      'barcode-edit-section';
+
+    const h =
+      document.createElement('div');
+
+    h.className =
+      'barcode-edit-section-title';
+
+    h.textContent =
+      title;
+
+    s.appendChild(h);
+
+    children.forEach(x => s.appendChild(x));
+
+    return s;
+
+  }
+
+  function button(label, className, onClick) {
+
+    const b =
+      document.createElement('button');
+
+    b.type =
+      'button';
+
+    b.className =
+      className;
+
+    b.textContent =
+      label;
+
+    b.onclick =
+      onClick;
+
+    return b;
 
   }
 
@@ -676,215 +957,207 @@ console.log("YOUOK");
     panel.className =
       'barcode-edit-panel';
 
-    const heading =
-      document.createElement('h3');
+    panel.dataset.cardId =
+      card.id;
 
-    heading.textContent =
-      'Edit Barcode';
-
-    panel.appendChild(
-      heading
-    );
-
-    const content =
+    // ---- header (title + close) ----
+    const header =
       document.createElement('div');
 
-    content.className =
-      'barcode-edit-content';
+    header.className =
+      'barcode-edit-panel-header';
 
-    content.appendChild(
-      createField(
-        'Part Number',
-        card.partNumber,
-        'text',
-        value => {
+    const title =
+      document.createElement('div');
 
-          card.partNumber =
-            value;
+    title.className =
+      'barcode-edit-panel-title';
 
-          live(card);
+    title.textContent =
+      'Edit Barcode';
 
-        }
+    header.append(
+      title,
+      button(
+        '×',
+        'barcode-edit-panel-close',
+        hideEdit
       )
     );
 
-    content.appendChild(
-      createField(
-        'Description',
-        card.subtext,
-        'text',
-        value => {
+    panel.appendChild(header);
 
-          card.subtext =
-            value;
-
-          live(card);
-
-        }
-      )
-    );
-
-    content.appendChild(
-      createField(
-        'Part Number Font Size',
-        card.partNumberSize,
-        'number',
-        value => {
-
-          card.partNumberSize =
-            Number(value) ||
-            DEFAULTS.partNumberSize;
-
-          live(card);
-
-        }
-      )
-    );
-
-    content.appendChild(
-      createField(
-        'Description Font Size',
-        card.subtextSize,
-        'number',
-        value => {
-
-          card.subtextSize =
-            Number(value) ||
-            DEFAULTS.subtextSize;
-
-          live(card);
-
-        }
-      )
-    );
-
-    content.appendChild(
-      createField(
-        'Barcode Size',
-        card.barcodeSize,
-        'number',
-        value => {
-
-          card.barcodeSize =
-            Number(value) ||
-            DEFAULTS.barcodeSize;
-
-          live(card);
-
-        }
-      )
-    );
-
+    // ---- content ----
     panel.appendChild(
-      content
+      section(
+        'Content',
+        [
+          textField(
+            'Part Number',
+            card.partNumber,
+            value => {
+
+              card.partNumber =
+                value;
+
+              live(card);
+
+            }
+          ),
+
+          textField(
+            'Description',
+            card.subtext,
+            value => {
+
+              card.subtext =
+                value;
+
+              live(card);
+
+            }
+          )
+        ]
+      )
     );
 
+    // ---- sizes ----
+    panel.appendChild(
+      section(
+        'Size',
+        [
+          numberField(
+            'Part Number Font Size',
+            card.partNumberSize,
+            value => {
+
+              card.partNumberSize =
+                Number(value) ||
+                DEFAULTS.partNumberSize;
+
+              live(card);
+
+            }
+          ),
+
+          numberField(
+            'Description Font Size',
+            card.subtextSize,
+            value => {
+
+              card.subtextSize =
+                Number(value) ||
+                DEFAULTS.subtextSize;
+
+              live(card);
+
+            }
+          ),
+
+          numberField(
+            'Barcode Size',
+            card.barcodeSize,
+            value => {
+
+              card.barcodeSize =
+                Number(value) ||
+                DEFAULTS.barcodeSize;
+
+              live(card);
+
+            }
+          )
+        ]
+      )
+    );
+
+    // ---- footer ----
     const footer =
       document.createElement('div');
 
     footer.className =
-      'barcode-edit-footer';
+      'barcode-edit-panel-footer';
 
-    const reset =
-      document.createElement('button');
+    footer.append(
 
-    reset.type = 'button';
-    reset.textContent = 'Reset';
+      button(
+        'Reset',
+        'barcode-edit-button',
+        () => {
 
-    reset.onclick =
-      function () {
+          card.partNumber =
+            DEFAULTS.partNumber;
 
-        card.partNumber =
-          DEFAULTS.partNumber;
+          card.subtext =
+            DEFAULTS.subtext;
 
-        card.subtext =
-          DEFAULTS.subtext;
+          card.partNumberSize =
+            DEFAULTS.partNumberSize;
 
-        card.partNumberSize =
-          DEFAULTS.partNumberSize;
+          card.subtextSize =
+            DEFAULTS.subtextSize;
 
-        card.subtextSize =
-          DEFAULTS.subtextSize;
+          card.barcodeSize =
+            DEFAULTS.barcodeSize;
 
-        card.barcodeSize =
-          DEFAULTS.barcodeSize;
+          render();
 
-        render();
+          openEdit(card);
 
-        openEdit(card);
+        }
+      ),
 
-      };
+      button(
+        'Copy',
+        'barcode-edit-button',
+        () => {
 
-    const copy =
-      document.createElement('button');
+          const duplicate =
+            add({
+              template:
+                card.template,
 
-    copy.type = 'button';
-    copy.textContent = 'Copy';
+              partNumber:
+                card.partNumber,
 
-    copy.onclick =
-      function () {
+              subtext:
+                card.subtext,
 
-        const duplicate =
-          add({
-            template:
-              card.template,
+              partNumberSize:
+                card.partNumberSize,
 
-            partNumber:
-              card.partNumber,
+              subtextSize:
+                card.subtextSize,
 
-            subtext:
-              card.subtext,
+              barcodeSize:
+                card.barcodeSize
+            });
 
-            partNumberSize:
-              card.partNumberSize,
+          openEdit(duplicate);
 
-            subtextSize:
-              card.subtextSize,
+        }
+      ),
 
-            barcodeSize:
-              card.barcodeSize
-          });
+      button(
+        'Delete',
+        'barcode-edit-button',
+        () => remove(card.id)
+      ),
 
-        openEdit(duplicate);
+      button(
+        'Save',
+        'barcode-edit-button primary',
+        () => {
 
-      };
+          render();
 
-    const removeBtn =
-      document.createElement('button');
+          hideEdit();
 
-    removeBtn.type = 'button';
-    removeBtn.textContent = 'Delete';
-
-    removeBtn.onclick =
-      function () {
-
-        remove(card.id);
-
-      };
-
-    const save =
-      document.createElement('button');
-
-    save.type = 'button';
-    save.textContent = 'Save';
-
-    save.onclick =
-      function () {
-
-        render();
-
-        hideEdit();
-
-      };
-
-    footer.appendChild(reset);
-    footer.appendChild(copy);
-    footer.appendChild(removeBtn);
-    footer.appendChild(save);
-
-    panel.appendChild(
-      footer
+        }
+      )
     );
+
+    panel.appendChild(footer);
 
     return panel;
 
@@ -892,22 +1165,57 @@ console.log("YOUOK");
 
   function openEdit(card) {
 
-    if (!els.panel) {
+    if (!card) {
       return;
     }
 
+    // Same mount point as the promo tool: the left sidebar.
+    // Falls back to the label panel if the sidebar isn't found.
+    const host =
+      els.left ||
+      els.panel;
+
+    if (!host) {
+      return;
+    }
+
+    // Make sure the label preview area is visible
     openBarcodePanel();
 
-    hideEdit();
+    const old =
+      host.querySelector(
+        '.barcode-edit-panel'
+      );
+
+    if (old) {
+      old.remove();
+    }
 
     editing =
       card.id;
 
+    if (els.left) {
+
+      if (els.menu) {
+        els.menu.style.display =
+          'none';
+      }
+
+      els.left.classList.add(
+        'editing'
+      );
+
+    }
+
     const panel =
       buildEditPanel(card);
 
-    els.panel.appendChild(
-      panel
+    host.appendChild(panel);
+
+    requestAnimationFrame(
+      () => {
+        panel.scrollTop = 0;
+      }
     );
 
   }
@@ -916,17 +1224,32 @@ console.log("YOUOK");
 
     editing = null;
 
-    if (!els.panel) {
-      return;
+    [els.left, els.panel].forEach(
+      host => {
+
+        if (!host) return;
+
+        const panel =
+          host.querySelector(
+            '.barcode-edit-panel'
+          );
+
+        if (panel) {
+          panel.remove();
+        }
+
+      }
+    );
+
+    if (els.left) {
+      els.left.classList.remove(
+        'editing'
+      );
     }
 
-    const panel =
-      els.panel.querySelector(
-        '.barcode-edit-panel'
-      );
-
-    if (panel) {
-      panel.remove();
+    if (els.menu) {
+      els.menu.style.display =
+        '';
     }
 
   }
@@ -1098,6 +1421,8 @@ console.log("YOUOK");
     if (!ready) {
 
       ready = true;
+
+      cacheSources();
 
       injectStyles();
 
