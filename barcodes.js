@@ -4,14 +4,6 @@ console.log("YOUOK AAA");
 
 (function () {
 
-  // Webflow structure (per template):
-  //   .barcode-label-panels
-  //     .standard-barcode            <- whole template panel, hidden in Webflow
-  //       .barcode-page-wrapper
-  //         .barcode-page
-  //           .barcode-standard-grid
-  //             .barcode-text-input-wrapper   <- ONE label
-  //           Image
   const LABEL = '.barcode-text-input-wrapper';
 
   const TEMPLATES = {
@@ -51,8 +43,6 @@ console.log("YOUOK AAA");
     }
   };
 
-  // Tried in order. raw.githubusercontent.com is last because it gets
-  // connection-reset on some networks.
   const FONT_URLS = [
     'https://raw.githack.com/Mikes-Transport/mtw-dashboard/main/IDAutomationHC39M%20Free%20Version.ttf',
     'https://rawcdn.githack.com/Mikes-Transport/mtw-dashboard/main/IDAutomationHC39M%20Free%20Version.ttf',
@@ -71,7 +61,7 @@ console.log("YOUOK AAA");
   };
 
   const state = {
-    current: null,   // template currently shown (null = none picked yet)
+    current: null,
     cards: []
   };
 
@@ -82,9 +72,6 @@ console.log("YOUOK AAA");
   const $ = s => document.querySelector(s);
 
   const els = {};
-
-  // Pristine copies of each template's page + label, taken ONCE at init,
-  // before render() starts emptying the .barcode-page-wrapper elements.
   const sources = {};
 
   function getSource(templateId) {
@@ -128,7 +115,6 @@ console.log("YOUOK AAA");
     const labelCopy =
       label.cloneNode(true);
 
-    // avoid duplicate ids once these get cloned repeatedly
     pageCopy.removeAttribute('id');
     labelCopy.removeAttribute('id');
 
@@ -180,30 +166,38 @@ console.log("YOUOK AAA");
 
   }
 
-  // Prints one console group showing what the page looks like.
-  // Runs automatically after a template is picked; also: MTWBarcodeTool.diagnose()
   function diagnose() {
 
     console.group('[barcode] diagnose');
 
-    console.log('current template:', state.current);
+    console.log(
+      'current template:',
+      state.current
+    );
 
     console.log(
       'barcode font faces:',
       document.fonts
         ? [...document.fonts]
-            .filter(f => f.family.replace(/["']/g, '') === 'IDAutomationHC39M')
+            .filter(
+              f =>
+                f.family.replace(/["']/g, '') ===
+                'IDAutomationHC39M'
+            )
             .map(f => f.status)
         : 'document.fonts unavailable'
     );
 
-    console.log('elements found:', {
-      panel: !!els.panel,
-      pages: !!els.pages,
-      left: !!els.left,
-      menu: !!els.menu,
-      dropdown: !!els.dropdown
-    });
+    console.log(
+      'elements found:',
+      {
+        panel: !!els.panel,
+        pages: !!els.pages,
+        left: !!els.left,
+        menu: !!els.menu,
+        dropdown: !!els.dropdown
+      }
+    );
 
     Object.entries(TEMPLATES).forEach(
       ([id, t]) => {
@@ -218,10 +212,14 @@ console.log("YOUOK AAA");
           '| page+label cached:',
           !!sources[t.panel],
           '| cards:',
-          state.cards.filter(c => c.template === id).length,
+          state.cards.filter(
+            c => c.template === id
+          ).length,
           '| generated pages:',
           panel
-            ? panel.querySelectorAll('.barcode-page[data-generated]').length
+            ? panel.querySelectorAll(
+                '.barcode-page[data-generated]'
+              ).length
             : 0,
           '| panel display:',
           panel
@@ -234,7 +232,9 @@ console.log("YOUOK AAA");
 
     const labels =
       els.panel
-        ? els.panel.querySelectorAll('.barcode-card')
+        ? els.panel.querySelectorAll(
+            '.barcode-card'
+          )
         : [];
 
     console.log(
@@ -248,9 +248,7 @@ console.log("YOUOK AAA");
     if (probe) {
 
       console.log(
-        'chain from ' +
-        (labels[0] ? 'first label' : '.barcode-label-panels') +
-        ' up to <html> (look for display:none or height:0):'
+        'chain from first label up to <html>:'
       );
 
       for (
@@ -258,7 +256,9 @@ console.log("YOUOK AAA");
         n && n !== document.documentElement;
         n = n.parentElement
       ) {
-        console.log('   ' + describe(n));
+        console.log(
+          '   ' + describe(n)
+        );
       }
 
     }
@@ -267,41 +267,47 @@ console.log("YOUOK AAA");
 
   }
 
-  // If an element computes to display:none (e.g. a Webflow class it shares),
-  // force it visible. Only looks at the element itself, never its ancestors.
   function unhide(el, display) {
 
     if (!el) return;
 
-    if (getComputedStyle(el).display === 'none') {
+    if (
+      getComputedStyle(el).display === 'none'
+    ) {
 
-      console.log(
-        '[barcode] forcing visible:',
-        el.className || el.tagName
+      el.style.setProperty(
+        'display',
+        display,
+        'important'
       );
-
-      el.style.setProperty('display', display, 'important');
 
     }
 
   }
 
-  // Find the dropdown wrapper that belongs to #barcode-drop
-  // (not just the first .db-list-dropdown-wrapper on the page)
   function findDropdown() {
 
-    const drop = $('#barcode-drop');
+    const drop =
+      $('#barcode-drop');
 
     if (!drop) {
-      return $('.db-list-dropdown-wrapper');
+      return $(
+        '.db-list-dropdown-wrapper'
+      );
     }
 
     return (
-      drop.querySelector('.db-list-dropdown-wrapper') ||
-      drop.closest('.db-list-dropdown-wrapper') ||
+      drop.querySelector(
+        '.db-list-dropdown-wrapper'
+      ) ||
+      drop.closest(
+        '.db-list-dropdown-wrapper'
+      ) ||
       (
         drop.nextElementSibling &&
-        drop.nextElementSibling.matches('.db-list-dropdown-wrapper')
+        drop.nextElementSibling.matches(
+          '.db-list-dropdown-wrapper'
+        )
           ? drop.nextElementSibling
           : null
       ) ||
@@ -312,34 +318,50 @@ console.log("YOUOK AAA");
 
   function cache() {
 
-    els.panel = $('.barcode-label-panels');
+    els.panel =
+      $('.barcode-label-panels');
 
-    els.add = $('.barcode-add-card-button');
-    els.print = $('.barcode-print-card-button');
+    els.add =
+      $('.barcode-add-card-button');
 
-    els.dropdown = findDropdown();
+    els.print =
+      $('.barcode-print-card-button');
 
-    els.pages = $('.barcode-page-wrapper');
+    els.dropdown =
+      findDropdown();
 
-    // Sidebar container + menu list. The edit panel mounts here,
-    // exactly like the promo tool's edit panel does.
-    els.left = $('.db-left-content');
-    els.menu = $('.db-menu-list');
+    els.pages =
+      $('.barcode-page-wrapper');
+
+    els.left =
+      $('.db-left-content');
+
+    els.menu =
+      $('.db-menu-list');
 
   }
 
-  // .barcode-label-panels is hidden in Webflow (display:none), so showing it
-  // has to be done explicitly.
   function openBarcodePanel() {
 
     if (!els.panel) return;
 
     els.panel.classList.add('open');
 
-    els.panel.style.removeProperty('display');
+    els.panel.style.removeProperty(
+      'display'
+    );
 
-    if (getComputedStyle(els.panel).display === 'none') {
-      els.panel.style.setProperty('display', 'block', 'important');
+    if (
+      getComputedStyle(els.panel).display ===
+      'none'
+    ) {
+
+      els.panel.style.setProperty(
+        'display',
+        'block',
+        'important'
+      );
+
     }
 
   }
@@ -350,13 +372,12 @@ console.log("YOUOK AAA");
 
     els.panel.classList.remove('open');
 
-    els.panel.style.removeProperty('display');
+    els.panel.style.removeProperty(
+      'display'
+    );
 
   }
 
-  // Loaded through the FontFace API (instead of a CSS @font-face) so that a
-  // failure shows up in the console instead of silently falling back to
-  // plain text. Tries each URL in FONT_URLS until one works.
   function loadBarcodeFont(index = 0) {
 
     if (
@@ -394,19 +415,23 @@ console.log("YOUOK AAA");
         document.fonts.add(loaded);
 
         console.log(
-          '[barcode] barcode font loaded from ' + url
+          '[barcode] barcode font loaded from ' +
+          url
         );
 
       })
       .catch(err => {
 
         console.warn(
-          '[barcode] barcode font failed from ' + url +
+          '[barcode] barcode font failed from ' +
+          url +
           ' - trying next source.',
           err
         );
 
-        loadBarcodeFont(index + 1);
+        loadBarcodeFont(
+          index + 1
+        );
 
       });
 
@@ -421,11 +446,11 @@ console.log("YOUOK AAA");
     const style =
       document.createElement('style');
 
-    style.id = 'barcode-tool-styles';
+    style.id =
+      'barcode-tool-styles';
 
     style.textContent = `
 
-      /* Template dropdown: closed by default, opened by adding the class */
       .db-list-dropdown-wrapper:not(.${DROPDOWN_OPEN_CLASS})
       .db-list-dropdown-card[data-barcode-template] {
         display: none !important;
@@ -446,8 +471,6 @@ console.log("YOUOK AAA");
         cursor: pointer;
       }
 
-      /* The barcode glyphs are ~3.6em tall, so line-height must stay "normal"
-         or the bars overlap the text above them. */
       .barcode-populate {
         font-family: 'IDAutomationHC39M', monospace !important;
         line-height: normal;
@@ -458,8 +481,6 @@ console.log("YOUOK AAA");
         display: block;
         text-align: center;
       }
-
-      /* ---- edit panel (mirrors the promo tool's panel) ---- */
 
       .db-left-content.editing {
         width: 100% !important;
@@ -613,37 +634,58 @@ console.log("YOUOK AAA");
         border-color: #111;
       }
 
+      /* PRINT */
+
+      #barcode-print-root {
+        display: none;
+      }
+
       @media print {
 
-        .barcode-header-wrapper,
-        .barcode-add-card-wrapper,
-        .barcode-print-card-wrapper,
-        .barcode-card-overlay,
-        .barcode-edit-panel,
-        .db-list-dropdown-wrapper {
+        body > *:not(#barcode-print-root) {
           display: none !important;
         }
 
-        .barcode-page-wrapper {
+        #barcode-print-root {
+          display: block !important;
+          position: static !important;
+          width: 100% !important;
+          height: auto !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          overflow: visible !important;
+        }
+
+        #barcode-print-root .barcode-page-wrapper {
           display: block !important;
           width: 210mm !important;
           margin: 0 !important;
           padding: 0 !important;
+          overflow: visible !important;
         }
 
-        .barcode-page {
+        #barcode-print-root .barcode-page {
+          display: block !important;
           width: 210mm !important;
           height: 297mm !important;
           margin: 0 !important;
           padding: 0 !important;
+          overflow: hidden !important;
           break-after: page;
           page-break-after: always;
-          overflow: hidden !important;
         }
 
-        .barcode-page:last-child {
+        #barcode-print-root .barcode-page:last-child {
           break-after: auto;
           page-break-after: auto;
+        }
+
+        #barcode-print-root .barcode-card-overlay {
+          display: none !important;
+        }
+
+        #barcode-print-root .barcode-edit-panel {
+          display: none !important;
         }
 
       }
@@ -706,7 +748,6 @@ console.log("YOUOK AAA");
 
     state.cards.push(card);
 
-    // a label always lives in the currently shown template
     state.current =
       card.template;
 
@@ -716,12 +757,78 @@ console.log("YOUOK AAA");
 
   }
 
+  /*
+   * DELETE CARD
+   *
+   * Keeps the edit panel open.
+   * Deletes the current card and moves editing to:
+   *   1. The card immediately before it
+   *   2. Otherwise the new first/next card
+   *   3. Otherwise closes if no cards remain
+   */
   function remove(id) {
+
+    const deleted =
+      get(id);
+
+    if (!deleted) {
+      return;
+    }
+
+    const templateCards =
+      state.cards.filter(
+        card =>
+          card.template ===
+          deleted.template
+      );
+
+    const deletedIndex =
+      templateCards.findIndex(
+        card =>
+          card.id === id
+      );
+
+    const previousCard =
+      templateCards[
+        deletedIndex - 1
+      ];
+
+    const nextCard =
+      templateCards[
+        deletedIndex + 1
+      ];
+
+    const replacement =
+      previousCard ||
+      nextCard ||
+      null;
 
     state.cards =
       state.cards.filter(
-        card => card.id !== id
+        card =>
+          card.id !== id
       );
+
+    if (
+      editing === id &&
+      replacement
+    ) {
+
+      state.current =
+        replacement.template;
+
+      render();
+
+      const remaining =
+        get(replacement.id);
+
+      if (remaining) {
+        openEdit(remaining);
+      }
+
+      return;
+
+    }
 
     if (editing === id) {
       hideEdit();
@@ -776,10 +883,6 @@ console.log("YOUOK AAA");
         '.barcode-populate'
       );
 
-    // The Webflow label only has a header + subtext. If there's no
-    // .barcode-populate element, add one so the barcode can render.
-    // (Add a Text Block with class "barcode-populate" inside
-    // .barcode-text-input-wrapper in Webflow to control its placement.)
     if (!barcode) {
 
       barcode =
@@ -899,7 +1002,10 @@ console.log("YOUOK AAA");
     ) {
 
       pages.push(
-        cards.slice(i, i + size)
+        cards.slice(
+          i,
+          i + size
+        )
       );
 
     }
@@ -908,33 +1014,39 @@ console.log("YOUOK AAA");
 
   }
 
-  // Builds the pages for ONE template inside that template's own panel
-  // (e.g. .standard-barcode). Only the CURRENT template is shown; every
-  // other template panel goes back to its hidden Webflow state.
   function renderTemplate(id) {
 
     const config =
       TEMPLATES[id];
 
     const panel =
-      document.querySelector(config.panel);
+      document.querySelector(
+        config.panel
+      );
 
     if (!panel) {
       return;
     }
 
     const wrapper =
-      panel.querySelector('.barcode-page-wrapper') ||
+      panel.querySelector(
+        '.barcode-page-wrapper'
+      ) ||
       panel;
 
-    // Not the selected template: clear its generated pages and hide it again
     if (id !== state.current) {
 
       wrapper
-        .querySelectorAll('.barcode-page[data-generated]')
-        .forEach(p => p.remove());
+        .querySelectorAll(
+          '.barcode-page[data-generated]'
+        )
+        .forEach(
+          p => p.remove()
+        );
 
-      panel.style.removeProperty('display');
+      panel.style.removeProperty(
+        'display'
+      );
 
       return;
 
@@ -946,11 +1058,8 @@ console.log("YOUOK AAA");
     if (!src) {
 
       console.warn(
-        '[barcode] cannot render — template panel/page/label not found:',
-        config.panel,
-        '(needs ' + config.panel +
-        ' > .barcode-page > ' + config.grid +
-        ' > ' + LABEL + ')'
+        '[barcode] cannot render template:',
+        config.panel
       );
 
       return;
@@ -959,15 +1068,18 @@ console.log("YOUOK AAA");
 
     const cards =
       state.cards.filter(
-        c => c.template === id
+        c =>
+          c.template === id
       );
 
     wrapper.innerHTML = '';
 
-    // No labels yet -> one empty page. Nothing is ever auto-filled.
     const groups =
       cards.length
-        ? chunk(cards, config.capacity)
+        ? chunk(
+            cards,
+            config.capacity
+          )
         : [[]];
 
     groups.forEach(group => {
@@ -979,13 +1091,17 @@ console.log("YOUOK AAA");
         'true';
 
       const grid =
-        page.querySelector(config.grid) ||
-        page.querySelector('[class*="-grid"]');
+        page.querySelector(
+          config.grid
+        ) ||
+        page.querySelector(
+          '[class*="-grid"]'
+        );
 
       if (!grid) {
 
         console.warn(
-          '[barcode] grid not found in page:',
+          '[barcode] grid not found:',
           config.grid
         );
 
@@ -1008,26 +1124,45 @@ console.log("YOUOK AAA");
 
       wrapper.appendChild(page);
 
-      // Now connected: make sure nothing is still display:none
-      unhide(wrapper, 'block');
-      unhide(page, 'block');
-      unhide(grid, 'grid');
+      unhide(
+        wrapper,
+        'block'
+      );
+
+      unhide(
+        page,
+        'block'
+      );
+
+      unhide(
+        grid,
+        'grid'
+      );
 
       grid
-        .querySelectorAll('.barcode-card')
-        .forEach(c => unhide(c, 'block'));
+        .querySelectorAll(
+          '.barcode-card'
+        )
+        .forEach(
+          c => unhide(c, 'block')
+        );
 
     });
 
-    // Show this template's panel
-    panel.style.setProperty('display', 'block', 'important');
+    panel.style.setProperty(
+      'display',
+      'block',
+      'important'
+    );
 
   }
 
   function render() {
 
-    // If the dashboard replaced/moved the tool's DOM, re-grab fresh references
-    if (!els.panel || !els.panel.isConnected) {
+    if (
+      !els.panel ||
+      !els.panel.isConnected
+    ) {
       cache();
     }
 
@@ -1035,7 +1170,10 @@ console.log("YOUOK AAA");
       return;
     }
 
-    Object.keys(TEMPLATES).forEach(renderTemplate);
+    Object.keys(TEMPLATES)
+      .forEach(
+        renderTemplate
+      );
 
     if (!state.current) {
       closeBarcodePanel();
@@ -1064,7 +1202,11 @@ console.log("YOUOK AAA");
 
   }
 
-  function textField(label, value, callback) {
+  function textField(
+    label,
+    value,
+    callback
+  ) {
 
     const wrap =
       document.createElement('div');
@@ -1095,16 +1237,25 @@ console.log("YOUOK AAA");
 
     input.addEventListener(
       'input',
-      () => callback(input.value)
+      () => callback(
+        input.value
+      )
     );
 
-    wrap.append(l, input);
+    wrap.append(
+      l,
+      input
+    );
 
     return wrap;
 
   }
 
-  function numberField(label, value, callback) {
+  function numberField(
+    label,
+    value,
+    callback
+  ) {
 
     const wrap =
       document.createElement('div');
@@ -1138,16 +1289,24 @@ console.log("YOUOK AAA");
 
     input.addEventListener(
       'input',
-      () => callback(input.value)
+      () => callback(
+        input.value
+      )
     );
 
-    wrap.append(l, input);
+    wrap.append(
+      l,
+      input
+    );
 
     return wrap;
 
   }
 
-  function section(title, children) {
+  function section(
+    title,
+    children
+  ) {
 
     const s =
       document.createElement('div');
@@ -1166,13 +1325,20 @@ console.log("YOUOK AAA");
 
     s.appendChild(h);
 
-    children.forEach(x => s.appendChild(x));
+    children.forEach(
+      x =>
+        s.appendChild(x)
+    );
 
     return s;
 
   }
 
-  function button(label, className, onClick) {
+  function button(
+    label,
+    className,
+    onClick
+  ) {
 
     const b =
       document.createElement('button');
@@ -1204,7 +1370,6 @@ console.log("YOUOK AAA");
     panel.dataset.cardId =
       card.id;
 
-    // ---- header (title + close) ----
     const header =
       document.createElement('div');
 
@@ -1231,11 +1396,11 @@ console.log("YOUOK AAA");
 
     panel.appendChild(header);
 
-    // ---- content ----
     panel.appendChild(
       section(
         'Content',
         [
+
           textField(
             'Part Number',
             card.partNumber,
@@ -1261,15 +1426,16 @@ console.log("YOUOK AAA");
 
             }
           )
+
         ]
       )
     );
 
-    // ---- sizes ----
     panel.appendChild(
       section(
         'Size',
         [
+
           numberField(
             'Part Number Font Size',
             card.partNumberSize,
@@ -1311,11 +1477,11 @@ console.log("YOUOK AAA");
 
             }
           )
+
         ]
       )
     );
 
-    // ---- footer ----
     const footer =
       document.createElement('div');
 
@@ -1377,7 +1543,9 @@ console.log("YOUOK AAA");
                 card.barcodeSize
             });
 
-          openEdit(duplicate);
+          openEdit(
+            duplicate
+          );
 
         }
       ),
@@ -1385,7 +1553,8 @@ console.log("YOUOK AAA");
       button(
         'Delete',
         'barcode-edit-button',
-        () => remove(card.id)
+        () =>
+          remove(card.id)
       ),
 
       button(
@@ -1399,6 +1568,7 @@ console.log("YOUOK AAA");
 
         }
       )
+
     );
 
     panel.appendChild(footer);
@@ -1413,8 +1583,6 @@ console.log("YOUOK AAA");
       return;
     }
 
-    // Same mount point as the promo tool: the left sidebar.
-    // Falls back to the label panel if the sidebar isn't found.
     const host =
       els.left ||
       els.panel;
@@ -1423,7 +1591,6 @@ console.log("YOUOK AAA");
       return;
     }
 
-    // Make sure the label preview area is visible
     openBarcodePanel();
 
     const old =
@@ -1454,7 +1621,9 @@ console.log("YOUOK AAA");
     const panel =
       buildEditPanel(card);
 
-    host.appendChild(panel);
+    host.appendChild(
+      panel
+    );
 
     requestAnimationFrame(
       () => {
@@ -1468,8 +1637,8 @@ console.log("YOUOK AAA");
 
     editing = null;
 
-    [els.left, els.panel].forEach(
-      host => {
+    [els.left, els.panel]
+      .forEach(host => {
 
         if (!host) return;
 
@@ -1482,13 +1651,14 @@ console.log("YOUOK AAA");
           panel.remove();
         }
 
-      }
-    );
+      });
 
     if (els.left) {
+
       els.left.classList.remove(
         'editing'
       );
+
     }
 
     if (els.menu) {
@@ -1498,8 +1668,6 @@ console.log("YOUOK AAA");
 
   }
 
-  // Picking a template ONLY switches which template panel is shown.
-  // It never creates a label - labels come from the Add Card button.
   function selectTemplate(id) {
 
     if (!TEMPLATES[id]) {
@@ -1509,13 +1677,15 @@ console.log("YOUOK AAA");
     state.current =
       id;
 
-    // an open edit panel belongs to the previous template
     if (editing) {
 
       const c =
         get(editing);
 
-      if (!c || c.template !== id) {
+      if (
+        !c ||
+        c.template !== id
+      ) {
         hideEdit();
       }
 
@@ -1534,7 +1704,8 @@ console.log("YOUOK AAA");
     }
 
     if (
-      wrapper.dataset.loaded === 'true'
+      wrapper.dataset.loaded ===
+      'true'
     ) {
       return;
     }
@@ -1573,8 +1744,6 @@ console.log("YOUOK AAA");
       }
     );
 
-    // One delegated listener in the CAPTURE phase, so nothing above it
-    // (the toolcard toggle, dashboard click handlers) can swallow the click.
     wrapper.addEventListener(
       'click',
       function (e) {
@@ -1638,39 +1807,65 @@ console.log("YOUOK AAA");
 
   }
 
+  /*
+   * PRINT
+   *
+   * Creates a temporary copy of the actual rendered
+   * barcode pages directly under <body>.
+   *
+   * This avoids Webflow/dashboard containers interfering
+   * with what the browser sends to print.
+   */
   function preparePrint() {
 
     if (!els.panel) {
-      return;
+      return null;
     }
 
-    els.panel
-      .querySelectorAll('.barcode-page-wrapper')
-      .forEach(wrapper => {
+    const wrapper =
+      els.panel.querySelector(
+        '.barcode-page-wrapper'
+      );
 
-        let node =
-          wrapper;
+    if (!wrapper) {
+      return null;
+    }
 
-        while (node) {
+    const old =
+      document.getElementById(
+        'barcode-print-root'
+      );
 
-          node.style.overflow =
-            'visible';
+    if (old) {
+      old.remove();
+    }
 
-          node.style.height =
-            'auto';
+    const printRoot =
+      document.createElement('div');
 
-          node.style.maxHeight =
-            'none';
+    printRoot.id =
+      'barcode-print-root';
 
-          node.style.transform =
-            'none';
+    const clone =
+      wrapper.cloneNode(true);
 
-          node =
-            node.parentElement;
+    clone
+      .querySelectorAll(
+        '.barcode-card-overlay, .barcode-edit-panel'
+      )
+      .forEach(
+        el => el.remove()
+      );
 
-        }
+    printRoot.appendChild(
+      clone
+    );
 
-      });
+    document.body.appendChild(
+      printRoot
+    );
+
+    return printRoot;
 
   }
 
@@ -1711,7 +1906,6 @@ console.log("YOUOK AAA");
             e.preventDefault();
             e.stopPropagation();
 
-            // Adds a label to whichever template is currently selected
             const card =
               add({
                 template:
@@ -1735,9 +1929,32 @@ console.log("YOUOK AAA");
             e.preventDefault();
             e.stopPropagation();
 
-            preparePrint();
+            const printRoot =
+              preparePrint();
 
-            window.print();
+            if (!printRoot) {
+
+              console.warn(
+                '[barcode] nothing available to print'
+              );
+
+              return;
+
+            }
+
+            requestAnimationFrame(
+              () => {
+
+                requestAnimationFrame(
+                  () => {
+
+                    window.print();
+
+                  }
+                );
+
+              }
+            );
 
           }
         );
@@ -1756,9 +1973,6 @@ console.log("YOUOK AAA");
           'click',
           function (e) {
 
-            // Clicks on a template card are handled by createDropdown(),
-            // so don't toggle here. (Don't test els.dropdown.contains() —
-            // the wrapper can be an ancestor of #barcode-drop itself.)
             if (
               e.target.closest(
                 '.db-list-dropdown-card[data-barcode-template]'
@@ -1778,8 +1992,19 @@ console.log("YOUOK AAA");
       }
 
       window.addEventListener(
-        'beforeprint',
-        preparePrint
+        'afterprint',
+        function () {
+
+          const printRoot =
+            document.getElementById(
+              'barcode-print-root'
+            );
+
+          if (printRoot) {
+            printRoot.remove();
+          }
+
+        }
       );
 
     }
@@ -1825,15 +2050,28 @@ console.log("YOUOK AAA");
   }
 
   window.MTWBarcodeTool = {
+
     state,
-    addCard: add,
-    getCard: get,
-    deleteCard: remove,
+
+    addCard:
+      add,
+
+    getCard:
+      get,
+
+    deleteCard:
+      remove,
+
     render,
+
     openEdit,
+
     hideEdit,
+
     selectTemplate,
+
     diagnose
+
   };
 
 })();
