@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("YOUOK aNA");
+console.log("YOUOK aNVVV");
 
 (function () {
 
