@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("MOMMMMMAAAA");
+console.log("YOUOK");
 
 (function () {
 
@@ -19,7 +19,6 @@ console.log("MOMMMMMAAAA");
       name: 'x2 Label Template',
       panel: '.standard-barcode',
       grid: '.barcode-standard-grid',
-      header: '.barcode-header-wrapper',
       capacity: 2
     },
 
@@ -27,7 +26,6 @@ console.log("MOMMMMMAAAA");
       name: 'x4 Label Template',
       panel: '.small-barcode',
       grid: '.barcode-small-grid',
-      header: '.barcode-header-wrapper',
       capacity: 4
     },
 
@@ -35,7 +33,6 @@ console.log("MOMMMMMAAAA");
       name: 'x8 Label Template',
       panel: '.medium-barcode',
       grid: '.barcode-medium-grid',
-      header: '.barcode-header-wrapper',
       capacity: 8
     },
 
@@ -43,7 +40,6 @@ console.log("MOMMMMMAAAA");
       name: 'x10 Label Template',
       panel: '.large-barcode',
       grid: '.barcode-large-grid',
-      header: '.barcode-header-wrapper',
       capacity: 10
     },
 
@@ -51,7 +47,6 @@ console.log("MOMMMMMAAAA");
       name: 'x30 Label Template',
       panel: '.xlarge-barcode',
       grid: '.barcode-xlarge-grid',
-      header: '.barcode-header-wrapper',
       capacity: 30
     }
   };
@@ -71,6 +66,7 @@ console.log("MOMMMMMAAAA");
   };
 
   const state = {
+    current: null,   // template currently shown (null = none picked yet)
     cards: []
   };
 
@@ -184,6 +180,17 @@ console.log("MOMMMMMAAAA");
   function diagnose() {
 
     console.group('[barcode] diagnose');
+
+    console.log('current template:', state.current);
+
+    console.log(
+      'barcode font faces:',
+      document.fonts
+        ? [...document.fonts]
+            .filter(f => f.family.replace(/["']/g, '') === 'IDAutomationHC39M')
+            .map(f => f.status)
+        : 'document.fonts unavailable'
+    );
 
     console.log('elements found:', {
       panel: !!els.panel,
@@ -301,7 +308,6 @@ console.log("MOMMMMMAAAA");
   function cache() {
 
     els.panel = $('.barcode-label-panels');
-    els.header = $('.barcode-header-wrapper');
 
     els.add = $('.barcode-add-card-button');
     els.print = $('.barcode-print-card-button');
@@ -343,6 +349,48 @@ console.log("MOMMMMMAAAA");
 
   }
 
+  // Loaded through the FontFace API (instead of a CSS @font-face) so that a
+  // failure shows up in the console instead of silently falling back to
+  // plain text.
+  function loadBarcodeFont() {
+
+    if (
+      typeof FontFace === 'undefined' ||
+      !document.fonts
+    ) {
+      return;
+    }
+
+    const face =
+      new FontFace(
+        'IDAutomationHC39M',
+        'url("' + FONT_URL + '") format("truetype")',
+        { display: 'block' }
+      );
+
+    face
+      .load()
+      .then(loaded => {
+
+        document.fonts.add(loaded);
+
+        console.log(
+          '[barcode] barcode font loaded'
+        );
+
+      })
+      .catch(err => {
+
+        console.error(
+          '[barcode] barcode font FAILED to load from ' + FONT_URL +
+          ' - check the Network tab and any Content-Security-Policy for this URL.',
+          err
+        );
+
+      });
+
+  }
+
   function injectStyles() {
 
     if ($('#barcode-tool-styles')) {
@@ -355,12 +403,6 @@ console.log("MOMMMMMAAAA");
     style.id = 'barcode-tool-styles';
 
     style.textContent = `
-
-      @font-face {
-        font-family: 'IDAutomationHC39M';
-        src: url('${FONT_URL}') format('truetype');
-        font-display: block;
-      }
 
       /* Template dropdown: closed by default, opened by adding the class */
       .db-list-dropdown-wrapper:not(.${DROPDOWN_OPEN_CLASS})
@@ -383,15 +425,17 @@ console.log("MOMMMMMAAAA");
         cursor: pointer;
       }
 
+      /* The barcode glyphs are ~3.6em tall, so line-height must stay "normal"
+         or the bars overlap the text above them. */
       .barcode-populate {
-        font-family: 'IDAutomationHC39M', monospace;
+        font-family: 'IDAutomationHC39M', monospace !important;
+        line-height: normal;
+        white-space: nowrap;
       }
 
       .barcode-populate-auto {
         display: block;
         text-align: center;
-        line-height: 1.1;
-        white-space: nowrap;
       }
 
       /* ---- edit panel (mirrors the promo tool's panel) ---- */
@@ -550,11 +594,7 @@ console.log("MOMMMMMAAAA");
 
       @media print {
 
-        /* Hide the panel header, but NOT a header that lives inside a label */
-        .barcode-header-wrapper:not(.barcode-card .barcode-header-wrapper) {
-          display: none !important;
-        }
-
+        .barcode-header-wrapper,
         .barcode-add-card-wrapper,
         .barcode-print-card-wrapper,
         .barcode-card-overlay,
@@ -604,6 +644,7 @@ console.log("MOMMMMMAAAA");
 
       template:
         data.template ||
+        state.current ||
         DEFAULTS.template,
 
       partNumber:
@@ -643,6 +684,10 @@ console.log("MOMMMMMAAAA");
       cardData(data);
 
     state.cards.push(card);
+
+    // a label always lives in the currently shown template
+    state.current =
+      card.template;
 
     render();
 
@@ -689,16 +734,12 @@ console.log("MOMMMMMAAAA");
 
   function populateCard(card, data) {
 
-    const config =
-      TEMPLATES[data.template] ||
-      TEMPLATES.standard;
-
     const header =
       card.querySelector(
-        config.header
+        '.text-input-header > *'
       ) ||
       card.querySelector(
-        '.text-input-header > *'
+        '.text-input-header'
       );
 
     const subtext =
@@ -847,7 +888,8 @@ console.log("MOMMMMMAAAA");
   }
 
   // Builds the pages for ONE template inside that template's own panel
-  // (e.g. .standard-barcode) and then un-hides that panel.
+  // (e.g. .standard-barcode). Only the CURRENT template is shown; every
+  // other template panel goes back to its hidden Webflow state.
   function renderTemplate(id) {
 
     const config =
@@ -860,18 +902,12 @@ console.log("MOMMMMMAAAA");
       return;
     }
 
-    const cards =
-      state.cards.filter(
-        c => c.template === id
-      );
-
     const wrapper =
       panel.querySelector('.barcode-page-wrapper') ||
       panel;
 
-    // No labels for this template: drop generated pages and let the
-    // panel go back to its hidden Webflow state
-    if (!cards.length) {
+    // Not the selected template: clear its generated pages and hide it again
+    if (id !== state.current) {
 
       wrapper
         .querySelectorAll('.barcode-page[data-generated]')
@@ -900,12 +936,20 @@ console.log("MOMMMMMAAAA");
 
     }
 
+    const cards =
+      state.cards.filter(
+        c => c.template === id
+      );
+
     wrapper.innerHTML = '';
 
-    chunk(
-      cards,
-      config.capacity
-    ).forEach(group => {
+    // No labels yet -> one empty page. Nothing is ever auto-filled.
+    const groups =
+      cards.length
+        ? chunk(cards, config.capacity)
+        : [[]];
+
+    groups.forEach(group => {
 
       const page =
         src.page.cloneNode(true);
@@ -954,7 +998,7 @@ console.log("MOMMMMMAAAA");
 
     });
 
-    // THE template switch: show this template's panel
+    // Show this template's panel
     panel.style.setProperty('display', 'block', 'important');
 
   }
@@ -972,7 +1016,7 @@ console.log("MOMMMMMAAAA");
 
     Object.keys(TEMPLATES).forEach(renderTemplate);
 
-    if (!state.cards.length) {
+    if (!state.current) {
       closeBarcodePanel();
     }
 
@@ -1433,6 +1477,35 @@ console.log("MOMMMMMAAAA");
 
   }
 
+  // Picking a template ONLY switches which template panel is shown.
+  // It never creates a label - labels come from the Add Card button.
+  function selectTemplate(id) {
+
+    if (!TEMPLATES[id]) {
+      return;
+    }
+
+    state.current =
+      id;
+
+    // an open edit panel belongs to the previous template
+    if (editing) {
+
+      const c =
+        get(editing);
+
+      if (!c || c.template !== id) {
+        hideEdit();
+      }
+
+    }
+
+    render();
+
+    openBarcodePanel();
+
+  }
+
   function createDropdown(wrapper) {
 
     if (!wrapper) {
@@ -1505,18 +1578,11 @@ console.log("MOMMMMMAAAA");
           selectedTemplate
         );
 
-        const card =
-          add({
-            template:
-              selectedTemplate
-          });
-
-        setTimeout(diagnose, 50);
+        selectTemplate(
+          selectedTemplate
+        );
 
         closeDropdown();
-
-        // openEdit() also opens the barcode panel
-        openEdit(card);
 
       },
       true
@@ -1613,6 +1679,8 @@ console.log("MOMMMMMAAAA");
 
       injectStyles();
 
+      loadBarcodeFont();
+
       if (els.add) {
 
         els.add.addEventListener(
@@ -1622,11 +1690,11 @@ console.log("MOMMMMMAAAA");
             e.preventDefault();
             e.stopPropagation();
 
-            openBarcodePanel();
-
+            // Adds a label to whichever template is currently selected
             const card =
               add({
                 template:
+                  state.current ||
                   DEFAULTS.template
               });
 
@@ -1743,6 +1811,7 @@ console.log("MOMMMMMAAAA");
     render,
     openEdit,
     hideEdit,
+    selectTemplate,
     diagnose
   };
 
