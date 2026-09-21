@@ -72,7 +72,7 @@ console.log("YOUOK ADJASJD");
 
   function cache() {
 
-    els.tool = $('.barcode-label-panels');
+    els.panel = $('.barcode-label-panels');
     els.header = $('.barcode-header-wrapper');
 
     els.add = $('.barcode-add-card-button');
@@ -81,6 +81,23 @@ console.log("YOUOK ADJASJD");
     els.dropdown = $('.db-list-dropdown-wrapper');
 
     els.pages = $('.barcode-page-wrapper');
+
+  }
+
+  function openBarcodePanel() {
+
+    if (!els.panel) return;
+
+    els.panel.style.display = '';
+    els.panel.classList.add('open');
+
+  }
+
+  function closeBarcodePanel() {
+
+    if (!els.panel) return;
+
+    els.panel.classList.remove('open');
 
   }
 
@@ -232,9 +249,11 @@ console.log("YOUOK ADJASJD");
   }
 
   function get(id) {
+
     return state.cards.find(
       card => card.id === id
     );
+
   }
 
   function add(data = {}) {
@@ -289,20 +308,24 @@ console.log("YOUOK ADJASJD");
 
   function populateCard(card, data) {
 
+    const config =
+      TEMPLATES[data.template] ||
+      TEMPLATES.standard;
+
     const header =
       card.querySelector(
-        '.text-input-header > *,' +
-        ' .standard-barcode-header,' +
-        ' .small-barcode-header,' +
-        ' .medium-barcode-header,' +
-        ' .large-barcode-header,' +
-        ' .xlarge-barcode-header'
+        config.header
+      ) ||
+      card.querySelector(
+        '.text-input-header > *'
       );
 
     const subtext =
       card.querySelector(
-        '.text-input-subtext > *,' +
-        ' .text-input-subtext'
+        '.text-input-subtext > *'
+      ) ||
+      card.querySelector(
+        '.text-input-subtext'
       );
 
     const barcode =
@@ -379,7 +402,8 @@ console.log("YOUOK ADJASJD");
     card.dataset.barcodeTemplate =
       data.template;
 
-    card.style.display = '';
+    card.style.display =
+      'block';
 
     card.removeAttribute('id');
 
@@ -442,9 +466,11 @@ console.log("YOUOK ADJASJD");
       i < cards.length;
       i += size
     ) {
+
       pages.push(
         cards.slice(i, i + size)
       );
+
     }
 
     return pages;
@@ -475,53 +501,54 @@ console.log("YOUOK ADJASJD");
 
     });
 
-    Object.entries(byTemplate)
-      .forEach(
-        ([template, cards]) => {
+    Object.entries(
+      byTemplate
+    ).forEach(
+      ([template, cards]) => {
 
-          const config =
-            TEMPLATES[template] ||
-            TEMPLATES.standard;
+        const config =
+          TEMPLATES[template] ||
+          TEMPLATES.standard;
 
-          const groups =
-            chunk(
-              cards,
-              config.capacity
-            );
+        const groups =
+          chunk(
+            cards,
+            config.capacity
+          );
 
-          groups.forEach(group => {
+        groups.forEach(group => {
 
-            const page =
-              document.createElement('div');
+          const page =
+            document.createElement('div');
 
-            page.className =
-              'barcode-page';
+          page.className =
+            'barcode-page';
 
-            page.dataset.barcodeTemplate =
-              template;
+          page.dataset.barcodeTemplate =
+            template;
 
-            const grid =
-              createGrid(template);
+          const grid =
+            createGrid(template);
 
-            group.forEach(cardData => {
+          group.forEach(cardData => {
 
-              const card =
-                createCard(cardData);
+            const card =
+              createCard(cardData);
 
-              if (card) {
-                grid.appendChild(card);
-              }
-
-            });
-
-            page.appendChild(grid);
-
-            els.pages.appendChild(page);
+            if (card) {
+              grid.appendChild(card);
+            }
 
           });
 
-        }
-      );
+          page.appendChild(grid);
+
+          els.pages.appendChild(page);
+
+        });
+
+      }
+    );
 
   }
 
@@ -750,7 +777,7 @@ console.log("YOUOK ADJASJD");
     copy.onclick =
       function () {
 
-        const copy =
+        const duplicate =
           add({
             template:
               card.template,
@@ -771,7 +798,7 @@ console.log("YOUOK ADJASJD");
               card.barcodeSize
           });
 
-        openEdit(copy);
+        openEdit(duplicate);
 
       };
 
@@ -798,6 +825,7 @@ console.log("YOUOK ADJASJD");
       function () {
 
         render();
+
         hideEdit();
 
       };
@@ -817,9 +845,11 @@ console.log("YOUOK ADJASJD");
 
   function openEdit(card) {
 
-    if (!els.tool) {
+    if (!els.panel) {
       return;
     }
+
+    openBarcodePanel();
 
     hideEdit();
 
@@ -829,7 +859,7 @@ console.log("YOUOK ADJASJD");
     const panel =
       buildEditPanel(card);
 
-    els.tool.appendChild(
+    els.panel.appendChild(
       panel
     );
 
@@ -839,12 +869,12 @@ console.log("YOUOK ADJASJD");
 
     editing = null;
 
-    if (!els.tool) {
+    if (!els.panel) {
       return;
     }
 
     const panel =
-      els.tool.querySelector(
+      els.panel.querySelector(
         '.barcode-edit-panel'
       );
 
@@ -855,6 +885,10 @@ console.log("YOUOK ADJASJD");
   }
 
   function createDropdown(wrapper) {
+
+    if (!wrapper) {
+      return;
+    }
 
     if (
       wrapper.dataset.loaded === 'true'
@@ -900,18 +934,20 @@ console.log("YOUOK ADJASJD");
             e.preventDefault();
             e.stopPropagation();
 
-            add({
-              template: id
-            });
+            const selectedTemplate =
+              item.dataset.barcodeTemplate;
+
+            openBarcodePanel();
+
+            const card =
+              add({
+                template:
+                  selectedTemplate
+              });
 
             closeDropdown();
 
-            const newest =
-              state.cards[
-                state.cards.length - 1
-              ];
-
-            openEdit(newest);
+            openEdit(card);
 
           }
         );
@@ -1022,7 +1058,7 @@ console.log("YOUOK ADJASJD");
     cache();
 
     if (
-      !els.tool ||
+      !els.panel ||
       !els.pages
     ) {
 
@@ -1050,8 +1086,13 @@ console.log("YOUOK ADJASJD");
             e.preventDefault();
             e.stopPropagation();
 
+            openBarcodePanel();
+
             const card =
-              add();
+              add({
+                template:
+                  DEFAULTS.template
+              });
 
             openEdit(card);
 
