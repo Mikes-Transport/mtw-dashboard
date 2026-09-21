@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("YOUOK aNVVV");
+console.log("YOUOK ABA");
 
 (function () {
 
@@ -544,29 +544,28 @@ z-index: 20;
 cursor: pointer;
 }
 
-/*
-Do NOT constrain the barcode itself.
-
-The Code 39 font needs to retain its natural
-height and rendering. The existing Webflow
-label layout controls the position of the
-barcode and the *PART NUMBER* underneath.
-*/
 .barcode-populate {
 display: block !important;
-width: 100%;
-max-width: 100%;
-box-sizing: border-box;
+width: auto !important;
+max-width: none !important;
+box-sizing: content-box !important;
 font-family: 'IDAutomationHC39M', monospace !important;
 white-space: nowrap;
 text-align: center;
+overflow: visible !important;
 flex-shrink: 0;
 position: relative;
 z-index: 1;
+margin-top: 4px;
+margin-bottom: 0;
 }
 
 .barcode-populate-auto {
 text-align: center;
+}
+
+.barcode-card .barcode-populate {
+align-self: center;
 }
 
 .db-left-content.editing {
@@ -1095,15 +1094,6 @@ barcode.style.fontSize =
 barcodeSize +
 'px';
 
-/*
-Keep the original barcode line-height
-behaviour. Do NOT set a fixed height or
-overflow on the barcode.
-
-This preserves the Code 39 barcode and
-the existing human-readable *PART NUMBER*
-below it.
-*/
 barcode.style.lineHeight =
 'normal';
 
@@ -2009,7 +1999,6 @@ wrapper.dataset.loaded ===
 ) {
 
 return;
-
 }
 
 Object.entries(
@@ -2148,7 +2137,7 @@ if (!panel) {
 
 console.warn(
 '[barcode] Selected template panel not found:',
-config.panel
+state.current
 );
 
 return null;
@@ -2391,8 +2380,28 @@ input.type =
 input.accept =
 '.csv,text/csv';
 
-input.style.display =
-'none';
+input.style.position =
+'fixed';
+
+input.style.left =
+'-9999px';
+
+input.style.top =
+'0';
+
+input.style.width =
+'1px';
+
+input.style.height =
+'1px';
+
+input.style.opacity =
+'0';
+
+input.setAttribute(
+'aria-hidden',
+'true'
+);
 
 document.body.appendChild(
 input
@@ -2400,10 +2409,11 @@ input
 
 input.addEventListener(
 'change',
-() => {
+function () {
 
 const file =
-input.files?.[0];
+input.files &&
+input.files[0];
 
 if (!file) {
 
@@ -2417,7 +2427,7 @@ const reader =
 new FileReader();
 
 reader.onload =
-() => {
+function () {
 
 try {
 
@@ -2444,12 +2454,16 @@ return;
 const first =
 rows[0];
 
-if (
-!Object.prototype.hasOwnProperty.call(
-first,
-'Stock Code'
-)
-) {
+const stockCodeKey =
+Object.keys(first).find(
+key =>
+String(key)
+.trim()
+.toLowerCase() ===
+'stock code'
+);
+
+if (!stockCodeKey) {
 
 alert(
 'The CSV must contain a "Stock Code" column.'
@@ -2461,11 +2475,17 @@ return;
 
 }
 
-const hasDescription =
-Object.prototype.hasOwnProperty.call(
-first,
-'Description'
+const descriptionKey =
+Object.keys(first).find(
+key =>
+String(key)
+.trim()
+.toLowerCase() ===
+'description'
 );
+
+const hasDescription =
+!!descriptionKey;
 
 let importDescriptions =
 false;
@@ -2493,7 +2513,7 @@ row => {
 
 const partNumber =
 cleanPartNumber(
-row['Stock Code']
+row[stockCodeKey]
 );
 
 if (!partNumber) {
@@ -2504,7 +2524,7 @@ const description =
 importDescriptions &&
 hasDescription
 ? simplifyDescription(
-row['Description'],
+row[descriptionKey],
 template
 )
 : '';
@@ -2564,7 +2584,7 @@ input.remove();
 };
 
 reader.onerror =
-() => {
+function () {
 
 alert(
 'The CSV could not be read.'
@@ -2578,10 +2598,64 @@ reader.readAsText(
 file
 );
 
+},
+{
+once: true
 }
 );
 
 input.click();
+
+}
+
+function setupCSVImport() {
+
+const button =
+$('.barcode-import-card-button');
+
+if (!button) {
+
+console.warn(
+'[barcode] CSV import button not found:',
+'.barcode-import-card-button'
+);
+
+return;
+
+}
+
+if (
+button.dataset.csvReady ===
+'true'
+) {
+
+return;
+
+}
+
+button.dataset.csvReady =
+'true';
+
+button.addEventListener(
+'click',
+function (e) {
+
+e.preventDefault();
+e.stopPropagation();
+
+console.log(
+'[barcode] opening CSV file picker'
+);
+
+importCSV();
+
+}
+);
+
+console.log(
+'[barcode] CSV import button connected:',
+'.barcode-import-card-button'
+);
 
 }
 
@@ -2638,33 +2712,7 @@ card
 
 }
 
-if (els.importCSV) {
-
-els.importCSV.addEventListener(
-'click',
-function (e) {
-
-e.preventDefault();
-e.stopPropagation();
-
-importCSV();
-
-}
-);
-
-console.log(
-'[barcode] CSV import button connected:',
-'.barcode-import-card-button'
-);
-
-} else {
-
-console.warn(
-'[barcode] CSV import button not found:',
-'.barcode-import-card-button'
-);
-
-}
+setupCSVImport();
 
 if (els.print) {
 
@@ -2827,3 +2875,4 @@ diagnose
 };
 
 })();
+
