@@ -14,13 +14,6 @@ grid: '.barcode-standard-grid',
 capacity: 2
 },
 
-small: {
-name: 'x4 Label Template',
-panel: '.small-barcode',
-grid: '.barcode-small-grid',
-capacity: 4
-},
-
 medium: {
 name: 'x8 Label Template',
 panel: '.medium-barcode',
@@ -59,12 +52,6 @@ subtextSize: 43,
 barcodeSize: 50
 },
 
-small: {
-partNumberSize: 20,
-subtextSize: 8,
-barcodeSize: 15
-},
-
 medium: {
 partNumberSize: 50,
 subtextSize: 20,
@@ -79,7 +66,7 @@ barcodeSize: 20
 
 xlarge: {
 partNumberSize: 18,
-subtextSize: 10,
+subtextSize: 8,
 barcodeSize: 13
 }
 
