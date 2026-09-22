@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("YOUOK ABAASD");
+console.log("YOUOK KABABA");
 
 (function () {
 
@@ -899,6 +899,18 @@ border-color: #111;
 
 .barcode-csv-button.primary:hover {
 background: #333;
+}
+
+/* CSV SUCCESS POPUP */
+
+.barcode-csv-success-message {
+padding: 24px 22px;
+font-size: 13px;
+line-height: 1.5;
+}
+
+.barcode-csv-success-count {
+font-weight: 700;
 }
 
 #barcode-print-root {
@@ -2206,6 +2218,7 @@ wrapper.dataset.loaded ===
 ) {
 
 return;
+
 }
 
 Object.entries(
@@ -2635,6 +2648,173 @@ total === 1
 
 }
 
+function showCSVSuccess(count) {
+
+const modal =
+document.createElement(
+'div'
+);
+
+modal.className =
+'barcode-csv-modal';
+
+modal.setAttribute(
+'role',
+'dialog'
+);
+
+modal.setAttribute(
+'aria-modal',
+'true'
+);
+
+const box =
+document.createElement(
+'div'
+);
+
+box.className =
+'barcode-csv-modal-box';
+
+box.style.maxWidth =
+'420px';
+
+const header =
+document.createElement(
+'div'
+);
+
+header.className =
+'barcode-csv-modal-header';
+
+const title =
+document.createElement(
+'h2'
+);
+
+title.className =
+'barcode-csv-modal-title';
+
+title.textContent =
+'Import Complete';
+
+const closeButton =
+document.createElement(
+'button'
+);
+
+closeButton.type =
+'button';
+
+closeButton.className =
+'barcode-csv-modal-close';
+
+closeButton.textContent =
+'×';
+
+closeButton.setAttribute(
+'aria-label',
+'Close'
+);
+
+header.append(
+title,
+closeButton
+);
+
+const message =
+document.createElement(
+'div'
+);
+
+message.className =
+'barcode-csv-success-message';
+
+message.innerHTML =
+'<span class="barcode-csv-success-count">' +
+count +
+'</span> label' +
+(
+count === 1
+? ''
+: 's'
+) +
+' imported successfully.';
+
+const footer =
+document.createElement(
+'div'
+);
+
+footer.className =
+'barcode-csv-modal-footer';
+
+const doneButton =
+document.createElement(
+'button'
+);
+
+doneButton.type =
+'button';
+
+doneButton.className =
+'barcode-csv-button primary';
+
+doneButton.textContent =
+'Done';
+
+function closeSuccess() {
+
+modal.remove();
+
+}
+
+closeButton.addEventListener(
+'click',
+closeSuccess
+);
+
+doneButton.addEventListener(
+'click',
+closeSuccess
+);
+
+footer.appendChild(
+doneButton
+);
+
+box.append(
+header,
+message,
+footer
+);
+
+modal.appendChild(
+box
+);
+
+modal.addEventListener(
+'click',
+function (e) {
+
+if (e.target === modal) {
+closeSuccess();
+}
+
+}
+);
+
+document.body.appendChild(
+modal
+);
+
+setTimeout(
+() => doneButton.focus(),
+50
+);
+
+}
+
 function openCSVModal(rows) {
 
 closeCSVModal();
@@ -3030,13 +3210,18 @@ i < qtyValue;
 i++
 ) {
 
-add({
+const card =
+cardData({
 template,
 partNumber:
 row.partNumber,
 subtext:
 description
 });
+
+state.cards.push(
+card
+);
 
 imported++;
 
@@ -3045,19 +3230,15 @@ imported++;
 }
 );
 
-render();
+state.current =
+template;
 
 closeCSVModal();
 
-alert(
-imported +
-' label' +
-(
-imported === 1
-? ''
-: 's'
-) +
-' imported.'
+render();
+
+showCSVSuccess(
+imported
 );
 
 }
@@ -3588,4 +3769,3 @@ diagnose
 };
 
 })();
-
