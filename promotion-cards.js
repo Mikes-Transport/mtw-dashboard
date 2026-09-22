@@ -126,9 +126,9 @@ const { $, $$ } = window.MTW;
   };
 
   const els = {};
+
   let id = 0;
   let editing = null;
-  let initialized = false;
 
   function clone(x) {
     return JSON.parse(JSON.stringify(x));
@@ -185,17 +185,12 @@ const { $, $$ } = window.MTW;
 
     let items = [];
 
-    if (
-      Array.isArray(x.items) &&
-      x.items.length
-    ) {
+    if (Array.isArray(x.items) && x.items.length) {
 
       items = x.items.map(item => {
 
         const fallback =
-          defaultText(
-            item.text ?? ''
-          );
+          defaultText(item.text ?? '');
 
         let texts;
 
@@ -204,46 +199,31 @@ const { $, $$ } = window.MTW;
           item.texts.length
         ) {
 
-          texts =
-            item.texts.map(t => ({
-              text:
-                t.text ?? '',
-              fields:
-                Object.assign(
-                  clone(
-                    fallback.fields
-                  ),
-                  t.fields || {}
-                )
-            }));
+          texts = item.texts.map(t => ({
+            text: t.text ?? '',
+            fields: Object.assign(
+              clone(fallback.fields),
+              t.fields || {}
+            )
+          }));
 
         } else {
 
-          texts = [
-            {
-              text:
-                item.text ?? text,
-              fields:
-                Object.assign(
-                  clone(
-                    fallback.fields
-                  ),
-                  item.fields || {}
-                )
-            }
-          ];
+          texts = [{
+            text: item.text ?? text,
+            fields: Object.assign(
+              clone(fallback.fields),
+              item.fields || {}
+            )
+          }];
         }
 
         return {
-          text:
-            texts[0]?.text ?? '',
-          fields:
-            Object.assign(
-              clone(
-                fallback.fields
-              ),
-              item.fields || {}
-            ),
+          text: texts[0]?.text ?? '',
+          fields: Object.assign(
+            clone(fallback.fields),
+            item.fields || {}
+          ),
           texts
         };
       });
@@ -254,26 +234,16 @@ const { $, $$ } = window.MTW;
     }
 
     return {
-      display:
-        x.display || d.display,
-      direction:
-        x.direction || d.direction,
-      justify:
-        x.justify || d.justify,
-      align:
-        x.align || d.align,
-      wrap:
-        x.wrap || d.wrap,
-      columns:
-        Number(x.columns) || 1,
-      rows:
-        Number(x.rows) || 1,
-      gap:
-        Number(x.gap) || 0,
-      rowGap:
-        Number(x.rowGap) || 0,
-      columnGap:
-        Number(x.columnGap) || 0,
+      display: x.display || d.display,
+      direction: x.direction || d.direction,
+      justify: x.justify || d.justify,
+      align: x.align || d.align,
+      wrap: x.wrap || d.wrap,
+      columns: Number(x.columns) || 1,
+      rows: Number(x.rows) || 1,
+      gap: Number(x.gap) || 0,
+      rowGap: Number(x.rowGap) || 0,
+      columnGap: Number(x.columnGap) || 0,
       items
     };
   }
@@ -282,38 +252,29 @@ const { $, $$ } = window.MTW;
 
     const c = Object.assign({
 
-      id:
-        'card-' +
-        (++id),
+      id: 'card-' + (++id),
 
-      title:
-        'PRODUCT TITLE',
+      title: 'PRODUCT TITLE',
 
       description:
         'Product description goes here. Maximum of 2 lines.',
 
-      price:
-        '999.99',
+      price: '999.99',
 
-      oldPrice:
-        '999.99',
+      oldPrice: '999.99',
 
-      partNumber:
-        '#00000',
+      partNumber: '#00000',
 
-      extraNote:
-        'EXCLUSIVE OF GST'
+      extraNote: 'EXCLUSIVE OF GST'
 
     }, x);
 
-    c.style =
-      c.style || {};
+    c.style = c.style || {};
 
-    c.style.fields =
-      Object.assign(
-        clone(DEFAULT_FIELDS),
-        c.style.fields || {}
-      );
+    c.style.fields = Object.assign(
+      clone(DEFAULT_FIELDS),
+      c.style.fields || {}
+    );
 
     c.style.description =
       normalizeContent(
@@ -350,8 +311,7 @@ const { $, $$ } = window.MTW;
 
   function add(x) {
 
-    const c =
-      cardData(x);
+    const c = cardData(x);
 
     state.cards.push(c);
 
@@ -390,15 +350,15 @@ const { $, $$ } = window.MTW;
 
     els.cardView =
       $('.card-view-container');
-    
-   els.scrollBtnLeft = 
-     $('.card-click-scroll-left');
-    
-   els.scrollBtnRight = 
-     $('.card-click-scroll-right');
+
+    els.scrollBtnLeft =
+      $('.card-click-scroll-left');
+
+    els.scrollBtnRight =
+      $('.card-click-scroll-right');
 
     els.left =
-      $('.db-content-left');
+      $('.db-left-content');
 
     els.menu =
       $('.db-menu-list');
@@ -435,11 +395,7 @@ const { $, $$ } = window.MTW;
     }[v] || v;
   }
 
-  function fieldStyle(
-    el,
-    c,
-    key
-  ) {
+  function fieldStyle(el, c, key) {
 
     const f =
       ((c.style || {}).fields ||
@@ -467,8 +423,7 @@ const { $, $$ } = window.MTW;
     key
   ) {
 
-    const s =
-      c.style[key];
+    const s = c.style[key];
 
     if (!el || !s) return;
 
@@ -481,14 +436,10 @@ const { $, $$ } = window.MTW;
         s.direction || 'column';
 
       el.style.justifyContent =
-        flexJ(
-          s.justify || 'start'
-        );
+        flexJ(s.justify || 'start');
 
       el.style.alignItems =
-        flexA(
-          s.align || 'stretch'
-        );
+        flexA(s.align || 'stretch');
 
       el.style.flexWrap =
         s.wrap || 'nowrap';
@@ -526,23 +477,19 @@ const { $, $$ } = window.MTW;
       return item.texts;
     }
 
-    return [
-      {
-        text:
-          item.text ?? '',
-        fields:
-          Object.assign(
-            {
-              v: 1,
-              a: 'left',
-              fit: 1,
-              size: null,
-              line: null
-            },
-            item.fields || {}
-          )
-      }
-    ];
+    return [{
+      text: item.text ?? '',
+      fields: Object.assign(
+        {
+          v: 1,
+          a: 'left',
+          fit: 1,
+          size: null,
+          line: null
+        },
+        item.fields || {}
+      )
+    }];
   }
 
   function buildContent(
@@ -551,13 +498,10 @@ const { $, $$ } = window.MTW;
     className
   ) {
 
-    const s =
-      c.style[key];
+    const s = c.style[key];
 
     const wrap =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     wrap.className =
       className;
@@ -575,9 +519,7 @@ const { $, $$ } = window.MTW;
       (item, index) => {
 
         const cell =
-          document.createElement(
-            'div'
-          );
+          document.createElement('div');
 
         cell.className =
           'card-config-item';
@@ -661,16 +603,13 @@ const { $, $$ } = window.MTW;
 
   function build(c) {
 
-    const t =
-      T[state.type];
+    const t = T[state.type];
 
     const size =
       TEXT_CLASS[state.layout];
 
     const wrap =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     wrap.className =
       t.card;
@@ -679,33 +618,25 @@ const { $, $$ } = window.MTW;
       c.id;
 
     const cut =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     cut.className =
       t.cut;
 
     const inner =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     inner.className =
       t.inner;
 
     const titleWrap =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     titleWrap.className =
       t.title;
 
     const h2 =
-      document.createElement(
-        'h2'
-      );
+      document.createElement('h2');
 
     h2.className =
       t.h2;
@@ -718,33 +649,25 @@ const { $, $$ } = window.MTW;
     );
 
     const bw =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     bw.className =
       t.bodyWrap;
 
     const body =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     body.className =
       t.body;
 
     const top =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     top.className =
       'card-top-wrapper';
 
     const title =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     title.className =
       'card-grid-title';
@@ -753,9 +676,7 @@ const { $, $$ } = window.MTW;
       'title';
 
     const titleText =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     titleText.className =
       'card-text-title';
@@ -764,9 +685,7 @@ const { $, $$ } = window.MTW;
       c.title;
 
     if (size) {
-      titleText.classList.add(
-        size
-      );
+      titleText.classList.add(size);
     }
 
     title.appendChild(
@@ -789,17 +708,13 @@ const { $, $$ } = window.MTW;
     );
 
     const bottom =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     bottom.className =
       'card-bottom-wrapper';
 
     const price =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     price.className =
       'card-text-price';
@@ -808,32 +723,24 @@ const { $, $$ } = window.MTW;
       'price';
 
     if (size) {
-      price.classList.add(
-        size
-      );
+      price.classList.add(size);
     }
 
     if (t.price) {
-      price.classList.add(
-        t.price
-      );
+      price.classList.add(t.price);
     }
 
     price.textContent =
       '$' + c.price;
 
     const extraGrid =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     extraGrid.className =
       'card-extra-info-grid';
 
     const leftGroup =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     leftGroup.className =
       'card-extra-info';
@@ -864,9 +771,7 @@ const { $, $$ } = window.MTW;
     );
 
     const oldWrap =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     oldWrap.className =
       'card-old-price-wrapper';
@@ -915,9 +820,7 @@ const { $, $$ } = window.MTW;
     );
 
     const overlay =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     overlay.className =
       'et-card-overlay';
@@ -1028,10 +931,9 @@ const { $, $$ } = window.MTW;
                   (txt, textIndex) => {
 
                     const x =
-                      cell
-                        .querySelectorAll(
-                          '.card-config-text'
-                        )[textIndex];
+                      cell.querySelectorAll(
+                        '.card-config-text'
+                      )[textIndex];
 
                     if (!x) return;
 
@@ -1353,43 +1255,11 @@ const { $, $$ } = window.MTW;
         );
       }
     }
-
-    const currentRow =
-      els.cardView?.querySelector(
-        '[data-card-id="' +
-        c.id +
-        '"]'
-      );
-
-    if (currentRow) {
-
-      const txt =
-        currentRow.querySelectorAll(
-          '.et-small-txt'
-        );
-
-      if (
-        key === 'title' &&
-        txt[0]
-      ) {
-        txt[0].textContent =
-          c.title;
-      }
-
-      if (
-        key === 'partNumber' &&
-        txt[1]
-      ) {
-        txt[1].textContent =
-          c.partNumber;
-      }
-    }
   }
 
   function refreshCard(i) {
 
-    const c =
-      get(i);
+    const c = get(i);
 
     if (!c) return;
 
@@ -1424,9 +1294,7 @@ const { $, $$ } = window.MTW;
   function row(c) {
 
     const r =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     r.className =
       'et-current-card';
@@ -1435,9 +1303,7 @@ const { $, $$ } = window.MTW;
       c.id;
 
     const title =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     title.className =
       'et-small-txt';
@@ -1446,9 +1312,7 @@ const { $, $$ } = window.MTW;
       c.title;
 
     const part =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     part.className =
       'et-small-txt';
@@ -1457,17 +1321,13 @@ const { $, $$ } = window.MTW;
       c.partNumber;
 
     const actions =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     actions.className =
       'et-current-card-action-wrapper';
 
     const edit =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     edit.className =
       'et-action-button';
@@ -1478,9 +1338,7 @@ const { $, $$ } = window.MTW;
     );
 
     const et =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     et.className =
       'et-xsmall-txt';
@@ -1493,9 +1351,7 @@ const { $, $$ } = window.MTW;
     );
 
     const remove =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     remove.className =
       'et-action-button';
@@ -1506,9 +1362,7 @@ const { $, $$ } = window.MTW;
     );
 
     const rt =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     rt.className =
       'et-xsmall-txt';
@@ -1535,40 +1389,41 @@ const { $, $$ } = window.MTW;
   }
 
   function scrollCurrentCards(
-  container,
-  direction
-) {
+    container,
+    direction
+  ) {
 
-  if (!container) return;
+    if (!container) return;
 
-  const amount =
-    Math.max(
-      1,
-      container.clientWidth - 40
-    );
+    const amount =
+      Math.max(
+        1,
+        container.clientWidth - 40
+      );
 
-  container.scrollBy({
-    left:
-      amount * direction,
-    behavior:
-      'smooth'
-  });
-}
+    container.scrollBy({
+      left:
+        amount * direction,
+      behavior:
+        'smooth'
+    });
+  }
 
   function renderList() {
 
-  if (!els.cardView) return;
+    if (!els.cardView) return;
 
-  els.cardView.innerHTML = '';
+    els.cardView.innerHTML = '';
 
-  state.cards.forEach(
-    c => {
-      els.cardView.appendChild(
-        row(c)
-      );
-    }
-  );
-}
+    state.cards.forEach(
+      c => {
+
+        els.cardView.appendChild(
+          row(c)
+        );
+      }
+    );
+  }
 
   function chunk(a, n) {
 
@@ -1617,9 +1472,7 @@ const { $, $$ } = window.MTW;
       cards => {
 
         const page =
-          document.createElement(
-            'div'
-          );
+          document.createElement('div');
 
         page.className =
           'et-page';
@@ -1637,9 +1490,7 @@ const { $, $$ } = window.MTW;
           'hidden';
 
         const grid =
-          document.createElement(
-            'div'
-          );
+          document.createElement('div');
 
         grid.className =
           'et-grid-cards ' +
@@ -1700,15 +1551,24 @@ const { $, $$ } = window.MTW;
 
   function openEdit(c) {
 
-    if (
-      !c ||
-      !els.left
-    ) {
+    if (!c) return;
+
+    const left =
+      document.querySelector(
+        '.db-left-content'
+      );
+
+    if (!left) {
+
+      console.warn(
+        '[ET Pricing] .db-left-content not found'
+      );
+
       return;
     }
 
     const old =
-      els.left.querySelector(
+      left.querySelector(
         '.et-edit-panel'
       );
 
@@ -1724,16 +1584,43 @@ const { $, $$ } = window.MTW;
         'none';
     }
 
-    els.left.classList.add(
+    left.classList.add(
       'editing'
     );
 
     const panel =
       buildPanel(c);
 
-    els.left.appendChild(
+    left.appendChild(
       panel
     );
+
+    panel.style.display =
+      'flex';
+
+    panel.style.flexDirection =
+      'column';
+
+    panel.style.width =
+      '100%';
+
+    panel.style.minWidth =
+      '0';
+
+    panel.style.minHeight =
+      '0';
+
+    panel.style.flex =
+      '1 1 auto';
+
+    panel.style.overflowY =
+      'auto';
+
+    panel.style.overflowX =
+      'hidden';
+
+    panel.style.boxSizing =
+      'border-box';
 
     requestAnimationFrame(
       () => {
@@ -1746,10 +1633,15 @@ const { $, $$ } = window.MTW;
 
     editing = null;
 
-    if (els.left) {
+    const left =
+      document.querySelector(
+        '.db-left-content'
+      );
+
+    if (left) {
 
       const panel =
-        els.left.querySelector(
+        left.querySelector(
           '.et-edit-panel'
         );
 
@@ -1757,7 +1649,7 @@ const { $, $$ } = window.MTW;
         panel.remove();
       }
 
-      els.left.classList.remove(
+      left.classList.remove(
         'editing'
       );
     }
@@ -1776,17 +1668,13 @@ const { $, $$ } = window.MTW;
   ) {
 
     const wrap =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     wrap.className =
       'et-control-row';
 
     const l =
-      document.createElement(
-        'label'
-      );
+      document.createElement('label');
 
     l.className =
       'et-control-label';
@@ -1795,9 +1683,7 @@ const { $, $$ } = window.MTW;
       label;
 
     const s =
-      document.createElement(
-        'select'
-      );
+      document.createElement('select');
 
     s.className =
       'et-control';
@@ -1820,9 +1706,7 @@ const { $, $$ } = window.MTW;
           String(v) ===
           String(value);
 
-        s.appendChild(
-          o
-        );
+        s.appendChild(o);
       }
     );
 
@@ -1844,17 +1728,13 @@ const { $, $$ } = window.MTW;
   ) {
 
     const wrap =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     wrap.className =
       'et-control-row';
 
     const l =
-      document.createElement(
-        'label'
-      );
+      document.createElement('label');
 
     l.className =
       'et-control-label';
@@ -1863,9 +1743,7 @@ const { $, $$ } = window.MTW;
       label;
 
     const input =
-      document.createElement(
-        'input'
-      );
+      document.createElement('input');
 
     input.className =
       'et-control et-number';
@@ -1896,17 +1774,13 @@ const { $, $$ } = window.MTW;
   ) {
 
     const wrap =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     wrap.className =
       'et-control-row';
 
     const l =
-      document.createElement(
-        'label'
-      );
+      document.createElement('label');
 
     l.className =
       'et-control-label';
@@ -1915,9 +1789,7 @@ const { $, $$ } = window.MTW;
       label;
 
     const input =
-      document.createElement(
-        'input'
-      );
+      document.createElement('input');
 
     input.className =
       'et-checkbox';
@@ -1948,17 +1820,13 @@ const { $, $$ } = window.MTW;
   ) {
 
     const wrap =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     wrap.className =
       'et-field-group';
 
     const label =
-      document.createElement(
-        'label'
-      );
+      document.createElement('label');
 
     label.className =
       'et-field-label';
@@ -1976,65 +1844,56 @@ const { $, $$ } = window.MTW;
     input.className =
       'et-field-input';
 
+    if (type !== 'textarea') {
+      input.type = type || 'text';
+    }
+
     input.value =
       c[key] ?? '';
 
-    if (
-      type === 'textarea'
-    ) {
-      input.rows = 4;
-    }
+    input.oninput =
+      () => {
 
-    input.oninput = () => {
-
-      c[key] =
-        input.value;
-
-      if (
-        key === 'description' ||
-        key === 'partNumber' ||
-        key === 'extraNote' ||
-        key === 'oldPrice'
-      ) {
-
-        const content =
-          c.style[key];
+        c[key] =
+          input.value;
 
         if (
-          content &&
-          content.items &&
-          content.items[0]
+          key === 'description' ||
+          key === 'partNumber' ||
+          key === 'extraNote' ||
+          key === 'oldPrice'
         ) {
 
-          content.items[0].text =
-            input.value;
-
           if (
-            !Array.isArray(
-              content.items[0].texts
-            )
+            c.style[key] &&
+            c.style[key].items?.[0]
           ) {
 
-            content.items[0].texts = [
-              defaultText(
-                input.value
-              )
-            ];
-          }
-
-          content.items[0]
-            .texts[0]
-            .text =
+            c.style[key]
+              .items[0]
+              .text =
               input.value;
-        }
-      }
 
-      live(
-        c,
-        key,
-        input.value
-      );
-    };
+            if (
+              c.style[key]
+                .items[0]
+                .texts?.[0]
+            ) {
+
+              c.style[key]
+                .items[0]
+                .texts[0]
+                .text =
+                input.value;
+            }
+          }
+        }
+
+        live(
+          c,
+          key
+        );
+      };
 
     wrap.append(
       label,
@@ -2046,38 +1905,35 @@ const { $, $$ } = window.MTW;
 
   function fieldSettings(
     c,
-    item,
-    onChange
+    key
   ) {
 
-    item.fields =
-      item.fields || {
-        v: 1,
-        a: 'left',
-        fit: 1,
-        size: null,
-        line: null
-      };
+    const wrap =
+      document.createElement('div');
+
+    wrap.className =
+      'et-field-settings';
 
     const f =
-      item.fields;
+      c.style.fields[key] ||
+      clone(DEFAULT_FIELDS[key]);
 
-    const box =
-      document.createElement(
-        'div'
-      );
-
-    box.className =
-      'et-text-settings';
-
-    box.append(
-
+    wrap.append(
       control(
         'Visible',
         f.v,
         v => {
-          f.v = v;
-          onChange();
+
+          f.v =
+            v ? 1 : 0;
+
+          c.style.fields[key] =
+            f;
+
+          live(
+            c,
+            key
+          );
         }
       ),
 
@@ -2090,8 +1946,17 @@ const { $, $$ } = window.MTW;
           ['right', 'Right']
         ],
         v => {
-          f.a = v;
-          onChange();
+
+          f.a =
+            v;
+
+          c.style.fields[key] =
+            f;
+
+          live(
+            c,
+            key
+          );
         }
       ),
 
@@ -2099,12 +1964,19 @@ const { $, $$ } = window.MTW;
         'Font Size',
         f.size,
         v => {
-          f.size =
-            v
-              ? Number(v)
-              : null;
 
-          onChange();
+          f.size =
+            v === ''
+              ? null
+              : Number(v);
+
+          c.style.fields[key] =
+            f;
+
+          live(
+            c,
+            key
+          );
         }
       ),
 
@@ -2112,10 +1984,19 @@ const { $, $$ } = window.MTW;
         'Line Height',
         f.line,
         v => {
-          f.line =
-            v || null;
 
-          onChange();
+          f.line =
+            v === ''
+              ? null
+              : Number(v);
+
+          c.style.fields[key] =
+            f;
+
+          live(
+            c,
+            key
+          );
         }
       ),
 
@@ -2123,13 +2004,22 @@ const { $, $$ } = window.MTW;
         'Auto Fit',
         f.fit,
         v => {
-          f.fit = v;
-          onChange();
+
+          f.fit =
+            v ? 1 : 0;
+
+          c.style.fields[key] =
+            f;
+
+          live(
+            c,
+            key
+          );
         }
       )
     );
 
-    return box;
+    return wrap;
   }
 
   function contentEditor(
@@ -2140,147 +2030,78 @@ const { $, $$ } = window.MTW;
     const s =
       c.style[key];
 
-    const box =
-      document.createElement(
-        'div'
-      );
+    const wrap =
+      document.createElement('div');
 
-    box.className =
+    wrap.className =
       'et-content-editor';
 
-    const head =
-      document.createElement(
-        'div'
-      );
-
-    head.className =
-      'et-content-editor-header';
-
-    const name =
-      document.createElement(
-        'div'
-      );
-
-    name.className =
-      'et-field-editor-name';
-
-    name.textContent =
-      FIELD_NAMES[key];
-
-    const toggle =
-      document.createElement(
-        'button'
-      );
-
-    toggle.type =
-      'button';
-
-    toggle.className =
-      'et-field-editor-toggle';
-
-    toggle.textContent =
-      'Edit';
-
-    head.append(
-      name,
-      toggle
-    );
-
-    const body =
-      document.createElement(
-        'div'
-      );
-
-    body.className =
-      'et-content-editor-body';
-
-    toggle.onclick = () => {
-
-      box.classList.toggle(
-        'open'
-      );
-
-      toggle.textContent =
-        box.classList.contains(
-          'open'
-        )
-          ? 'Close'
-          : 'Edit';
-    };
-
-    const settings =
-      document.createElement(
-        'div'
-      );
-
-    settings.className =
-      'et-content-settings';
-
-    settings.append(
+    wrap.append(
 
       select(
         'Display',
         s.display,
         [
-          ['block', 'Normal'],
+          ['block', 'Block'],
           ['flex', 'Flex'],
           ['grid', 'Grid']
         ],
         v => {
-          s.display = v;
-          refreshCard(c.id);
+
+          s.display =
+            v;
+
+          live(
+            c,
+            key
+          );
         }
       ),
 
       select(
-        'Flex Direction',
+        'Direction',
         s.direction,
         [
           ['column', 'Column'],
-          ['row', 'Row'],
-          [
-            'column-reverse',
-            'Column Reverse'
-          ],
-          [
-            'row-reverse',
-            'Row Reverse'
-          ]
+          ['row', 'Row']
         ],
         v => {
-          s.direction = v;
-          refreshCard(c.id);
+
+          s.direction =
+            v;
+
+          live(
+            c,
+            key
+          );
         }
       ),
 
       select(
-        'Justify Content',
+        'Justify',
         s.justify,
         [
           ['start', 'Start'],
           ['center', 'Center'],
           ['end', 'End'],
-          [
-            'between',
-            'Space Between'
-          ],
-          [
-            'around',
-            'Space Around'
-          ],
-          [
-            'even',
-            'Space Evenly'
-          ]
+          ['between', 'Space Between'],
+          ['around', 'Space Around'],
+          ['even', 'Space Evenly']
         ],
         v => {
-          s.justify = v;
-          refreshCard(c.id);
+
+          s.justify =
+            v;
+
+          live(
+            c,
+            key
+          );
         }
       ),
 
       select(
-        'Align Items',
+        'Align',
         s.align,
         [
           ['stretch', 'Stretch'],
@@ -2289,8 +2110,14 @@ const { $, $$ } = window.MTW;
           ['end', 'End']
         ],
         v => {
-          s.align = v;
-          refreshCard(c.id);
+
+          s.align =
+            v;
+
+          live(
+            c,
+            key
+          );
         }
       ),
 
@@ -2299,15 +2126,17 @@ const { $, $$ } = window.MTW;
         s.wrap,
         [
           ['nowrap', 'No Wrap'],
-          ['wrap', 'Wrap'],
-          [
-            'wrap-reverse',
-            'Wrap Reverse'
-          ]
+          ['wrap', 'Wrap']
         ],
         v => {
-          s.wrap = v;
-          refreshCard(c.id);
+
+          s.wrap =
+            v;
+
+          live(
+            c,
+            key
+          );
         }
       ),
 
@@ -2315,13 +2144,17 @@ const { $, $$ } = window.MTW;
         'Columns',
         s.columns,
         v => {
+
           s.columns =
             Math.max(
               1,
               Number(v) || 1
             );
 
-          refreshCard(c.id);
+          live(
+            c,
+            key
+          );
         }
       ),
 
@@ -2329,13 +2162,17 @@ const { $, $$ } = window.MTW;
         'Rows',
         s.rows,
         v => {
+
           s.rows =
             Math.max(
               1,
               Number(v) || 1
             );
 
-          refreshCard(c.id);
+          live(
+            c,
+            key
+          );
         }
       ),
 
@@ -2343,10 +2180,14 @@ const { $, $$ } = window.MTW;
         'Gap',
         s.gap,
         v => {
+
           s.gap =
             Number(v) || 0;
 
-          refreshCard(c.id);
+          live(
+            c,
+            key
+          );
         }
       ),
 
@@ -2354,10 +2195,14 @@ const { $, $$ } = window.MTW;
         'Row Gap',
         s.rowGap,
         v => {
+
           s.rowGap =
             Number(v) || 0;
 
-          refreshCard(c.id);
+          live(
+            c,
+            key
+          );
         }
       ),
 
@@ -2365,370 +2210,19 @@ const { $, $$ } = window.MTW;
         'Column Gap',
         s.columnGap,
         v => {
+
           s.columnGap =
             Number(v) || 0;
 
-          refreshCard(c.id);
+          live(
+            c,
+            key
+          );
         }
       )
     );
 
-    body.appendChild(
-      settings
-    );
-
-    const items =
-      document.createElement(
-        'div'
-      );
-
-    items.className =
-      'et-grid-item-list';
-
-    function rebuildItems() {
-
-      items.innerHTML = '';
-
-      s.items.forEach(
-        (item, index) => {
-
-          const itemBox =
-            document.createElement(
-              'div'
-            );
-
-          itemBox.className =
-            'et-grid-item';
-
-          const itemHead =
-            document.createElement(
-              'div'
-            );
-
-          itemHead.className =
-            'et-grid-item-header';
-
-          const itemTitle =
-            document.createElement(
-              'div'
-            );
-
-          itemTitle.className =
-            'et-grid-item-title';
-
-          itemTitle.textContent =
-            'Grid Item ' +
-            (index + 1);
-
-          const remove =
-            document.createElement(
-              'button'
-            );
-
-          remove.type =
-            'button';
-
-          remove.className =
-            'et-remove-button';
-
-          remove.textContent =
-            '×';
-
-          remove.onclick = () => {
-
-            if (
-              s.items.length <= 1
-            ) {
-              return;
-            }
-
-            s.items.splice(
-              index,
-              1
-            );
-
-            rebuildItems();
-
-            refreshCard(
-              c.id
-            );
-          };
-
-          itemHead.append(
-            itemTitle,
-            remove
-          );
-
-          const texts =
-            document.createElement(
-              'div'
-            );
-
-          texts.className =
-            'et-grid-item-texts';
-
-          item.texts =
-            Array.isArray(
-              item.texts
-            ) &&
-            item.texts.length
-              ? item.texts
-              : [
-                  {
-                    text:
-                      item.text || '',
-                    fields:
-                      item.fields ||
-                      clone(
-                        DEFAULT_FIELDS
-                          .description
-                      )
-                  }
-                ];
-
-          item.text =
-            item.texts[0]?.text ||
-            '';
-
-          item.fields =
-            item.texts[0]?.fields ||
-            item.fields ||
-            clone(
-              DEFAULT_FIELDS
-                .description
-            );
-
-          item.texts.forEach(
-            (txt, textIndex) => {
-
-              const textBox =
-                document.createElement(
-                  'div'
-                );
-
-              textBox.className =
-                'et-grid-text';
-
-              const textHead =
-                document.createElement(
-                  'div'
-                );
-
-              textHead.className =
-                'et-grid-text-header';
-
-              const textName =
-                document.createElement(
-                  'div'
-                );
-
-              textName.className =
-                'et-grid-text-title';
-
-              textName.textContent =
-                'Text ' +
-                (textIndex + 1);
-
-              const removeText =
-                document.createElement(
-                  'button'
-                );
-
-              removeText.type =
-                'button';
-
-              removeText.className =
-                'et-remove-button';
-
-              removeText.textContent =
-                '×';
-
-              removeText.onclick = () => {
-
-                if (
-                  item.texts.length <= 1
-                ) {
-                  return;
-                }
-
-                item.texts.splice(
-                  textIndex,
-                  1
-                );
-
-                item.text =
-                  item.texts[0]?.text ||
-                  '';
-
-                item.fields =
-                  item.texts[0]?.fields ||
-                  item.fields;
-
-                rebuildItems();
-
-                refreshCard(
-                  c.id
-                );
-              };
-
-              textHead.append(
-                textName,
-                removeText
-              );
-
-              const textarea =
-                document.createElement(
-                  'textarea'
-                );
-
-              textarea.className =
-                'et-field-input';
-
-              textarea.rows = 2;
-
-              textarea.value =
-                txt.text ?? '';
-
-              textarea.oninput = () => {
-
-                txt.text =
-                  textarea.value;
-
-                if (
-                  textIndex === 0
-                ) {
-                  item.text =
-                    textarea.value;
-                }
-
-                refreshCard(
-                  c.id
-                );
-              };
-
-              textBox.append(
-                textHead,
-                textarea,
-                fieldSettings(
-                  c,
-                  txt,
-                  () => {
-
-                    if (
-                      textIndex === 0
-                    ) {
-
-                      item.text =
-                        txt.text;
-
-                      item.fields =
-                        txt.fields;
-                    }
-
-                    refreshCard(
-                      c.id
-                    );
-                  }
-                )
-              );
-
-              texts.appendChild(
-                textBox
-              );
-            }
-          );
-
-          const addText =
-            document.createElement(
-              'button'
-            );
-
-          addText.type =
-            'button';
-
-          addText.className =
-            'et-small-add';
-
-          addText.textContent =
-            '+ Text';
-
-          addText.onclick = () => {
-
-            item.texts.push(
-              defaultText('')
-            );
-
-            rebuildItems();
-
-            refreshCard(
-              c.id
-            );
-          };
-
-          itemBox.append(
-            itemHead,
-            texts,
-            addText
-          );
-
-          items.appendChild(
-            itemBox
-          );
-        }
-      );
-
-      const addItem =
-        document.createElement(
-          'button'
-        );
-
-      addItem.type =
-        'button';
-
-      addItem.className =
-        'et-small-add';
-
-      addItem.textContent =
-        '+ Grid Item';
-
-      addItem.onclick = () => {
-
-        s.items.push({
-          text: '',
-          fields:
-            clone(
-              DEFAULT_FIELDS
-                .description
-            ),
-          texts: [
-            defaultText('')
-          ]
-        });
-
-        rebuildItems();
-
-        refreshCard(
-          c.id
-        );
-      };
-
-      items.appendChild(
-        addItem
-      );
-    }
-
-    rebuildItems();
-
-    body.appendChild(
-      items
-    );
-
-    box.append(
-      head,
-      body
-    );
-
-    return box;
+    return wrap;
   }
 
   function simpleFieldEditor(
@@ -2736,229 +2230,91 @@ const { $, $$ } = window.MTW;
     key
   ) {
 
-    const f =
-      c.style.fields[key] ||
-      (
-        c.style.fields[key] =
-          clone(
-            DEFAULT_FIELDS[key]
-          )
-      );
+    const wrap =
+      document.createElement('div');
 
-    const box =
-      document.createElement(
-        'div'
-      );
+    wrap.className =
+      'et-simple-field-editor';
 
-    box.className =
-      'et-field-editor';
-
-    const head =
-      document.createElement(
-        'div'
-      );
-
-    head.className =
-      'et-field-editor-header';
-
-    const name =
-      document.createElement(
-        'div'
-      );
-
-    name.className =
-      'et-field-editor-name';
-
-    name.textContent =
-      FIELD_NAMES[key];
-
-    const toggle =
-      document.createElement(
-        'button'
-      );
-
-    toggle.type =
-      'button';
-
-    toggle.className =
-      'et-field-editor-toggle';
-
-    toggle.textContent =
-      'Edit';
-
-    head.append(
-      name,
-      toggle
-    );
-
-    const body =
-      document.createElement(
-        'div'
-      );
-
-    body.className =
-      'et-field-editor-body';
-
-    toggle.onclick = () => {
-
-      box.classList.toggle(
-        'open'
-      );
-
-      toggle.textContent =
-        box.classList.contains(
-          'open'
-        )
-          ? 'Close'
-          : 'Edit';
-    };
-
-    body.append(
-
-      control(
-        'Visible',
-        f.v,
-        v => {
-          f.v = v;
-          refreshCard(c.id);
-        }
-      ),
-
-      select(
-        'Alignment',
-        f.a,
-        [
-          ['left', 'Left'],
-          ['center', 'Center'],
-          ['right', 'Right']
-        ],
-        v => {
-          f.a = v;
-          refreshCard(c.id);
-        }
-      ),
-
-      num(
-        'Font Size',
-        f.size,
-        v => {
-          f.size =
-            v
-              ? Number(v)
-              : null;
-
-          refreshCard(c.id);
-        }
-      ),
-
-      num(
-        'Line Height',
-        f.line,
-        v => {
-          f.line =
-            v || null;
-
-          refreshCard(c.id);
-        }
-      ),
-
-      control(
-        'Auto Fit',
-        f.fit,
-        v => {
-          f.fit = v;
-          refreshCard(c.id);
-        }
+    wrap.append(
+      fieldSettings(
+        c,
+        key
       )
     );
 
-    box.append(
-      head,
-      body
-    );
-
-    return box;
+    return wrap;
   }
 
   function section(
     title,
-    children
+    content
   ) {
 
-    const s =
-      document.createElement(
-        'div'
-      );
+    const wrap =
+      document.createElement('div');
 
-    s.className =
-      'et-edit-section';
+    wrap.className =
+      'et-editor-section';
 
-    const h =
-      document.createElement(
-        'div'
-      );
+    const head =
+      document.createElement('div');
 
-    h.className =
-      'et-edit-section-title';
+    head.className =
+      'et-editor-section-title';
 
-    h.textContent =
+    head.textContent =
       title;
 
-    s.appendChild(
-      h
+    const body =
+      document.createElement('div');
+
+    body.className =
+      'et-editor-section-body';
+
+    body.appendChild(
+      content
     );
 
-    children.forEach(
-      x => {
-        s.appendChild(x);
-      }
+    wrap.append(
+      head,
+      body
     );
 
-    return s;
+    return wrap;
   }
 
   function buildPanel(c) {
 
     const panel =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     panel.className =
       'et-edit-panel';
 
-    panel.dataset.cardId =
-      c.id;
-
     const header =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     header.className =
       'et-edit-panel-header';
 
     const title =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     title.className =
       'et-edit-panel-title';
 
     title.textContent =
-      'Edit Card';
+      'Edit Pricing Card';
 
     const close =
-      document.createElement(
-        'button'
-      );
+      document.createElement('button');
 
     close.type =
       'button';
 
     close.className =
-      'et-edit-panel-close';
+      'et-edit-close';
 
     close.textContent =
       '×';
@@ -2971,92 +2327,136 @@ const { $, $$ } = window.MTW;
       close
     );
 
-    panel.appendChild(
-      header
-    );
+    const body =
+      document.createElement('div');
 
-    panel.appendChild(
-      section(
-        'Content',
-        [
-          contentField(
-            c,
-            'title',
-            'input'
-          ),
-          contentField(
-            c,
-            'description',
-            'textarea'
-          ),
-          contentField(
-            c,
-            'price',
-            'input'
-          ),
-          contentField(
-            c,
-            'oldPrice',
-            'input'
-          ),
-          contentField(
-            c,
-            'partNumber',
-            'input'
-          ),
-          contentField(
-            c,
-            'extraNote',
-            'input'
-          )
-        ]
+    body.className =
+      'et-edit-panel-body';
+
+    const contentSection =
+      document.createElement('div');
+
+    contentSection.className =
+      'et-edit-content-section';
+
+    contentSection.append(
+
+      contentField(
+        c,
+        'title',
+        'text'
+      ),
+
+      simpleFieldEditor(
+        c,
+        'title'
+      ),
+
+      contentField(
+        c,
+        'description',
+        'textarea'
+      ),
+
+      contentEditor(
+        c,
+        'description'
+      ),
+
+      contentField(
+        c,
+        'price',
+        'text'
+      ),
+
+      simpleFieldEditor(
+        c,
+        'price'
+      ),
+
+      contentField(
+        c,
+        'oldPrice',
+        'text'
+      ),
+
+      contentEditor(
+        c,
+        'oldPrice'
+      ),
+
+      contentField(
+        c,
+        'partNumber',
+        'text'
+      ),
+
+      contentEditor(
+        c,
+        'partNumber'
+      ),
+
+      contentField(
+        c,
+        'extraNote',
+        'textarea'
+      ),
+
+      contentEditor(
+        c,
+        'extraNote'
       )
     );
 
-    panel.appendChild(
+    body.appendChild(
+      section(
+        'Content',
+        contentSection
+      )
+    );
+
+    const elements =
+      document.createElement('div');
+
+    elements.className =
+      'et-elements-section';
+
+    [
+      'title',
+      'price',
+      'partNumber',
+      'extraNote',
+      'oldPrice'
+    ].forEach(
+      key => {
+
+        elements.appendChild(
+          section(
+            FIELD_NAMES[key],
+            simpleFieldEditor(
+              c,
+              key
+            )
+          )
+        );
+      }
+    );
+
+    body.appendChild(
       section(
         'Elements',
-        [
-          contentEditor(
-            c,
-            'description'
-          ),
-          simpleFieldEditor(
-            c,
-            'title'
-          ),
-          simpleFieldEditor(
-            c,
-            'price'
-          ),
-          simpleFieldEditor(
-            c,
-            'partNumber'
-          ),
-          simpleFieldEditor(
-            c,
-            'extraNote'
-          ),
-          simpleFieldEditor(
-            c,
-            'oldPrice'
-          )
-        ]
+        elements
       )
     );
 
     const footer =
-      document.createElement(
-        'div'
-      );
+      document.createElement('div');
 
     footer.className =
       'et-edit-panel-footer';
 
     const reset =
-      document.createElement(
-        'button'
-      );
+      document.createElement('button');
 
     reset.type =
       'button';
@@ -3067,73 +2467,41 @@ const { $, $$ } = window.MTW;
     reset.textContent =
       'Reset';
 
-    reset.onclick = () => {
+    reset.onclick =
+      () => {
 
-      c.style = {
+        c.style.fields =
+          clone(DEFAULT_FIELDS);
 
-        fields:
-          clone(
-            DEFAULT_FIELDS
-          ),
-
-        description:
+        c.style.description =
           defaultContent(
             c.description
-          ),
+          );
 
-        partNumber:
+        c.style.partNumber =
           defaultContent(
             c.partNumber
-          ),
+          );
 
-        extraNote:
+        c.style.extraNote =
           defaultContent(
             c.extraNote
-          ),
+          );
 
-        oldPrice:
+        c.style.oldPrice =
           defaultContent(
             c.oldPrice
-          )
-      };
+          );
 
-      const old =
-        els.left.querySelector(
-          '.et-edit-panel'
+        refreshCard(
+          c.id
         );
 
-      if (old) {
-        old.remove();
-      }
-
-      els.left.appendChild(
-        buildPanel(c)
-      );
-
-      requestAnimationFrame(
-        () => {
-
-          const newPanel =
-            els.left.querySelector(
-              '.et-edit-panel'
-            );
-
-          if (newPanel) {
-            newPanel.scrollTop =
-              0;
-          }
-        }
-      );
-
-      refreshCard(
-        c.id
-      );
-    };
+        openEdit(c);
+      };
 
     const copy =
-      document.createElement(
-        'button'
-      );
+      document.createElement('button');
 
     copy.type =
       'button';
@@ -3144,39 +2512,39 @@ const { $, $$ } = window.MTW;
     copy.textContent =
       'Copy';
 
-    copy.onclick = () => {
+    copy.onclick =
+      () => {
 
-      const data =
-        clone(c);
+        const data =
+          clone(c);
 
-      delete data.id;
+        delete data.id;
 
-      const n =
-        add(data);
+        const n =
+          add(data);
 
-      openEdit(n);
-    };
+        openEdit(n);
+      };
 
     const save =
-      document.createElement(
-        'button'
-      );
+      document.createElement('button');
 
     save.type =
       'button';
 
     save.className =
-      'et-edit-button primary';
+      'et-edit-button et-edit-save';
 
     save.textContent =
       'Save';
 
-    save.onclick = () => {
+    save.onclick =
+      () => {
 
-      renderList();
+        render();
 
-      hideEdit();
-    };
+        hideEdit();
+      };
 
     footer.append(
       reset,
@@ -3184,7 +2552,9 @@ const { $, $$ } = window.MTW;
       save
     );
 
-    panel.appendChild(
+    panel.append(
+      header,
+      body,
       footer
     );
 
@@ -3195,528 +2565,240 @@ const { $, $$ } = window.MTW;
 
     if (
       document.getElementById(
-        'et-pricing-styles'
+        'et-pricing-tool-styles'
       )
-    ) {
-      return;
-    }
+    ) return;
 
     const style =
-      document.createElement(
-        'style'
-      );
+      document.createElement('style');
 
     style.id =
-      'et-pricing-styles';
+      'et-pricing-tool-styles';
 
     style.textContent = `
 
-.et-everyday-card,
-.et-clearance-card,
-.et-promo-card{
-display:flex!important;
-flex-direction:column!important;
-height:100%!important;
-box-sizing:border-box!important;
-overflow:hidden!important;
-position:relative!important
-}
-
-.everyday-card,
-.clearance-card,
-.promo-card{
-flex:1 1 auto!important;
-min-height:0!important;
-display:flex!important;
-flex-direction:column!important;
-box-sizing:border-box!important
-}
-
-.everyday-card-body-wrapper,
-.clearance-card-body-wrapper,
-.promo-card-body-wrapper{
-flex:1 1 auto!important;
-min-height:0!important;
-display:flex!important;
-flex-direction:column!important
-}
-
-.everyday-card-body,
-.clearance-card-body,
-.promo-card-body{
-flex:1 1 auto!important;
-min-height:0!important;
-height:100%!important;
-box-sizing:border-box!important;
-display:flex!important;
-flex-direction:column!important
-}
-
-.card-top-wrapper{
-flex:1 1 auto!important;
-min-height:0!important;
-overflow:hidden!important
-}
-
-.card-bottom-wrapper{
-flex:0 0 auto!important;
-margin-top:auto!important
-}
-
-.card-text-title,
-.card-text-description,
-.card-text-price,
-.card-text-price-old,
-.card-text-extra,
-.card-config-text{
-margin:0!important
-}
-
-.card-grid-title,
-.card-grid-description,
-.card-grid-part-number,
-.card-grid-extra-note,
-.card-grid-old-price{
-min-width:0;
-box-sizing:border-box
-}
-
-.card-config-item{
-min-width:0;
-box-sizing:border-box
-}
-
-.card-extra-info-grid{
-width:100%;
-box-sizing:border-box;
-display:grid!important;
-grid-template-columns:minmax(0,1fr) auto!important;
-align-items:end!important;
-gap:10px!important
-}
-
-.card-extra-info{
-min-width:0;
-display:flex;
-flex-direction:column;
-align-items:stretch
-}
-
-.card-old-price-wrapper{
-min-width:0;
-text-align:right
-}
-
-.et-page{
-background:#fff;
-box-shadow:
-0 0 0 1px rgba(0,0,0,.08),
-0 4px 16px rgba(0,0,0,.08);
-margin-bottom:24px
-}
-
-.et-card-overlay{
-position:absolute;
-inset:0;
-display:flex;
-align-items:center;
-justify-content:center;
-background:rgba(0,0,0,.55);
-opacity:0;
-transition:opacity .2s;
-cursor:pointer;
-z-index:999
-}
-
-.et-card-overlay:hover{
-opacity:1
-}
-
-.et-card-overlay-icon svg{
-width:32px;
-height:32px;
-color:#fff
-}
-
-.et-everyday-card:hover .everyday-card,
-.et-clearance-card:hover .clearance-card,
-.et-promo-card:hover .promo-card{
-filter:blur(2px) grayscale(90%)
-}
-
-.card-view-container{
-min-width:0!important;
-overflow-x:auto!important;
-overflow-y:hidden!important;
-flex:1 1 auto!important;
-scrollbar-width:none!important;
--ms-overflow-style:none!important;
-overscroll-behavior-x:contain!important;
-scroll-behavior:smooth!important
-}
-
-.card-view-container::-webkit-scrollbar{
-display:none!important;
-width:0!important;
-height:0!important
-}
-
-.card-view-container > .et-current-card{
-flex:0 0 auto!important;
-min-width:0!important
-}
-
-.db-left-content {
-height:100%!important;
+.db-left-content{
+  height:100%!important;
 }
 
 .db-left-content.editing{
-width:100%!important;
-height:100%!important;
-min-height:0!important;
-overflow:hidden!important;
-display:flex!important;
-flex-direction:column!important;
-overscroll-behavior:contain!important;
-overscroll-behavior-y:contain!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overscroll-behavior:contain!important;
+  overscroll-behavior-y:contain!important;
 }
 
 .db-left-content.editing .et-edit-panel{
-flex:1 1 auto!important;
-width:100%!important;
-height:auto!important;
-min-height:0!important;
-max-height:none!important;
-overflow-y:auto!important;
-overflow-x:hidden!important;
-box-sizing:border-box!important;
-padding-right:10px!important;
-overscroll-behavior:contain!important;
-overscroll-behavior-y:contain!important;
--webkit-overflow-scrolling:touch!important;
-scrollbar-width:thin;
-touch-action:pan-y;
-color: white;
+  flex:1 1 auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  box-sizing:border-box!important;
+  padding-right:10px!important;
+  overscroll-behavior:contain!important;
+  overscroll-behavior-y:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:thin;
+  touch-action:pan-y;
+  color:white;
 }
 
-.et-edit-panel::-webkit-scrollbar{
-width:6px;
-}
-
-.et-edit-panel::-webkit-scrollbar-track{
-background:transparent;
-}
-
-.et-edit-panel::-webkit-scrollbar-thumb{
-background:#ccc;
-border-radius:10px;
-}
-
-.et-edit-panel::-webkit-scrollbar-thumb:hover{
-background:#aaa;
+.et-edit-panel{
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  min-width:0;
+  min-height:0;
+  box-sizing:border-box;
 }
 
 .et-edit-panel-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-flex:0 0 auto;
-margin-bottom:16px;
-padding-bottom:12px;
-border-bottom:1px solid #eee
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex:0 0 auto;
+  margin-bottom:16px;
+  padding-bottom:12px;
+  border-bottom:1px solid #eee;
 }
 
 .et-edit-panel-title{
-font-weight:700;
-font-size:18px
+  font-size:20px;
+  font-weight:700;
 }
 
-.et-edit-panel-close{
-border:0;
-background:none;
-font-size:24px;
-cursor:pointer;
-line-height:1
+.et-edit-close{
+  width:34px;
+  height:34px;
+  border:0;
+  border-radius:6px;
+  background:#222;
+  color:#fff;
+  font-size:24px;
+  line-height:1;
+  cursor:pointer;
 }
 
-.et-edit-section{
-border-top:1px solid #eee;
-padding-top:16px;
-margin-top:16px
+.et-edit-panel-body{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  min-width:0;
+  padding-bottom:20px;
 }
 
-.et-edit-section-title{
-font-size:11px;
-font-weight:700;
-text-transform:uppercase;
-margin-bottom:12px
+.et-editor-section{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+}
+
+.et-editor-section-title{
+  font-size:14px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+
+.et-editor-section-body{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  width:100%;
+  min-width:0;
 }
 
 .et-field-group{
-margin-bottom:12px
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  width:100%;
 }
 
 .et-field-label,
 .et-control-label{
-display:block;
-font-size:11px;
-font-weight:600;
-color: white;
-margin-bottom:5px
+  font-size:11px;
+  font-weight:600;
 }
 
 .et-field-input{
-width:100%;
-box-sizing:border-box;
-padding:8px;
-border:1px solid #ccc;
-border-radius:5px;
-font:inherit;
-font-size:12px
-background-color: #30353b;
-outline: none;
-color: black;
-}
-
-textarea.et-field-input{
-resize:vertical
+  width:100%;
+  min-height:38px;
+  box-sizing:border-box;
+  border:1px solid #ddd;
+  border-radius:5px;
+  padding:8px 10px;
+  font-size:12px;
+  background-color:#fff;
+  color:#111;
+  resize:vertical;
 }
 
 .et-control-row{
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:10px;
-margin-bottom:8px
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  width:100%;
 }
 
 .et-control{
-min-width:120px;
-padding:6px;
-border:1px solid #ccc;
-border-radius:5px;
-background:#fff;
-font:inherit;
-font-size:11px
-color: black !important;
-outline: none;
-}
-
-.et-number{
-width:80px;
-min-width:80px
+  min-width:90px;
+  box-sizing:border-box;
+  border:1px solid #ddd;
+  border-radius:5px;
+  padding:6px 8px;
+  font-size:11px;
+  color:#111;
+  background:#fff;
 }
 
 .et-checkbox{
-width:16px;
-height:16px
+  width:16px;
+  height:16px;
 }
 
-.et-field-editor,
-.et-content-editor{
-border:1px solid #e5e5e5;
-border-radius:6px;
-padding:9px;
-margin-bottom:7px
-}
-
-.et-field-editor-header,
-.et-content-editor-header{
-display:flex;
-align-items:center;
-justify-content:space-between
-}
-
-.et-field-editor-name,
-.et-grid-item-title,
-.et-grid-text-title{
-font-size:12px;
-font-weight:700
-}
-
-.et-field-editor-toggle{
-border:0;
-background:none;
-cursor:pointer;
-font-size:10px
-}
-
-.et-field-editor-body,
-.et-content-editor-body{
-display:none;
-padding-top:9px
-}
-
-.et-field-editor.open .et-field-editor-body,
-.et-content-editor.open .et-content-editor-body{
-display:block
-}
-
-.et-content-settings{
-border-bottom:1px solid #eee;
-padding-bottom:8px;
-margin-bottom:10px
-}
-
-.et-grid-item{
-border:1px solid #ddd;
-border-radius:5px;
-padding:8px;
-margin-bottom:8px
-}
-
-.et-grid-item-header,
-.et-grid-text-header{
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:8px;
-margin-bottom:7px
-}
-
-.et-grid-text{
-border-top:1px solid #eee;
-padding-top:8px;
-margin-top:8px
-}
-
-.et-remove-button{
-border:0;
-background:none;
-cursor:pointer;
-font-size:16px;
-line-height:1
-}
-
-.et-small-add{
-width:100%;
-border:1px dashed #bbb;
-background:#fafafa;
-border-radius:5px;
-padding:7px;
-cursor:pointer;
-font-size:11px;
-font-weight:600
-}
-
-.et-text-settings{
-margin-top:8px;
-padding-top:8px;
-border-top:1px solid #eee
+.et-simple-field-editor,
+.et-content-editor,
+.et-field-settings{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  width:100%;
+  box-sizing:border-box;
 }
 
 .et-edit-panel-footer{
-display:flex;
-justify-content:flex-end;
-align-items:center;
-gap:8px;
-margin-top:18px;
-padding-top:14px;
-border-top:1px solid #eee
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  flex:0 0 auto;
+  padding-top:14px;
+  margin-top:10px;
+  border-top:1px solid #eee;
 }
 
 .et-edit-button{
-border:1px solid #ccc;
-background:#fff;
-border-radius:5px;
-padding:8px 12px;
-cursor:pointer;
-font-size:11px;
-font-weight:600
-color:black;
+  border:0;
+  border-radius:5px;
+  padding:9px 15px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:600;
+  color:#fff;
+  background:#333;
 }
 
-.et-edit-button.primary{
-background:#111;
-color: black;
-border-color:#111
+.et-edit-button.et-edit-save{
+  background:#111;
 }
 
-@media print{
-
-@page{
-size:A4;
-margin:0
-}
-
-*{
--webkit-print-color-adjust:exact!important;
-print-color-adjust:exact!important;
-color-adjust:exact!important
-}
-
-body *{
-visibility:hidden!important
-}
-
-.et-card-body-wrapper,
-.et-card-body-wrapper *{
-visibility:visible!important
-}
-
-.et-card-body-wrapper{
-position:absolute!important;
-top:0!important;
-left:0!important;
-width:auto!important;
-height:auto!important;
-padding:0!important;
-overflow:visible!important;
-display:block!important;
-background:transparent!important
-}
-
-.et-card-overlay,
-.et-edit-panel{
-display:none!important
-}
-
-.et-page{
-width:210mm!important;
-height:297mm!important;
-margin:0!important;
-padding:0!important;
-overflow:hidden!important;
-box-shadow:none!important;
-border:0!important;
-outline:0!important;
-page-break-after:always;
-break-after:page
-}
-
-.et-page:last-child{
-page-break-after:auto;
-break-after:auto
-}
-
-.et-grid-cards{
-width:100%!important;
-height:100%!important;
-margin:0!important;
-border:0!important;
-outline:0!important;
-box-shadow:none!important
+.et-card-overlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .15s ease;
+  cursor:pointer;
+  z-index:20;
 }
 
 .et-everyday-card,
 .et-clearance-card,
-.et-promo-card,
-.everyday-card,
-.clearance-card,
-.promo-card{
-width:100%!important;
-height:100%!important;
-border:0!important;
-outline:0!important
+.et-promo-card{
+  position:relative;
 }
 
-.w-webflow-badge,
-[class*=webflow-badge],
-a[href*=webflow\\\\.com?utm]{
-display:none!important;
-visibility:hidden!important
+.et-everyday-card:hover .et-card-overlay,
+.et-clearance-card:hover .et-card-overlay,
+.et-promo-card:hover .et-card-overlay{
+  opacity:1;
+  pointer-events:auto;
 }
 
+.et-card-overlay-icon{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.75);
+  color:#fff;
+}
+
+.et-card-overlay-icon svg{
+  width:22px;
+  height:22px;
 }
 
 `;
@@ -3726,15 +2808,18 @@ visibility:hidden!important
     );
   }
 
-  function makeScrollable(el) {
+  function makeScrollable() {
 
-    if (!el) return;
+    if (!els.cardView) return;
 
-    el.style.overflowY =
+    els.cardView.style.overflowX =
       'auto';
 
-    el.style.overscrollBehavior =
-      'contain';
+    els.cardView.style.overflowY =
+      'hidden';
+
+    els.cardView.style.scrollBehavior =
+      'smooth';
   }
 
   function onListClick(e) {
@@ -3744,135 +2829,139 @@ visibility:hidden!important
         '[btn]'
       );
 
-    if (!action) {
-      return;
-    }
-
-    const row =
+    const item =
       e.target.closest(
         '[data-card-id]'
       );
 
-    if (!row) {
+    if (!action || !item) return;
+
+    const card =
+      get(
+        item.dataset.cardId
+      );
+
+    if (!card) return;
+
+    const btn =
+      action.getAttribute(
+        'btn'
+      );
+
+    if (btn === 'edit') {
+
+      e.preventDefault();
+
+      openEdit(card);
+
       return;
     }
 
-    const i =
-      row.dataset.cardId;
+    if (btn === 'delete') {
 
-    if (
-      action.getAttribute(
-        'btn'
-      ) === 'edit'
-    ) {
+      e.preventDefault();
 
-      openEdit(
-        get(i)
-      );
-    }
-
-    if (
-      action.getAttribute(
-        'btn'
-      ) === 'delete'
-    ) {
-
-      del(i);
+      del(card.id);
     }
   }
 
   function init() {
 
-  cache();
+    if (!els.left) {
 
-  if (!els.cardView || !els.pages) {
-    setTimeout(start, 100);
-    return;
-  }
-
-  if (!initialized) {
-
-    initialized = true;
-
-    injectStyles();
+      console.warn(
+        '[ET Pricing] .db-left-content not found'
+      );
+    }
 
     if (els.scrollBtnLeft) {
-      els.scrollBtnLeft.onclick = e => {
-        e.preventDefault();
-        e.stopPropagation();
-        scrollCurrentCards(
+
+      els.scrollBtnLeft.onclick =
+        () => scrollCurrentCards(
           els.cardView,
           -1
         );
-      };
     }
 
     if (els.scrollBtnRight) {
-      els.scrollBtnRight.onclick = e => {
-        e.preventDefault();
-        e.stopPropagation();
-        scrollCurrentCards(
+
+      els.scrollBtnRight.onclick =
+        () => scrollCurrentCards(
           els.cardView,
           1
         );
-      };
-    }
-
-    if (els.type) {
-      els.type.value = state.type;
-
-      els.type.addEventListener(
-        'change',
-        e => {
-          state.type = e.target.value;
-          state.cards = [];
-          add();
-        }
-      );
-    }
-
-    if (els.layout) {
-      els.layout.value = state.layout;
-
-      els.layout.addEventListener(
-        'change',
-        e => {
-          state.layout = e.target.value;
-          render();
-        }
-      );
     }
 
     if (els.list) {
+
       els.list.addEventListener(
         'click',
         onListClick
       );
     }
 
-    if (els.add) {
-      els.add.addEventListener(
-        'click',
+    if (els.type) {
+
+      els.type.addEventListener(
+        'change',
         () => {
-          const c = add();
-          openEdit(c);
+
+          state.type =
+            els.type.value || 'ep';
+
+          render();
         }
       );
     }
 
-    if (els.print) {
-      els.print.addEventListener(
-        'click',
+    if (els.layout) {
+
+      els.layout.addEventListener(
+        'change',
         () => {
-          window.print();
+
+          state.layout =
+            els.layout.value ||
+            'nineup';
+
+          render();
         }
       );
+    }
+
+    if (els.add) {
+
+      els.add.onclick =
+        () => {
+
+          const c =
+            add();
+
+          openEdit(c);
+        };
+    }
+
+    if (els.print) {
+
+      els.print.onclick =
+        () => {
+
+          render();
+
+          setTimeout(
+            () => window.print(),
+            50
+          );
+        };
     }
 
     window.addEventListener(
       'resize',
       () => {
-        requestAnimationFrame(fitAll);
+
+        requestAnimationFrame(
+          fitAll
+        );
       }
     );
 
@@ -3880,100 +2969,57 @@ visibility:hidden!important
       'beforeprint',
       () => {
 
-        if (!els.pages) return;
-
-        let e = els.pages.parentElement;
-
-        while (
-          e &&
-          e !== document.body
-        ) {
-
-          e.style.setProperty(
-            'overflow',
-            'visible',
-            'important'
-          );
-
-          e.style.setProperty(
-            'height',
-            'auto',
-            'important'
-          );
-
-          e.style.setProperty(
-            'max-height',
-            'none',
-            'important'
-          );
-
-          e.style.setProperty(
-            'transform',
-            'none',
-            'important'
-          );
-
-          e = e.parentElement;
-        }
+        fitAll();
       }
     );
-  }
 
-  makeScrollable(els.pages);
+    makeScrollable();
 
-  if (!state.cards.length) {
-    add();
-  } else {
     render();
   }
-}
 
   function start() {
 
-  if (
-    document.readyState === 'loading'
-  ) {
-    document.addEventListener(
-      'DOMContentLoaded',
-      start,
-      { once: true }
-    );
-
-    return;
-  }
-
-  cache();
-
-  if (
-    !els.cardView ||
-    !els.pages
-  ) {
-    setTimeout(
-      start,
-      100
-    );
-
-    return;
-  }
-
-  init();
-}
-
-document.addEventListener(
-  'db-tool-open',
-  e => {
-
     if (
-      e.detail?.id !== 'promotion-label'
+      document.readyState ===
+      'loading'
     ) {
+
+      document.addEventListener(
+        'DOMContentLoaded',
+        start,
+        { once: true }
+      );
+
       return;
     }
 
-    start();
-  }
-);
+    cache();
+    injectStyles();
 
-start();
+    const run =
+      () => {
+
+        cache();
+
+        if (
+          !els.cardView ||
+          !els.pages
+        ) {
+
+          setTimeout(
+            run,
+            150
+          );
+
+          return;
+        }
+
+        init();
+      };
+
+    run();
+  }
 
   window.ETPricingTool = {
     state,
@@ -3984,5 +3030,37 @@ start();
     showEditPanel: openEdit,
     hideEditPanel: hideEdit
   };
+
+  window.addEventListener(
+    'db-tool-open',
+    e => {
+
+      if (
+        e.detail?.id !==
+        'promotion-label'
+      ) {
+        return;
+      }
+
+      setTimeout(
+        () => {
+
+          cache();
+
+          if (
+            !els.cardView ||
+            !els.pages
+          ) {
+            return;
+          }
+
+          init();
+        },
+        0
+      );
+    }
+  );
+
+  start();
 
 })();
