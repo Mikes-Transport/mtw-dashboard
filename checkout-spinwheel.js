@@ -1,4 +1,4 @@
-console.log("WAGaaaaaa");
+console.log("🔥 MTW SPIN WHEEL — NEW VERSION LOADED 🔥");
 
 'use strict';
 
@@ -30,13 +30,23 @@ console.log("WAGaaaaaa");
 
   let currentRotation = 0;
   let spinning = false;
-  let winningReward = null;
-  let prizePrefix = "";
-  let prizeInput = null;
 
   const root = document.getElementById("mtw-spin-wheel");
 
   if (!root) return;
+
+  /*
+   * Build the wheel background.
+   * Using conic-gradient avoids the previous
+   * CSS sin/cos segment issue completely.
+   */
+  const slice = 360 / rewards.length;
+
+  const gradientStops = rewards.map((_, i) => {
+    const start = i * slice;
+    const end = (i + 1) * slice;
+    return `${colours[i]} ${start}deg ${end}deg`;
+  }).join(", ");
 
   root.innerHTML = `
     <div class="mtw-spin-wrap">
@@ -45,7 +55,7 @@ console.log("WAGaaaaaa");
 
         <div class="mtw-light-ring">
           ${Array.from({ length: 32 }, (_, i) =>
-            `<span style="--light:${i}"></span>`
+            `<span style="--light:${i};"></span>`
           ).join("")}
         </div>
 
@@ -55,21 +65,44 @@ console.log("WAGaaaaaa");
           <div class="mtw-pointer-glow"></div>
         </div>
 
-        <div class="mtw-wheel" id="mtw-wheel">
+        <div
+          class="mtw-wheel"
+          id="mtw-wheel"
+          style="--wheel-gradient: conic-gradient(from 0deg, ${gradientStops});"
+        >
 
-          <div class="mtw-segments">
-            ${rewards.map((reward, i) => `
-              <div
-                class="mtw-segment"
+          <div class="mtw-segment-lines">
+            ${rewards.map((_, i) => `
+              <span
                 style="
-                  --i:${i};
-                  --angle:${360 / rewards.length}deg;
-                  --segment-colour:${colours[i]};
+                  transform:
+                    rotate(${i * slice}deg)
+                    translateY(-50%);
                 "
-              >
-                <span>${reward.label}</span>
-              </div>
+              ></span>
             `).join("")}
+          </div>
+
+          <div class="mtw-labels">
+            ${rewards.map((reward, i) => {
+
+              const centre = i * slice + slice / 2;
+
+              return `
+                <div
+                  class="mtw-label"
+                  style="
+                    transform:
+                      translate(-50%, -50%)
+                      rotate(${centre}deg)
+                      translateY(-135px);
+                  "
+                >
+                  <span>${reward.label}</span>
+                </div>
+              `;
+
+            }).join("")}
           </div>
 
           <div class="mtw-wheel-inner-ring"></div>
@@ -92,15 +125,13 @@ console.log("WAGaaaaaa");
         <span class="mtw-button-bottom">WIN SOMETHING!</span>
       </button>
 
-      <div class="mtw-spin-status" id="mtw-spin-status"></div>
+      <div
+        class="mtw-spin-status"
+        id="mtw-spin-status"
+      ></div>
 
     </div>
   `;
-
-  const wheel = document.getElementById("mtw-wheel");
-  const button = document.getElementById("mtw-spin-button");
-  const status = document.getElementById("mtw-spin-status");
-  const lightRing = root.querySelector(".mtw-light-ring");
 
   const style = document.createElement("style");
 
@@ -135,6 +166,7 @@ console.log("WAGaaaaaa");
       width: min(88vw, 560px);
       height: min(88vw, 560px);
       margin: 0 auto 35px;
+
       display: flex;
       align-items: center;
       justify-content: center;
@@ -142,82 +174,114 @@ console.log("WAGaaaaaa");
 
     .mtw-wheel-shadow {
       position: absolute;
-      width: 91%;
-      height: 91%;
+      width: 86%;
+      height: 86%;
+
       border-radius: 50%;
-      background: rgba(0,0,0,.5);
+
+      background: rgba(0, 0, 0, .55);
+
       filter: blur(18px);
-      transform: translateY(16px);
+
+      transform: translateY(18px);
+
       z-index: 0;
     }
 
     /* =========================
-       LIGHT RING
+       GAME SHOW LIGHTS
        ========================= */
 
     .mtw-light-ring {
       position: absolute;
       inset: 0;
-      z-index: 7;
+
+      z-index: 10;
+
       pointer-events: none;
+
       border-radius: 50%;
     }
 
     .mtw-light-ring span {
       position: absolute;
+
       width: 13px;
       height: 13px;
+
       border-radius: 50%;
-      background: #ffffff;
+
+      background: #ffd84a;
+
       box-shadow:
-        0 0 5px #ffffff,
-        0 0 12px #65b746,
-        0 0 22px rgba(101,183,70,.8);
+        0 0 5px #fff4a3,
+        0 0 12px #ffb300,
+        0 0 24px rgba(255, 166, 0, .9);
+
       left: calc(
         50% + 47% * cos(calc(var(--light) * 11.25deg))
       );
+
       top: calc(
         50% + 47% * sin(calc(var(--light) * 11.25deg))
       );
+
       transform: translate(-50%, -50%);
-      animation: mtwBulbIdle 1.2s infinite alternate;
-      animation-delay: calc(var(--light) * -0.0375s);
+
+      animation:
+        mtwBulbIdle 1.1s infinite alternate;
+
+      animation-delay:
+        calc(var(--light) * -.035s);
     }
 
     @keyframes mtwBulbIdle {
+
       0% {
-        opacity: .55;
-        transform: translate(-50%, -50%) scale(.78);
+        opacity: .45;
+        transform:
+          translate(-50%, -50%)
+          scale(.78);
       }
 
       100% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
+        transform:
+          translate(-50%, -50%)
+          scale(1);
       }
+
     }
 
-    .mtw-wheel-stage.mtw-spinning .mtw-light-ring span {
+    .mtw-wheel-stage.mtw-spinning
+    .mtw-light-ring span {
+
       animation:
-        mtwBulbSpin .18s infinite alternate;
+        mtwBulbSpin .16s infinite alternate;
+
     }
 
     @keyframes mtwBulbSpin {
+
       0% {
-        opacity: .25;
-        background: #ffffff;
+        opacity: .3;
+        background: #ff9d00;
+
         box-shadow:
-          0 0 4px #ffffff,
-          0 0 8px #65b746;
+          0 0 4px #ffb300,
+          0 0 10px #ff7b00;
       }
 
       100% {
         opacity: 1;
-        background: #65b746;
+        background: #fff36a;
+
         box-shadow:
           0 0 7px #ffffff,
-          0 0 18px #65b746,
-          0 0 32px rgba(101,183,70,.9);
+          0 0 18px #ffb300,
+          0 0 32px rgba(255, 128, 0, .95);
       }
+
     }
 
     /* =========================
@@ -225,22 +289,32 @@ console.log("WAGaaaaaa");
        ========================= */
 
     .mtw-wheel {
+
       position: relative;
+
       width: 88%;
       height: 88%;
+
       border-radius: 50%;
+
       overflow: hidden;
+
       z-index: 3;
 
-      border: 10px solid #171717;
+      border: 10px solid #161616;
 
-      background: #111111;
+      background:
+        var(--wheel-gradient);
 
       box-shadow:
+
         0 0 0 4px rgba(255,255,255,.12),
-        0 0 0 8px rgba(101,183,70,.4),
-        0 10px 25px rgba(0,0,0,.4),
-        inset 0 0 30px rgba(0,0,0,.65);
+
+        0 0 0 8px rgba(101,183,70,.45),
+
+        0 12px 28px rgba(0,0,0,.45),
+
+        inset 0 0 35px rgba(0,0,0,.55);
 
       transform: rotate(0deg);
 
@@ -248,86 +322,148 @@ console.log("WAGaaaaaa");
         transform 4.1s cubic-bezier(.08,.78,.12,1);
     }
 
-    .mtw-wheel::before {
+    /*
+     * Subtle gloss only.
+     * No translucent band across the segments.
+     */
+
+    .mtw-wheel::after {
+
       content: "";
+
       position: absolute;
+
       inset: 0;
+
       border-radius: 50%;
+
       background:
         radial-gradient(
-          circle at 35% 25%,
-          rgba(255,255,255,.2),
-          transparent 25%
-        ),
-        linear-gradient(
-          135deg,
-          rgba(255,255,255,.12),
-          transparent 40%,
-          rgba(0,0,0,.18)
+          circle at 35% 22%,
+          rgba(255,255,255,.17),
+          transparent 27%
         );
-      z-index: 8;
+
       pointer-events: none;
+
+      z-index: 8;
     }
 
     /* =========================
-       SEGMENTS
+       SEGMENT DIVIDERS
        ========================= */
 
-    .mtw-segments {
+    .mtw-segment-lines {
+
       position: absolute;
+
       inset: 0;
-      border-radius: 50%;
-      overflow: hidden;
+
+      z-index: 5;
+
+      pointer-events: none;
     }
 
-    .mtw-segment {
+    .mtw-segment-lines span {
+
       position: absolute;
-      inset: 0;
-      background: var(--segment-colour);
 
-      clip-path: polygon(
-        50% 50%,
-        50% 0%,
-        calc(
-          50% + 50% * sin(var(--angle))
-        )
-        calc(
-          50% - 50% * cos(var(--angle))
-        )
-      );
+      width: 2px;
 
-      transform:
-        rotate(
-          calc(var(--i) * var(--angle))
-        );
+      height: 50%;
 
-      transform-origin: center;
-      border-right: 2px solid rgba(255,255,255,.25);
+      top: 50%;
+      left: calc(50% - 1px);
+
+      transform-origin:
+        50% 0;
+
+      background:
+        rgba(255,255,255,.35);
+
+      box-shadow:
+        0 0 2px rgba(0,0,0,.5);
     }
 
-    .mtw-segment span {
+    /* =========================
+       RADIAL LABELS
+       ========================= */
+
+    .mtw-labels {
+
       position: absolute;
-      top: 10%;
+
+      inset: 0;
+
+      z-index: 6;
+
+      pointer-events: none;
+    }
+
+    .mtw-label {
+
+      position: absolute;
+
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
-      width: 100px;
 
-      font-size: clamp(10px, 2.6vw, 16px);
-      font-weight: 900;
-      line-height: 1.05;
-      letter-spacing: .2px;
+      width: 90px;
+      height: 150px;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      transform-origin:
+        center center;
+    }
+
+    .mtw-label span {
+
+      display: block;
+
+      width: 100%;
 
       text-align: center;
+
+      font-size:
+        clamp(10px, 2.35vw, 16px);
+
+      font-weight: 1000;
+
+      line-height: 1.05;
+
+      letter-spacing: .3px;
+
       color: #ffffff;
 
       text-shadow:
-        0 2px 4px rgba(0,0,0,.8),
-        0 0 3px rgba(0,0,0,.5);
+        0 2px 4px rgba(0,0,0,.9),
+        0 0 3px rgba(0,0,0,.7);
+
+      /*
+       * Text stays vertical/radial.
+       */
+
+      writing-mode: vertical-rl;
+
+      text-orientation:
+        mixed;
+
+      transform:
+        rotate(180deg);
     }
 
-    .mtw-segment:nth-child(3) span,
-    .mtw-segment:nth-child(6) span {
+    /*
+     * Dark text on the white segments.
+     */
+
+    .mtw-label:nth-child(3) span,
+    .mtw-label:nth-child(6) span {
+
       color: #171717;
+
       text-shadow: none;
     }
 
@@ -336,14 +472,24 @@ console.log("WAGaaaaaa");
        ========================= */
 
     .mtw-wheel-inner-ring {
+
       position: absolute;
+
       inset: 8%;
+
       border-radius: 50%;
-      border: 3px solid rgba(255,255,255,.18);
+
+      border:
+        3px solid rgba(255,255,255,.2);
+
       box-shadow:
-        inset 0 0 15px rgba(0,0,0,.35),
-        0 0 8px rgba(0,0,0,.3);
+
+        inset 0 0 15px rgba(0,0,0,.4),
+
+        0 0 8px rgba(0,0,0,.35);
+
       z-index: 9;
+
       pointer-events: none;
     }
 
@@ -352,7 +498,9 @@ console.log("WAGaaaaaa");
        ========================= */
 
     .mtw-wheel-centre {
+
       position: absolute;
+
       z-index: 12;
 
       top: 50%;
@@ -361,7 +509,8 @@ console.log("WAGaaaaaa");
       width: 112px;
       height: 112px;
 
-      transform: translate(-50%, -50%);
+      transform:
+        translate(-50%, -50%);
 
       border-radius: 50%;
 
@@ -373,52 +522,75 @@ console.log("WAGaaaaaa");
           #3c8d27 100%
         );
 
-      border: 7px solid #171717;
+      border:
+        7px solid #171717;
 
       display: flex;
+
       align-items: center;
       justify-content: center;
 
       box-shadow:
-        0 4px 8px rgba(0,0,0,.45),
-        0 0 20px rgba(101,183,70,.5),
-        inset 0 2px 4px rgba(255,255,255,.35);
 
-      transition: transform .2s ease;
+        0 4px 8px rgba(0,0,0,.45),
+
+        0 0 20px rgba(101,183,70,.5),
+
+        inset
+          0 2px 4px rgba(255,255,255,.35);
     }
 
-    .mtw-wheel-stage.mtw-spinning .mtw-wheel-centre {
-      animation: mtwCentrePulse .45s infinite alternate;
+    .mtw-wheel-stage.mtw-spinning
+    .mtw-wheel-centre {
+
+      animation:
+        mtwCentrePulse .45s infinite alternate;
     }
 
     @keyframes mtwCentrePulse {
+
       from {
-        transform: translate(-50%, -50%) scale(1);
+        transform:
+          translate(-50%, -50%)
+          scale(1);
       }
 
       to {
-        transform: translate(-50%, -50%) scale(1.07);
+        transform:
+          translate(-50%, -50%)
+          scale(1.07);
       }
+
     }
 
     .mtw-centre-ring {
+
       position: absolute;
+
       inset: 7px;
+
       border-radius: 50%;
-      border: 2px solid rgba(255,255,255,.3);
+
+      border:
+        2px solid rgba(255,255,255,.3);
     }
 
     .mtw-wheel-centre span {
+
       position: relative;
+
       z-index: 2;
 
       font-size: 19px;
+
       font-weight: 1000;
+
       letter-spacing: .8px;
+
       color: #ffffff;
 
       text-shadow:
-        0 2px 3px rgba(0,0,0,.4);
+        0 2px 3px rgba(0,0,0,.45);
     }
 
     /* =========================
@@ -426,26 +598,37 @@ console.log("WAGaaaaaa");
        ========================= */
 
     .mtw-pointer {
+
       position: absolute;
+
       z-index: 20;
 
       top: -3px;
       left: 50%;
 
-      transform: translateX(-50%);
+      transform:
+        translateX(-50%);
 
       width: 0;
       height: 0;
 
-      border-left: 23px solid transparent;
-      border-right: 23px solid transparent;
-      border-top: 48px solid #171717;
+      border-left:
+        23px solid transparent;
+
+      border-right:
+        23px solid transparent;
+
+      border-top:
+        48px solid #171717;
 
       filter:
-        drop-shadow(0 4px 3px rgba(0,0,0,.35));
+        drop-shadow(
+          0 4px 3px rgba(0,0,0,.35)
+        );
     }
 
     .mtw-pointer::after {
+
       content: "";
 
       position: absolute;
@@ -456,26 +639,37 @@ console.log("WAGaaaaaa");
       width: 28px;
       height: 36px;
 
-      clip-path: polygon(
-        50% 100%,
-        0 0,
-        100% 0
-      );
+      clip-path:
+        polygon(
+          50% 100%,
+          0 0,
+          100% 0
+        );
 
       background: #65b746;
 
       filter:
-        drop-shadow(0 0 7px rgba(101,183,70,.8));
+        drop-shadow(
+          0 0 7px
+          rgba(101,183,70,.8)
+        );
     }
 
     .mtw-pointer-glow {
+
       position: absolute;
+
       width: 60px;
       height: 60px;
+
       left: -30px;
       top: -20px;
+
       border-radius: 50%;
-      background: rgba(101,183,70,.25);
+
+      background:
+        rgba(101,183,70,.2);
+
       filter: blur(15px);
     }
 
@@ -484,7 +678,9 @@ console.log("WAGaaaaaa");
        ========================= */
 
     .mtw-spin-button {
+
       appearance: none;
+
       border: 0;
 
       position: relative;
@@ -510,9 +706,13 @@ console.log("WAGaaaaaa");
       cursor: pointer;
 
       box-shadow:
+
         0 5px 0 #377c24,
+
         0 8px 20px rgba(0,0,0,.2),
-        0 0 18px rgba(101,183,70,.35);
+
+        0 0 18px
+        rgba(101,183,70,.35);
 
       transition:
         transform .15s ease,
@@ -521,43 +721,67 @@ console.log("WAGaaaaaa");
     }
 
     .mtw-spin-button:hover:not(:disabled) {
-      transform: translateY(-2px);
+
+      transform:
+        translateY(-2px);
 
       box-shadow:
-        0 7px 0 #377c24,
-        0 12px 25px rgba(0,0,0,.25),
-        0 0 25px rgba(101,183,70,.55);
 
-      filter: brightness(1.08);
+        0 7px 0 #377c24,
+
+        0 12px 25px rgba(0,0,0,.25),
+
+        0 0 25px
+        rgba(101,183,70,.55);
+
+      filter:
+        brightness(1.08);
     }
 
     .mtw-spin-button:active:not(:disabled) {
-      transform: translateY(3px);
+
+      transform:
+        translateY(3px);
 
       box-shadow:
+
         0 2px 0 #377c24,
+
         0 5px 12px rgba(0,0,0,.2);
     }
 
     .mtw-spin-button:disabled {
+
       opacity: .65;
+
       cursor: not-allowed;
+
       transform: none;
     }
 
     .mtw-button-top {
+
       display: block;
+
       font-size: 17px;
+
       font-weight: 1000;
+
       letter-spacing: .4px;
     }
 
     .mtw-button-bottom {
+
       display: block;
+
       margin-top: 2px;
+
       font-size: 11px;
+
       font-weight: 700;
+
       opacity: .9;
+
       letter-spacing: 1px;
     }
 
@@ -566,21 +790,21 @@ console.log("WAGaaaaaa");
        ========================= */
 
     .mtw-spin-status {
+
       min-height: 40px;
 
       margin-top: 22px;
 
-      font-size: clamp(18px, 4vw, 25px);
+      font-size:
+        clamp(18px, 4vw, 25px);
+
       font-weight: 1000;
 
       letter-spacing: .3px;
-
-      transition:
-        transform .3s ease,
-        opacity .3s ease;
     }
 
     .mtw-spin-status.win {
+
       color: #65b746;
 
       animation:
@@ -588,6 +812,7 @@ console.log("WAGaaaaaa");
     }
 
     .mtw-spin-status.try-again {
+
       color: #171717;
 
       animation:
@@ -595,6 +820,7 @@ console.log("WAGaaaaaa");
     }
 
     @keyframes mtwWinReveal {
+
       0% {
         opacity: 0;
         transform: scale(.5);
@@ -608,50 +834,82 @@ console.log("WAGaaaaaa");
       100% {
         transform: scale(1);
       }
+
     }
 
     @keyframes mtwResultReveal {
+
       0% {
         opacity: 0;
-        transform: translateY(10px);
+        transform:
+          translateY(10px);
       }
 
       100% {
         opacity: 1;
-        transform: translateY(0);
+        transform:
+          translateY(0);
       }
+
     }
 
     /* =========================
-       WINNING FLASH
+       WINNER LIGHTS
        ========================= */
 
-    .mtw-wheel-stage.mtw-winner .mtw-light-ring span {
+    .mtw-wheel-stage.mtw-winner
+    .mtw-light-ring span {
+
       animation:
         mtwWinnerLights .22s infinite alternate;
     }
 
-    .mtw-wheel-stage.mtw-winner .mtw-wheel {
+    .mtw-wheel-stage.mtw-winner
+    .mtw-wheel {
+
       box-shadow:
-        0 0 0 4px rgba(255,255,255,.15),
-        0 0 0 9px rgba(101,183,70,.75),
-        0 0 35px rgba(101,183,70,.75),
-        0 0 70px rgba(101,183,70,.35),
-        inset 0 0 30px rgba(0,0,0,.65);
+
+        0 0 0 4px
+        rgba(255,255,255,.15),
+
+        0 0 0 9px
+        rgba(101,183,70,.75),
+
+        0 0 35px
+        rgba(101,183,70,.75),
+
+        0 0 70px
+        rgba(101,183,70,.35),
+
+        inset
+        0 0 30px
+        rgba(0,0,0,.65);
     }
 
     @keyframes mtwWinnerLights {
+
       0% {
+
         opacity: .3;
-        background: #ffffff;
-        transform: translate(-50%, -50%) scale(.75);
+
+        background: #ff8a00;
+
+        transform:
+          translate(-50%, -50%)
+          scale(.75);
       }
 
       100% {
+
         opacity: 1;
-        background: #65b746;
-        transform: translate(-50%, -50%) scale(1.25);
+
+        background: #fff36a;
+
+        transform:
+          translate(-50%, -50%)
+          scale(1.25);
       }
+
     }
 
     /* =========================
@@ -661,56 +919,79 @@ console.log("WAGaaaaaa");
     @media (max-width: 480px) {
 
       .mtw-spin-wrap {
+
         padding-left: 5px;
         padding-right: 5px;
       }
 
       .mtw-wheel-stage {
+
         width: 94vw;
         height: 94vw;
       }
 
       .mtw-wheel {
+
         border-width: 7px;
       }
 
       .mtw-light-ring span {
+
         width: 9px;
         height: 9px;
       }
 
       .mtw-wheel-centre {
+
         width: 82px;
         height: 82px;
+
         border-width: 5px;
       }
 
       .mtw-wheel-centre span {
+
         font-size: 14px;
       }
 
-      .mtw-segment span {
-        width: 70px;
-        font-size: 10px;
+      .mtw-label {
+
+        width: 62px;
+        height: 105px;
+      }
+
+      .mtw-label span {
+
+        font-size: 9px;
       }
 
       .mtw-pointer {
+
         border-left-width: 17px;
         border-right-width: 17px;
         border-top-width: 36px;
       }
 
       .mtw-spin-button {
+
         width: 90%;
         max-width: 300px;
       }
+
     }
 
   `;
 
   document.head.appendChild(style);
 
+  /* =========================
+     PRIZE TEXTAREA
+     ========================= */
+
+  let prizePrefix = "";
+
   function getPrizeInput() {
+
     return document.querySelector(
       "textarea.input-block-level.form-control.mb-3"
     );
@@ -722,22 +1003,23 @@ console.log("WAGaaaaaa");
 
     if (!input || !reward) return;
 
-    prizeInput = input;
-
     prizePrefix =
       `MTW SPIN WHEEL PRIZE: ${reward.value}\n\n`;
 
-    let existingComments = input.value || "";
+    let existingComments =
+      input.value || "";
 
     if (
       existingComments.startsWith(
         "MTW SPIN WHEEL PRIZE:"
       )
     ) {
-      existingComments = existingComments.replace(
-        /^MTW SPIN WHEEL PRIZE:[^\n]*(?:\n\n)?/,
-        ""
-      );
+
+      existingComments =
+        existingComments.replace(
+          /^MTW SPIN WHEEL PRIZE:[^\n]*(?:\n\n)?/,
+          ""
+        );
     }
 
     input.value =
@@ -766,22 +1048,23 @@ console.log("WAGaaaaaa");
         const end =
           input.selectionEnd;
 
-        const touchesPrize =
-          start < prizePrefix.length ||
-          end < prizePrefix.length;
-
-        if (!touchesPrize) return;
-
         if (
-          event.key === "Backspace" ||
-          event.key === "Delete"
+          start < prizePrefix.length ||
+          end < prizePrefix.length
         ) {
-          event.preventDefault();
 
-          input.setSelectionRange(
-            prizePrefix.length,
-            prizePrefix.length
-          );
+          if (
+            event.key === "Backspace" ||
+            event.key === "Delete"
+          ) {
+
+            event.preventDefault();
+
+            input.setSelectionRange(
+              prizePrefix.length,
+              prizePrefix.length
+            );
+          }
         }
 
       }
@@ -801,6 +1084,7 @@ console.log("WAGaaaaaa");
           start < prizePrefix.length ||
           end < prizePrefix.length
         ) {
+
           event.preventDefault();
 
           input.setSelectionRange(
@@ -817,16 +1101,19 @@ console.log("WAGaaaaaa");
       function () {
 
         if (
-          !input.value.startsWith(prizePrefix)
+          !input.value.startsWith(
+            prizePrefix
+          )
         ) {
 
           let value =
             input.value || "";
 
-          value = value.replace(
-            /^MTW SPIN WHEEL PRIZE:[^\n]*(?:\n\n)?/,
-            ""
-          );
+          value =
+            value.replace(
+              /^MTW SPIN WHEEL PRIZE:[^\n]*(?:\n\n)?/,
+              ""
+            );
 
           input.value =
             prizePrefix +
@@ -840,28 +1127,32 @@ console.log("WAGaaaaaa");
       "paste",
       function () {
 
-        setTimeout(function () {
+        setTimeout(
+          function () {
 
-          if (
-            !input.value.startsWith(
-              prizePrefix
-            )
-          ) {
+            if (
+              !input.value.startsWith(
+                prizePrefix
+              )
+            ) {
 
-            let value =
-              input.value || "";
+              let value =
+                input.value || "";
 
-            value = value.replace(
-              /^MTW SPIN WHEEL PRIZE:[^\n]*(?:\n\n)?/,
-              ""
-            );
+              value =
+                value.replace(
+                  /^MTW SPIN WHEEL PRIZE:[^\n]*(?:\n\n)?/,
+                  ""
+                );
 
-            input.value =
-              prizePrefix +
-              value;
-          }
+              input.value =
+                prizePrefix +
+                value;
+            }
 
-        }, 0);
+          },
+          0
+        );
 
       }
     );
@@ -893,7 +1184,12 @@ console.log("WAGaaaaaa");
     );
   }
 
+  /* =========================
+     ONE SPIN
+     ========================= */
+
   function alreadyUsed() {
+
     return (
       localStorage.getItem(
         STORAGE_KEY
@@ -902,6 +1198,7 @@ console.log("WAGaaaaaa");
   }
 
   function markUsed() {
+
     localStorage.setItem(
       STORAGE_KEY,
       "true"
@@ -916,11 +1213,13 @@ console.log("WAGaaaaaa");
 
     button.querySelector(
       ".mtw-button-top"
-    ).textContent = "ALREADY SPUN";
+    ).textContent =
+      "ALREADY SPUN";
 
     button.querySelector(
       ".mtw-button-bottom"
-    ).textContent = "ONE SPIN PER CUSTOMER";
+    ).textContent =
+      "ONE SPIN PER CUSTOMER";
 
     status.textContent =
       "You have already spun the wheel.";
@@ -938,10 +1237,9 @@ console.log("WAGaaaaaa");
     spinning = true;
 
     /*
-     * Lock the spin immediately.
-     * Refreshing during the animation
-     * cannot give another spin.
+     * Lock immediately.
      */
+
     markUsed();
 
     const stage =
@@ -957,11 +1255,13 @@ console.log("WAGaaaaaa");
 
     button.querySelector(
       ".mtw-button-top"
-    ).textContent = "GOOD LUCK!";
+    ).textContent =
+      "GOOD LUCK!";
 
     button.querySelector(
       ".mtw-button-bottom"
-    ).textContent = "THE WHEEL IS SPINNING...";
+    ).textContent =
+      "THE WHEEL IS SPINNING...";
 
     status.textContent = "";
 
@@ -974,23 +1274,20 @@ console.log("WAGaaaaaa");
     const reward =
       rewards[winnerIndex];
 
-    winningReward =
-      reward;
-
-    const slice =
-      360 / rewards.length;
-
     const winnerCentre =
       winnerIndex * slice +
       slice / 2;
 
+    /*
+     * Pointer is at 12 o'clock.
+     */
+
     const targetAngle =
-      270 -
-      winnerCentre;
+      360 - winnerCentre;
 
     const normalized =
       (
-        (currentRotation % 360) +
+        currentRotation % 360 +
         360
       ) % 360;
 
@@ -1030,9 +1327,13 @@ console.log("WAGaaaaaa");
           "mtw-spinning"
         );
 
-        stage.classList.add(
-          "mtw-winner"
-        );
+        if (reward.code) {
+
+          stage.classList.add(
+            "mtw-winner"
+          );
+
+        }
 
         protectPrizeInTextarea(
           reward
@@ -1063,10 +1364,6 @@ console.log("WAGaaaaaa");
 
         } else {
 
-          stage.classList.remove(
-            "mtw-winner"
-          );
-
           status.textContent =
             "TRY AGAIN — Better luck next time!";
 
@@ -1090,9 +1387,24 @@ console.log("WAGaaaaaa");
         }
 
       },
-      4100
+      4150
     );
   }
+
+  const wheel =
+    document.getElementById(
+      "mtw-wheel"
+    );
+
+  const button =
+    document.getElementById(
+      "mtw-spin-button"
+    );
+
+  const status =
+    document.getElementById(
+      "mtw-spin-status"
+    );
 
   button.addEventListener(
     "click",
