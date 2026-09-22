@@ -1,4 +1,3 @@
-javascript
 (() => {
   const rewards = [
     { label: "10% OFF", value: "10% OFF", code: "SPIN-10" },
@@ -14,8 +13,6 @@ javascript
   const root = document.querySelector("#mtw-spin-wheel");
 
   if (!root || !rewards.length) return;
-
-  const STORAGE_KEY = "mtw_spin_wheel_result";
 
   root.innerHTML = `
     <style>
@@ -142,7 +139,7 @@ javascript
         color: #777;
       }
 
-      /* Hide the prize input from customers */
+      /* Hide prize textarea without removing it from form submission */
       .mtw-spin-hidden-input {
         position: absolute !important;
         width: 1px !important;
@@ -167,6 +164,7 @@ javascript
     </style>
 
     <div id="mtw-wheel-app">
+
       <div id="mtw-wheel-wrap">
         <div id="mtw-pointer"></div>
 
@@ -180,6 +178,7 @@ javascript
       </button>
 
       <div id="mtw-result" aria-live="polite"></div>
+
     </div>
   `;
 
@@ -191,6 +190,7 @@ javascript
 
   let currentRotation = 0;
   let spinning = false;
+  let hasSpun = false;
 
   const colours = [
     "#171717",
@@ -203,6 +203,100 @@ javascript
     "#d71920"
   ];
 
+  /*
+    Find the checkout textarea.
+  */
+  function getPrizeInput() {
+    return document.querySelector(
+      "textarea.input-block-level.form-control.mb-3"
+    );
+  }
+
+  /*
+    Put the winning prize into the textarea.
+
+    The textarea is hidden from the customer but
+    remains part of the form submission.
+  */
+  function setPrizeInput(reward) {
+    if (!reward) return;
+
+    const input = getPrizeInput();
+
+    if (!input) {
+      console.warn(
+        "MTW Spin Wheel: Prize textarea not found."
+      );
+      return;
+    }
+
+    /*
+      What gets submitted with the form.
+
+      Example:
+      10% OFF | SPIN-10
+
+      This gives the checkout form both the
+      readable prize and the unique prize code.
+    */
+    input.value =
+      `${reward.value} | ${reward.code || "NO-PRIZE"}`;
+
+    input.readOnly = true;
+    input.setAttribute("readonly", "readonly");
+
+    input.classList.add(
+      "mtw-spin-hidden-input"
+    );
+
+    /*
+      Let the checkout system know the value changed.
+    */
+    input.dispatchEvent(
+      new Event("input", {
+        bubbles: true
+      })
+    );
+
+    input.dispatchEvent(
+      new Event("change", {
+        bubbles: true
+      })
+    );
+
+    console.log(
+      "MTW Spin Prize:",
+      input.value
+    );
+  }
+
+  /*
+    The checkout textarea may not exist immediately,
+    so check for it for a few seconds.
+  */
+  function sendPrizeToCheckout(reward) {
+    let attempts = 0;
+
+    const timer = setInterval(() => {
+      attempts++;
+
+      const input = getPrizeInput();
+
+      if (input) {
+        setPrizeInput(reward);
+        clearInterval(timer);
+      }
+
+      if (attempts >= 30) {
+        clearInterval(timer);
+
+        console.warn(
+          "MTW Spin Wheel: Could not find checkout prize textarea."
+        );
+      }
+    }, 200);
+  }
+
   function drawWheel() {
     const size = 1000;
 
@@ -211,16 +305,30 @@ javascript
 
     const centre = size / 2;
     const radius = size / 2;
-    const slice = (Math.PI * 2) / rewards.length;
+    const slice =
+      (Math.PI * 2) / rewards.length;
 
-    ctx.clearRect(0, 0, size, size);
+    ctx.clearRect(
+      0,
+      0,
+      size,
+      size
+    );
 
     rewards.forEach((reward, i) => {
-      const start = i * slice;
-      const end = start + slice;
+      const start =
+        i * slice;
+
+      const end =
+        start + slice;
 
       ctx.beginPath();
-      ctx.moveTo(centre, centre);
+
+      ctx.moveTo(
+        centre,
+        centre
+      );
+
       ctx.arc(
         centre,
         centre,
@@ -228,30 +336,48 @@ javascript
         start,
         end
       );
+
       ctx.closePath();
 
-      ctx.fillStyle = colours[i];
+      ctx.fillStyle =
+        colours[i];
+
       ctx.fill();
 
-      ctx.strokeStyle = "#ffffff";
+      ctx.strokeStyle =
+        "#ffffff";
+
       ctx.lineWidth = 6;
+
       ctx.stroke();
 
       ctx.save();
 
-      ctx.translate(centre, centre);
-      ctx.rotate(start + slice / 2);
+      ctx.translate(
+        centre,
+        centre
+      );
 
-      ctx.textAlign = "right";
-      ctx.textBaseline = "middle";
+      ctx.rotate(
+        start + slice / 2
+      );
 
-      const isLight = colours[i] === "#f4f4f4";
+      ctx.textAlign =
+        "right";
 
-      ctx.fillStyle = isLight
-        ? "#171717"
-        : "#ffffff";
+      ctx.textBaseline =
+        "middle";
 
-      ctx.font = "800 34px Arial";
+      const isLight =
+        colours[i] === "#f4f4f4";
+
+      ctx.fillStyle =
+        isLight
+          ? "#171717"
+          : "#ffffff";
+
+      ctx.font =
+        "800 34px Arial";
 
       ctx.fillText(
         reward.label,
@@ -262,8 +388,11 @@ javascript
       ctx.restore();
     });
 
-    // Centre hub
+    /*
+      Outer centre hub
+    */
     ctx.beginPath();
+
     ctx.arc(
       centre,
       centre,
@@ -272,14 +401,23 @@ javascript
       Math.PI * 2
     );
 
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle =
+      "#ffffff";
+
     ctx.fill();
 
-    ctx.strokeStyle = "#171717";
+    ctx.strokeStyle =
+      "#171717";
+
     ctx.lineWidth = 6;
+
     ctx.stroke();
 
+    /*
+      Inner red hub
+    */
     ctx.beginPath();
+
     ctx.arc(
       centre,
       centre,
@@ -288,232 +426,191 @@ javascript
       Math.PI * 2
     );
 
-    ctx.fillStyle = "#d71920";
+    ctx.fillStyle =
+      "#d71920";
+
     ctx.fill();
 
-    ctx.fillStyle = "#ffffff";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = "900 23px Arial";
-    ctx.fillText("MTW", centre, centre);
-  }
+    ctx.fillStyle =
+      "#ffffff";
 
-  /*
-    Finds the Webninja checkout input.
+    ctx.textAlign =
+      "center";
 
-    We wait for it because the checkout form may
-    load after this script.
-  */
-  function getPrizeInput() {
-    return document.querySelector(
-      ".input-block-level.form-control.mb-3"
+    ctx.textBaseline =
+      "middle";
+
+    ctx.font =
+      "900 23px Arial";
+
+    ctx.fillText(
+      "MTW",
+      centre,
+      centre
     );
   }
 
-  /*
-    Writes the prize into the checkout input
-    while keeping the input invisible.
-  */
-  function setPrizeInput(prize) {
-    if (!prize) return;
-
-    const input = getPrizeInput();
-
-    if (!input) return;
-
-    input.value = prize;
-
-    input.readOnly = true;
-    input.setAttribute("readonly", "readonly");
-
-    input.classList.add("mtw-spin-hidden-input");
-
-    // Make sure Webninja notices the value change
-    input.dispatchEvent(
-      new Event("input", { bubbles: true })
-    );
-
-    input.dispatchEvent(
-      new Event("change", { bubbles: true })
-    );
-  }
-
-  /*
-    Keep checking briefly for the Webninja input
-    in case the checkout form loads dynamically.
-  */
-  function populateCheckoutInput(prize) {
-    let attempts = 0;
-
-    const timer = setInterval(() => {
-      attempts++;
-
-      const input = getPrizeInput();
-
-      if (input) {
-        setPrizeInput(prize);
-        clearInterval(timer);
-      }
-
-      if (attempts >= 30) {
-        clearInterval(timer);
-      }
-    }, 500);
-  }
-
-  function getSavedResult() {
-    try {
-      return JSON.parse(
-        localStorage.getItem(STORAGE_KEY)
-      );
-    } catch {
-      return null;
-    }
-  }
-
-  function showSavedResult(saved) {
-    if (!saved) return;
-
-    button.disabled = true;
-    button.textContent = "ALREADY SPUN";
-
-    // Put saved prize back into checkout input
-    if (saved.value) {
-      populateCheckoutInput(saved.value);
-    }
-
-    if (saved.value === "Try Again") {
-      result.className = "try-again";
+  function showResult(reward) {
+    if (reward.value === "Try Again") {
+      result.className =
+        "try-again";
 
       result.innerHTML = `
         Better luck next time!
-        <small>You have already used your spin.</small>
+        <small>
+          Thanks for playing.
+        </small>
       `;
-    } else {
-      result.className = "win";
 
-      result.innerHTML = `
-        🎉 ${saved.value}
-        <small>Your prize has been saved for checkout.</small>
-      `;
+      return;
     }
-  }
 
-  function saveResult(reward) {
-    const data = {
-      value: reward.value,
-      code: reward.code,
-      timestamp: new Date().toISOString()
-    };
+    result.className =
+      "win";
 
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(data)
-    );
-
-    return data;
+    result.innerHTML = `
+      🎉 ${reward.value}
+      <small>
+        Your prize has been added to your checkout.
+      </small>
+    `;
   }
 
   function spin() {
-    if (spinning) return;
-
-    // Prevent second spin
-    const existingResult = getSavedResult();
-
-    if (existingResult) {
-      showSavedResult(existingResult);
+    /*
+      Prevent another spin.
+    */
+    if (spinning || hasSpun) {
       return;
     }
 
     spinning = true;
+    hasSpun = true;
+
     button.disabled = true;
+
     result.className = "";
     result.textContent = "";
 
+    /*
+      Pick winner.
+    */
     const winnerIndex =
-      Math.floor(Math.random() * rewards.length);
+      Math.floor(
+        Math.random() *
+        rewards.length
+      );
 
-    const slice = 360 / rewards.length;
+    const slice =
+      360 / rewards.length;
 
     /*
-      The pointer is at 12 o'clock.
-
-      Canvas starts at 3 o'clock.
-
-      Calculate the exact centre of the winning
-      segment and rotate it to the pointer.
+      Find centre of winning slice.
     */
     const winnerCentre =
-      winnerIndex * slice + slice / 2;
+      winnerIndex * slice +
+      slice / 2;
 
+    /*
+      Pointer is at 12 o'clock.
+    */
     const targetAngle =
       270 - winnerCentre;
 
     const normalized =
-      ((currentRotation % 360) + 360) % 360;
+      (
+        (currentRotation % 360) +
+        360
+      ) % 360;
 
     const adjustment =
-      ((targetAngle - normalized) + 360) % 360;
+      (
+        targetAngle -
+        normalized +
+        360
+      ) % 360;
 
+    /*
+      5–7 full spins.
+    */
     const extraSpins =
-      360 * (5 + Math.floor(Math.random() * 3));
+      360 *
+      (
+        5 +
+        Math.floor(
+          Math.random() * 3
+        )
+      );
 
     const finalRotation =
       currentRotation +
       extraSpins +
       adjustment;
 
-    currentRotation = finalRotation;
+    currentRotation =
+      finalRotation;
 
     wheel.style.transform =
       `rotate(${finalRotation}deg)`;
 
+    /*
+      Wait for the animation to finish.
+    */
     setTimeout(() => {
-      const reward = rewards[winnerIndex];
+      const reward =
+        rewards[winnerIndex];
 
-      // Save result
-      const saved = saveResult(reward);
+      /*
+        Send the actual result to the
+        checkout textarea.
+      */
+      sendPrizeToCheckout(
+        reward
+      );
 
-      // Send prize to checkout input
-      if (reward.value !== "Try Again") {
-        populateCheckoutInput(reward.value);
-      }
-
-      if (reward.value === "Try Again") {
-        result.className = "try-again";
-
-        result.innerHTML = `
-          Better luck next time!
-          <small>You have already used your spin.</small>
-        `;
-      } else {
-        result.className = "win";
-
-        result.innerHTML = `
-          🎉 ${reward.value}
-          <small>Your prize has been saved for checkout.</small>
-        `;
-      }
+      /*
+        Show result.
+      */
+      showResult(
+        reward
+      );
 
       spinning = false;
-      button.disabled = true;
-      button.textContent = "ALREADY SPUN";
 
-      console.log("MTW Spin Result:", saved);
+      /*
+        Permanently disable the button
+        for this page/session.
+      */
+      button.disabled = true;
+
+      button.textContent =
+        "ALREADY SPUN";
+
+      console.log(
+        "MTW Spin Result:",
+        reward
+      );
 
     }, 3900);
   }
 
-  wheel.addEventListener("click", spin);
-  button.addEventListener("click", spin);
+  /*
+    Allow clicking either the wheel
+    or the button to spin.
+  */
+  wheel.addEventListener(
+    "click",
+    spin
+  );
 
+  button.addEventListener(
+    "click",
+    spin
+  );
+
+  /*
+    Draw the wheel.
+  */
   drawWheel();
 
-  // Restore an existing spin
-  const saved = getSavedResult();
-
-  if (saved) {
-    showSavedResult(saved);
-  }
 })();
-
