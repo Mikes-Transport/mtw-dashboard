@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("YOUOK OTAA");
+console.log("WOWZERS");
 
 (function () {
 
@@ -87,6 +87,9 @@ cards: []
 let counter = 0;
 let editing = null;
 let ready = false;
+let quickImportModal = null;
+let csvModal = null;
+let clearConfirmModal = null;
 
 const $ = s => document.querySelector(s);
 
@@ -240,7 +243,9 @@ left: !!els.left,
 menu: !!els.menu,
 dropdown: !!els.dropdown,
 importCSV: !!els.importCSV,
-quickImport: !!els.quickImport
+quickImport: !!els.quickImport,
+clearWrapper: !!els.clearWrapper,
+clear: !!els.clear
 }
 );
 
@@ -389,6 +394,12 @@ $('.barcode-import-card-button');
 els.quickImport =
 $('.barcode-quickimp-card-button');
 
+els.clearWrapper =
+$('.barcode-clear-card-wrapper');
+
+els.clear =
+$('.barcode-clear-card-button');
+
 els.dropdown =
 findDropdown();
 
@@ -534,6 +545,18 @@ display: none !important;
 }
 
 .db-list-dropdown-card[data-barcode-template] {
+cursor: pointer;
+}
+
+.barcode-clear-card-wrapper {
+transition: opacity .2s ease;
+}
+
+.barcode-clear-card-wrapper.barcode-clearing {
+opacity: .65;
+}
+
+.barcode-clear-card-button {
 cursor: pointer;
 }
 
@@ -722,6 +745,122 @@ font-weight: 600;
 background: #111;
 color: #fff;
 border-color: #111;
+}
+
+/* CLEAR ALL CONFIRM POPUP */
+
+.barcode-clear-confirm-modal {
+position: fixed;
+inset: 0;
+z-index: 100000;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 24px;
+box-sizing: border-box;
+background: rgba(0,0,0,.45);
+opacity: 0;
+transition: opacity .18s ease;
+}
+
+.barcode-clear-confirm-modal.is-visible {
+opacity: 1;
+}
+
+.barcode-clear-confirm-box {
+width: min(420px, 100%);
+background: #fff;
+border-radius: 10px;
+box-shadow: 0 20px 60px rgba(0,0,0,.25);
+display: flex;
+flex-direction: column;
+overflow: hidden;
+font-family: inherit;
+transform: translateY(8px) scale(.98);
+transition: transform .18s ease;
+}
+
+.barcode-clear-confirm-modal.is-visible
+.barcode-clear-confirm-box {
+transform: translateY(0) scale(1);
+}
+
+.barcode-clear-confirm-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 18px 22px;
+border-bottom: 1px solid #eee;
+}
+
+.barcode-clear-confirm-title {
+font-size: 18px;
+font-weight: 700;
+margin: 0;
+}
+
+.barcode-clear-confirm-close {
+width: 32px;
+height: 32px;
+border: 0;
+background: transparent;
+font-size: 24px;
+line-height: 1;
+cursor: pointer;
+border-radius: 5px;
+}
+
+.barcode-clear-confirm-close:hover {
+background: #f2f2f2;
+}
+
+.barcode-clear-confirm-body {
+padding: 22px;
+}
+
+.barcode-clear-confirm-message {
+margin: 0;
+font-size: 13px;
+line-height: 1.5;
+color: #555;
+}
+
+.barcode-clear-confirm-count {
+font-weight: 700;
+color: #222;
+}
+
+.barcode-clear-confirm-footer {
+display: flex;
+align-items: center;
+justify-content: flex-end;
+gap: 8px;
+padding: 14px 22px;
+border-top: 1px solid #eee;
+}
+
+.barcode-clear-confirm-button {
+border: 1px solid #ccc;
+background: #fff;
+border-radius: 5px;
+padding: 9px 14px;
+cursor: pointer;
+font-size: 12px;
+font-weight: 600;
+}
+
+.barcode-clear-confirm-button:hover {
+background: #f5f5f5;
+}
+
+.barcode-clear-confirm-button.danger {
+background: #111;
+color: #fff;
+border-color: #111;
+}
+
+.barcode-clear-confirm-button.danger:hover {
+background: #333;
 }
 
 /* QUICK IMPORT */
@@ -1155,6 +1294,7 @@ line-height: 1.5;
 
 .barcode-csv-success-count {
 font-weight: 700;
+color: #222;
 }
 
 #barcode-print-root {
@@ -1212,6 +1352,10 @@ margin-left: 0;
 
 .barcode-csv-description {
 max-width: 250px;
+}
+
+.barcode-clear-confirm-modal {
+padding: 10px;
 }
 
 }
@@ -1429,6 +1573,350 @@ hideEdit();
 }
 
 render();
+
+}
+
+function clearAllCards() {
+
+if (!state.cards.length) {
+return;
+}
+
+openClearConfirm();
+
+}
+
+function performClearAll() {
+
+if (!state.cards.length) {
+return;
+}
+
+const cards =
+els.panel
+? els.panel.querySelectorAll(
+'.barcode-card'
+)
+: [];
+
+if (els.clearWrapper) {
+
+els.clearWrapper.classList.add(
+'barcode-clearing'
+);
+
+}
+
+cards.forEach(
+(card, index) => {
+
+card.style.transition =
+'opacity .18s ease, transform .18s ease';
+
+card.style.opacity =
+'0';
+
+card.style.transform =
+'scale(.96)';
+
+card.style.transitionDelay =
+Math.min(
+index * 15,
+120
+) +
+'ms';
+
+}
+);
+
+setTimeout(
+() => {
+
+state.cards = [];
+
+hideEdit();
+
+render();
+
+if (els.clearWrapper) {
+
+els.clearWrapper.classList.remove(
+'barcode-clearing'
+);
+
+}
+
+},
+220
+);
+
+}
+
+function closeClearConfirm() {
+
+if (!clearConfirmModal) {
+return;
+}
+
+const modal =
+clearConfirmModal;
+
+modal.classList.remove(
+'is-visible'
+);
+
+setTimeout(
+() => {
+
+if (
+modal === clearConfirmModal
+) {
+
+modal.remove();
+
+clearConfirmModal =
+null;
+
+}
+
+},
+180
+);
+
+}
+
+function openClearConfirm() {
+
+if (!state.cards.length) {
+return;
+}
+
+closeClearConfirm();
+
+const modal =
+document.createElement(
+'div'
+);
+
+modal.className =
+'barcode-clear-confirm-modal';
+
+modal.setAttribute(
+'role',
+'dialog'
+);
+
+modal.setAttribute(
+'aria-modal',
+'true'
+);
+
+const box =
+document.createElement(
+'div'
+);
+
+box.className =
+'barcode-clear-confirm-box';
+
+const header =
+document.createElement(
+'div'
+);
+
+header.className =
+'barcode-clear-confirm-header';
+
+const title =
+document.createElement(
+'h2'
+);
+
+title.className =
+'barcode-clear-confirm-title';
+
+title.textContent =
+'Clear All Barcodes';
+
+const closeButton =
+document.createElement(
+'button'
+);
+
+closeButton.type =
+'button';
+
+closeButton.className =
+'barcode-clear-confirm-close';
+
+closeButton.textContent =
+'×';
+
+closeButton.setAttribute(
+'aria-label',
+'Close'
+);
+
+closeButton.addEventListener(
+'click',
+closeClearConfirm
+);
+
+header.append(
+title,
+closeButton
+);
+
+const body =
+document.createElement(
+'div'
+);
+
+body.className =
+'barcode-clear-confirm-body';
+
+const message =
+document.createElement(
+'p'
+);
+
+message.className =
+'barcode-clear-confirm-message';
+
+message.innerHTML =
+'Are you sure you want to remove all ' +
+'<span class="barcode-clear-confirm-count">' +
+state.cards.length +
+'</span> barcode' +
+(
+state.cards.length === 1
+? ''
+: 's'
+) +
+'? This cannot be undone.';
+
+body.appendChild(
+message
+);
+
+const footer =
+document.createElement(
+'div'
+);
+
+footer.className =
+'barcode-clear-confirm-footer';
+
+const cancel =
+document.createElement(
+'button'
+);
+
+cancel.type =
+'button';
+
+cancel.className =
+'barcode-clear-confirm-button';
+
+cancel.textContent =
+'Cancel';
+
+cancel.addEventListener(
+'click',
+closeClearConfirm
+);
+
+const confirm =
+document.createElement(
+'button'
+);
+
+confirm.type =
+'button';
+
+confirm.className =
+'barcode-clear-confirm-button danger';
+
+confirm.textContent =
+'Clear All';
+
+confirm.addEventListener(
+'click',
+function () {
+
+closeClearConfirm();
+
+performClearAll();
+
+}
+);
+
+footer.append(
+cancel,
+confirm
+);
+
+box.append(
+header,
+body,
+footer
+);
+
+modal.appendChild(
+box
+);
+
+modal.addEventListener(
+'click',
+function (e) {
+
+if (
+e.target === modal
+) {
+
+closeClearConfirm();
+
+}
+
+}
+);
+
+modal.addEventListener(
+'keydown',
+function (e) {
+
+if (
+e.key === 'Escape'
+) {
+
+closeClearConfirm();
+
+}
+
+}
+);
+
+document.body.appendChild(
+modal
+);
+
+clearConfirmModal =
+modal;
+
+requestAnimationFrame(
+() => {
+
+modal.classList.add(
+'is-visible'
+);
+
+}
+);
+
+setTimeout(
+() => confirm.focus(),
+50
+);
 
 }
 
@@ -2477,6 +2965,33 @@ openBarcodePanel();
 
 }
 
+function keepDropdownOpen() {
+
+if (!els.dropdown) {
+return;
+}
+
+els.dropdown.classList.add(
+DROPDOWN_OPEN_CLASS
+);
+
+const cards =
+els.dropdown.querySelectorAll(
+'.db-list-dropdown-card[data-barcode-template]'
+);
+
+cards.forEach(
+item => {
+
+item.style.removeProperty(
+'display'
+);
+
+}
+);
+
+}
+
 function createDropdown(
 wrapper
 ) {
@@ -2547,6 +3062,7 @@ return;
 
 e.preventDefault();
 e.stopPropagation();
+e.stopImmediatePropagation();
 
 const selectedTemplate =
 item.dataset.barcodeTemplate;
@@ -2560,7 +3076,17 @@ selectTemplate(
 selectedTemplate
 );
 
-closeDropdown();
+keepDropdownOpen();
+
+setTimeout(
+keepDropdownOpen,
+0
+);
+
+setTimeout(
+keepDropdownOpen,
+50
+);
 
 },
 true
@@ -2589,9 +3115,20 @@ if (!els.dropdown) {
 return;
 }
 
-els.dropdown.classList.toggle(
+const isOpen =
+els.dropdown.classList.contains(
 DROPDOWN_OPEN_CLASS
 );
+
+if (isOpen) {
+
+closeDropdown();
+
+} else {
+
+keepDropdownOpen();
+
+}
 
 }
 
@@ -2863,8 +3400,6 @@ return item;
 /* ----------------------------------------
    QUICK IMPORT
 ---------------------------------------- */
-
-let quickImportModal = null;
 
 function closeQuickImportModal() {
 
@@ -3909,8 +4444,6 @@ setTimeout(
    CSV IMPORT POPUP
 ---------------------------------------- */
 
-let csvModal = null;
-
 function closeCSVModal() {
 
 if (!csvModal) {
@@ -4937,6 +5470,57 @@ console.log(
 
 }
 
+function setupClearAll() {
+
+const button =
+els.clear;
+
+if (!button) {
+
+console.warn(
+'[barcode] Clear All button not found:',
+'.barcode-clear-card-button'
+);
+
+return;
+
+}
+
+if (
+button.dataset.clearReady ===
+'true'
+) {
+
+return;
+
+}
+
+button.dataset.clearReady =
+'true';
+
+button.addEventListener(
+'click',
+function (e) {
+
+e.preventDefault();
+e.stopPropagation();
+
+console.log(
+'[barcode] Clear All requested'
+);
+
+clearAllCards();
+
+}
+);
+
+console.log(
+'[barcode] Clear All button connected:',
+'.barcode-clear-card-button'
+);
+
+}
+
 function init() {
 
 cache();
@@ -4993,6 +5577,8 @@ card
 setupCSVImport();
 
 setupQuickImport();
+
+setupClearAll();
 
 if (els.print) {
 
@@ -5139,6 +5725,9 @@ get,
 
 deleteCard:
 remove,
+
+clearAllCards:
+clearAllCards,
 
 render,
 
