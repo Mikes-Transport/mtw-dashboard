@@ -3456,7 +3456,7 @@ margin-bottom:12px
 display:block;
 font-size:11px;
 font-weight:600;
-color:#444;
+color: black;
 margin-bottom:5px
 }
 
@@ -3470,7 +3470,7 @@ font:inherit;
 font-size:12px
 background-color: #30353b;
 outline: none;
-color: white;
+color: black;
 }
 
 textarea.et-field-input{
@@ -3493,6 +3493,8 @@ border-radius:5px;
 background:#fff;
 font:inherit;
 font-size:11px
+color: black;
+outline: none;
 }
 
 .et-number{
@@ -3616,11 +3618,12 @@ padding:8px 12px;
 cursor:pointer;
 font-size:11px;
 font-weight:600
+color:black;
 }
 
 .et-edit-button.primary{
 background:#111;
-color:#fff;
+color: black;
 border-color:#111
 }
 
