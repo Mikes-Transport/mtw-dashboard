@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("BOOOOMAASD");
+console.log("ABVABA");
 
 (function () {
 
@@ -612,21 +612,22 @@ text-align: center;
 align-self: center;
 }
 
-.db-left-content.editing {
-width: 100% !important;
-height: calc(100vh - 120px) !important;
-min-height: 0 !important;
-max-height: calc(100vh - 120px) !important;
-overflow: hidden !important;
-display: flex !important;
-flex-direction: column !important;
-overscroll-behavior: contain !important;
+.db-left-content.editing{
+width:100%!important;
+height: 100% !important;
+min-height:0!important;
+max-height: 100% !important;
+overflow:hidden!important;
+display:flex!important;
+flex-direction:column!important;
+overscroll-behavior:contain!important;
+overscroll-behavior-y:contain!important;
 }
 
 .db-left-content.editing .barcode-edit-panel {
 flex: 1 1 auto !important;
 width: 100% !important;
-height: auto !important;
+height: 100% !important;
 min-height: 0 !important;
 max-height: none !important;
 overflow-y: auto !important;
