@@ -20,7 +20,9 @@ const { db, $, $$, collection, getDocs } = window.MTW;
   const per = 100;
 
   const pag = document.createElement('div');
+
   pag.className = 'activity-pagination';
+
   pag.innerHTML = `
     <div class="activity-page-button activity-prev-button">Previous</div>
     <div class="activity-page-text">Page 1 / 1</div>
@@ -61,13 +63,13 @@ const { db, $, $$, collection, getDocs } = window.MTW;
         getDocs(collection(db, 'search-logs')),
         getDocs(collection(db, 'login-logs'))
       ]);
-    
+
       all = [
         ...searchSnap.docs,
         ...loginSnap.docs
       ].map(d => {
         const x = d.data();
-    
+
         return {
           action: x.action || '-',
           email: x.email || '-',
@@ -78,21 +80,30 @@ const { db, $, $$, collection, getDocs } = window.MTW;
           time: x.time || null
         };
       });
-    
+
       all.sort((a, b) => {
-        const aTime = a.time?.toMillis ? a.time.toMillis() : 0;
-        const bTime = b.time?.toMillis ? b.time.toMillis() : 0;
+        const aTime = a.time?.toMillis
+          ? a.time.toMillis()
+          : new Date(a.time || 0).getTime();
+
+        const bTime = b.time?.toMillis
+          ? b.time.toMillis()
+          : new Date(b.time || 0).getTime();
+
         return bTime - aTime;
       });
-    
+
       filtered = [...all];
       page = 1;
-    
+
+      total = Math.max(1, Math.ceil(filtered.length / per));
+
       render();
-    
+
     } catch (e) {
       console.error('Failed to load activity logs:', e);
     }
+  }
 
   function filter() {
     filtered = [...all];
@@ -121,7 +132,10 @@ const { db, $, $$, collection, getDocs } = window.MTW;
       );
     }
 
-    total = Math.max(1, Math.ceil(filtered.length / per));
+    total = Math.max(
+      1,
+      Math.ceil(filtered.length / per)
+    );
 
     if (page > total) {
       page = total;
@@ -149,8 +163,16 @@ const { db, $, $$, collection, getDocs } = window.MTW;
 
       r.className = 'activity-row';
 
+      let time = '-';
+
+      if (x.time?.toDate) {
+        time = x.time.toDate().toLocaleString();
+      } else if (x.time) {
+        time = new Date(x.time).toLocaleString();
+      }
+
       r.innerHTML = `
-        <div class="row-text">${x.time ? new Date(x.time).toLocaleString() : '-'}</div>
+        <div class="row-text">${time}</div>
         <div class="row-text">${x.name}</div>
         <div class="row-text">${x.email}</div>
         <div class="row-text">${x.tool}</div>
@@ -198,4 +220,5 @@ const { db, $, $$, collection, getDocs } = window.MTW;
     page = 1;
     filter();
   });
+
 })();
