@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("YOUOK ABA");
+console.log("YOUOK ABAASD");
 
 (function () {
 
@@ -720,8 +720,215 @@ color: #fff;
 border-color: #111;
 }
 
+/* CSV IMPORT POPUP */
+
+.barcode-csv-modal {
+position: fixed;
+inset: 0;
+z-index: 99999;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 24px;
+box-sizing: border-box;
+background: rgba(0,0,0,.45);
+}
+
+.barcode-csv-modal-box {
+width: min(900px, 100%);
+max-height: min(760px, 90vh);
+background: #fff;
+border-radius: 10px;
+box-shadow: 0 20px 60px rgba(0,0,0,.25);
+display: flex;
+flex-direction: column;
+overflow: hidden;
+font-family: inherit;
+}
+
+.barcode-csv-modal-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 18px 22px;
+border-bottom: 1px solid #eee;
+flex: 0 0 auto;
+}
+
+.barcode-csv-modal-title {
+font-size: 18px;
+font-weight: 700;
+margin: 0;
+}
+
+.barcode-csv-modal-close {
+width: 32px;
+height: 32px;
+border: 0;
+background: transparent;
+font-size: 24px;
+line-height: 1;
+cursor: pointer;
+border-radius: 5px;
+}
+
+.barcode-csv-modal-close:hover {
+background: #f2f2f2;
+}
+
+.barcode-csv-modal-options {
+display: flex;
+align-items: center;
+gap: 18px;
+padding: 14px 22px;
+border-bottom: 1px solid #eee;
+background: #fafafa;
+flex: 0 0 auto;
+}
+
+.barcode-csv-checkbox-label {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 13px;
+font-weight: 600;
+cursor: pointer;
+}
+
+.barcode-csv-checkbox {
+width: 16px;
+height: 16px;
+margin: 0;
+cursor: pointer;
+}
+
+.barcode-csv-summary {
+margin-left: auto;
+font-size: 12px;
+color: #666;
+}
+
+.barcode-csv-table-wrap {
+overflow: auto;
+flex: 1 1 auto;
+min-height: 0;
+}
+
+.barcode-csv-table {
+width: 100%;
+border-collapse: collapse;
+font-size: 12px;
+}
+
+.barcode-csv-table th {
+position: sticky;
+top: 0;
+z-index: 2;
+background: #f5f5f5;
+border-bottom: 1px solid #ddd;
+padding: 10px 12px;
+text-align: left;
+font-weight: 700;
+white-space: nowrap;
+}
+
+.barcode-csv-table td {
+padding: 8px 12px;
+border-bottom: 1px solid #eee;
+vertical-align: middle;
+}
+
+.barcode-csv-table tr:hover td {
+background: #fafafa;
+}
+
+.barcode-csv-part {
+font-weight: 700;
+white-space: nowrap;
+}
+
+.barcode-csv-description {
+color: #555;
+max-width: 480px;
+}
+
+.barcode-csv-qty {
+width: 70px;
+padding: 7px 8px;
+border: 1px solid #ccc;
+border-radius: 5px;
+font-size: 12px;
+box-sizing: border-box;
+text-align: center;
+}
+
+.barcode-csv-qty:focus {
+outline: none;
+border-color: #111;
+}
+
+.barcode-csv-modal-footer {
+display: flex;
+align-items: center;
+justify-content: flex-end;
+gap: 8px;
+padding: 14px 22px;
+border-top: 1px solid #eee;
+flex: 0 0 auto;
+}
+
+.barcode-csv-button {
+border: 1px solid #ccc;
+background: #fff;
+border-radius: 5px;
+padding: 9px 14px;
+cursor: pointer;
+font-size: 12px;
+font-weight: 600;
+}
+
+.barcode-csv-button:hover {
+background: #f5f5f5;
+}
+
+.barcode-csv-button.primary {
+background: #111;
+color: #fff;
+border-color: #111;
+}
+
+.barcode-csv-button.primary:hover {
+background: #333;
+}
+
 #barcode-print-root {
 display: none;
+}
+
+@media (max-width: 700px) {
+
+.barcode-csv-modal {
+padding: 10px;
+}
+
+.barcode-csv-modal-box {
+max-height: 94vh;
+}
+
+.barcode-csv-modal-options {
+flex-wrap: wrap;
+gap: 10px;
+}
+
+.barcode-csv-summary {
+width: 100%;
+margin-left: 0;
+}
+
+.barcode-csv-description {
+max-width: 250px;
+}
+
 }
 
 @media print {
@@ -2367,6 +2574,549 @@ return item;
 
 }
 
+/* ----------------------------------------
+   CSV IMPORT POPUP
+---------------------------------------- */
+
+let csvModal = null;
+
+function closeCSVModal() {
+
+if (!csvModal) {
+return;
+}
+
+csvModal.remove();
+csvModal = null;
+
+}
+
+function updateCSVModalSummary(
+rows,
+qtyInputs
+) {
+
+if (!csvModal) {
+return;
+}
+
+const total =
+qtyInputs.reduce(
+(sum, input) =>
+sum +
+Math.max(
+1,
+parseInt(
+input.value,
+10
+) || 1
+),
+0
+);
+
+const summary =
+csvModal.querySelector(
+'.barcode-csv-summary'
+);
+
+if (summary) {
+
+summary.textContent =
+total +
+' label' +
+(
+total === 1
+? ''
+: 's'
+) +
+' will be created';
+
+}
+
+}
+
+function openCSVModal(rows) {
+
+closeCSVModal();
+
+const modal =
+document.createElement(
+'div'
+);
+
+modal.className =
+'barcode-csv-modal';
+
+modal.setAttribute(
+'role',
+'dialog'
+);
+
+modal.setAttribute(
+'aria-modal',
+'true'
+);
+
+const box =
+document.createElement(
+'div'
+);
+
+box.className =
+'barcode-csv-modal-box';
+
+const header =
+document.createElement(
+'div'
+);
+
+header.className =
+'barcode-csv-modal-header';
+
+const title =
+document.createElement(
+'h2'
+);
+
+title.className =
+'barcode-csv-modal-title';
+
+title.textContent =
+'Import CSV';
+
+const closeButton =
+document.createElement(
+'button'
+);
+
+closeButton.type =
+'button';
+
+closeButton.className =
+'barcode-csv-modal-close';
+
+closeButton.textContent =
+'×';
+
+closeButton.setAttribute(
+'aria-label',
+'Close'
+);
+
+closeButton.addEventListener(
+'click',
+closeCSVModal
+);
+
+header.append(
+title,
+closeButton
+);
+
+const options =
+document.createElement(
+'div'
+);
+
+options.className =
+'barcode-csv-modal-options';
+
+const label =
+document.createElement(
+'label'
+);
+
+label.className =
+'barcode-csv-checkbox-label';
+
+const checkbox =
+document.createElement(
+'input'
+);
+
+checkbox.type =
+'checkbox';
+
+checkbox.className =
+'barcode-csv-checkbox';
+
+checkbox.checked =
+true;
+
+const labelText =
+document.createElement(
+'span'
+);
+
+labelText.textContent =
+'Part Number + Description';
+
+label.append(
+checkbox,
+labelText
+);
+
+const summary =
+document.createElement(
+'div'
+);
+
+summary.className =
+'barcode-csv-summary';
+
+options.append(
+label,
+summary
+);
+
+const tableWrap =
+document.createElement(
+'div'
+);
+
+tableWrap.className =
+'barcode-csv-table-wrap';
+
+const table =
+document.createElement(
+'table'
+);
+
+table.className =
+'barcode-csv-table';
+
+const thead =
+document.createElement(
+'thead'
+);
+
+const headerRow =
+document.createElement(
+'tr'
+);
+
+[
+'Part Number',
+'Description',
+'Qty'
+].forEach(
+text => {
+
+const th =
+document.createElement(
+'th'
+);
+
+th.textContent =
+text;
+
+headerRow.appendChild(
+th
+);
+
+}
+);
+
+thead.appendChild(
+headerRow
+);
+
+const tbody =
+document.createElement(
+'tbody'
+);
+
+const qtyInputs = [];
+
+rows.forEach(
+row => {
+
+const tr =
+document.createElement(
+'tr'
+);
+
+const partCell =
+document.createElement(
+'td'
+);
+
+partCell.className =
+'barcode-csv-part';
+
+partCell.textContent =
+row.partNumber;
+
+const descriptionCell =
+document.createElement(
+'td'
+);
+
+descriptionCell.className =
+'barcode-csv-description';
+
+descriptionCell.textContent =
+row.description || '';
+
+const qtyCell =
+document.createElement(
+'td'
+);
+
+const qty =
+document.createElement(
+'input'
+);
+
+qty.type =
+'number';
+
+qty.className =
+'barcode-csv-qty';
+
+qty.min =
+'1';
+
+qty.step =
+'1';
+
+qty.value =
+'1';
+
+qtyInputs.push(
+qty
+);
+
+qty.addEventListener(
+'input',
+function () {
+
+let value =
+parseInt(
+qty.value,
+10
+);
+
+if (
+!Number.isFinite(value) ||
+value < 1
+) {
+
+value = 1;
+
+}
+
+qty.value =
+value;
+
+updateCSVModalSummary(
+rows,
+qtyInputs
+);
+
+}
+);
+
+qtyCell.appendChild(
+qty
+);
+
+tr.append(
+partCell,
+descriptionCell,
+qtyCell
+);
+
+tbody.appendChild(
+tr
+);
+
+}
+);
+
+table.append(
+thead,
+tbody
+);
+
+tableWrap.appendChild(
+table
+);
+
+const footer =
+document.createElement(
+'div'
+);
+
+footer.className =
+'barcode-csv-modal-footer';
+
+const cancel =
+document.createElement(
+'button'
+);
+
+cancel.type =
+'button';
+
+cancel.className =
+'barcode-csv-button';
+
+cancel.textContent =
+'Cancel';
+
+cancel.addEventListener(
+'click',
+closeCSVModal
+);
+
+const importButton =
+document.createElement(
+'button'
+);
+
+importButton.type =
+'button';
+
+importButton.className =
+'barcode-csv-button primary';
+
+importButton.textContent =
+'Import Labels';
+
+importButton.addEventListener(
+'click',
+function () {
+
+const template =
+state.current ||
+DEFAULTS.template;
+
+const useDescription =
+checkbox.checked;
+
+let imported =
+0;
+
+rows.forEach(
+(row, index) => {
+
+let qtyValue =
+parseInt(
+qtyInputs[index].value,
+10
+);
+
+if (
+!Number.isFinite(qtyValue) ||
+qtyValue < 1
+) {
+
+qtyValue = 1;
+
+}
+
+const description =
+useDescription
+? simplifyDescription(
+row.description,
+template
+)
+: '';
+
+for (
+let i = 0;
+i < qtyValue;
+i++
+) {
+
+add({
+template,
+partNumber:
+row.partNumber,
+subtext:
+description
+});
+
+imported++;
+
+}
+
+}
+);
+
+render();
+
+closeCSVModal();
+
+alert(
+imported +
+' label' +
+(
+imported === 1
+? ''
+: 's'
+) +
+' imported.'
+);
+
+}
+);
+
+footer.append(
+cancel,
+importButton
+);
+
+box.append(
+header,
+options,
+tableWrap,
+footer
+);
+
+modal.appendChild(
+box
+);
+
+modal.addEventListener(
+'click',
+function (e) {
+
+if (e.target === modal) {
+closeCSVModal();
+}
+
+}
+);
+
+document.body.appendChild(
+modal
+);
+
+csvModal =
+modal;
+
+updateCSVModalSummary(
+rows,
+qtyInputs
+);
+
+if (qtyInputs.length) {
+
+setTimeout(
+() => qtyInputs[0].focus(),
+50
+);
+
+}
+
+}
+
+/* ----------------------------------------
+   CSV IMPORT
+---------------------------------------- */
+
 function importCSV() {
 
 const input =
@@ -2484,31 +3234,9 @@ String(key)
 'description'
 );
 
-const hasDescription =
-!!descriptionKey;
-
-let importDescriptions =
-false;
-
-if (hasDescription) {
-
-importDescriptions =
-window.confirm(
-'Do you want to import the descriptions from the CSV?\n\n' +
-'OK = Import descriptions\n' +
-'Cancel = Stock Codes only'
-);
-
-}
-
-const template =
-state.current ||
-DEFAULTS.template;
-
-let imported =
-0;
-
-rows.forEach(
+const preparedRows =
+rows
+.map(
 row => {
 
 const partNumber =
@@ -2517,31 +3245,25 @@ row[stockCodeKey]
 );
 
 if (!partNumber) {
-return;
+return null;
 }
 
-const description =
-importDescriptions &&
-hasDescription
-? simplifyDescription(
-row[descriptionKey],
-template
-)
-: '';
-
-add({
-template,
+return {
 partNumber,
-subtext:
-description
-});
-
-imported++;
+description:
+descriptionKey
+? String(
+row[descriptionKey] ??
+''
+).trim()
+: ''
+};
 
 }
-);
+)
+.filter(Boolean);
 
-if (!imported) {
+if (!preparedRows.length) {
 
 alert(
 'No rows with a Stock Code were found.'
@@ -2553,17 +3275,8 @@ return;
 
 }
 
-render();
-
-alert(
-imported +
-' label' +
-(
-imported === 1
-? ''
-: 's'
-) +
-' imported.'
+openCSVModal(
+preparedRows
 );
 
 } catch (error) {
