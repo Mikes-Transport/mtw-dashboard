@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL TEST VERSION 2");
+console.log("MTW SPIN WHEEL TEST VERSION 3");
 
 'use strict';
 
@@ -355,13 +355,30 @@ console.log("MTW SPIN WHEEL TEST VERSION 2");
     }
 
     /*
-     * No transparent overlay.
-     * No segment-line layer.
-     * No inner ring.
-     *
-     * Just the actual pizza slices,
-     * labels and centre hub.
+     * Fake shine restored.
      */
+
+    .mtw-wheel::after {
+      content: "";
+
+      position: absolute;
+
+      inset: 0;
+
+      border-radius: 50%;
+
+      background:
+        linear-gradient(
+          125deg,
+          rgba(255,255,255,.20) 0%,
+          rgba(255,255,255,.08) 18%,
+          rgba(255,255,255,0) 42%
+        );
+
+      pointer-events: none;
+
+      z-index: 8;
+    }
 
     /* LABELS */
 
@@ -401,14 +418,7 @@ console.log("MTW SPIN WHEEL TEST VERSION 2");
 
       left: 50%;
 
-      /*
-       * The previous 26% put the text
-       * too close to the centre.
-       *
-       * 34% gives the text much more
-       * breathing room around the hub.
-       */
-      top: 34%;
+      top: 15%;
 
       width: 42%;
 
@@ -419,7 +429,7 @@ console.log("MTW SPIN WHEEL TEST VERSION 2");
       text-align: center;
 
       font-size:
-        clamp(12px, 2.7vw, 19px);
+        clamp(13px, 2.9vw, 18px);
 
       font-weight: 1000;
 
@@ -427,7 +437,7 @@ console.log("MTW SPIN WHEEL TEST VERSION 2");
 
       letter-spacing: .25px;
 
-      color: #ffffff;
+      color: #65b746;
 
       text-shadow:
         0 2px 4px rgba(0,0,0,.95),
@@ -437,14 +447,16 @@ console.log("MTW SPIN WHEEL TEST VERSION 2");
     }
 
     /*
-     * Dark text on the two white slices.
+     * Keep reward text green on every slice,
+     * including the white slices.
      */
     .mtw-label:nth-child(3) span,
     .mtw-label:nth-child(6) span {
 
-      color: #171717;
+      color: #65b746;
 
-      text-shadow: none;
+      text-shadow:
+        0 1px 3px rgba(0,0,0,.65);
     }
 
     /* CENTRE HUB */
@@ -884,11 +896,12 @@ console.log("MTW SPIN WHEEL TEST VERSION 2");
 
       .mtw-label span {
 
-        top: 32%;
+        top: 15%;
 
         width: 42%;
 
-        font-size: 11px;
+        font-size:
+          clamp(13px, 2.9vw, 18px);
       }
 
       .mtw-pointer {
@@ -1175,17 +1188,10 @@ console.log("MTW SPIN WHEEL TEST VERSION 2");
     const reward =
       rewards[winnerIndex];
 
-    /*
-     * Centre angle of the winning
-     * pizza slice.
-     */
     const winnerCentre =
       winnerIndex * slice +
       slice / 2;
 
-    /*
-     * Pointer sits at 12 o'clock.
-     */
     const targetAngle =
       360 - winnerCentre;
 
@@ -1239,10 +1245,6 @@ console.log("MTW SPIN WHEEL TEST VERSION 2");
 
         }
 
-        /*
-         * Add the result to the checkout
-         * comments field.
-         */
         protectPrizeInTextarea(
           reward
         );
@@ -1293,10 +1295,6 @@ console.log("MTW SPIN WHEEL TEST VERSION 2");
           ).textContent =
             "TEST MODE";
 
-          /*
-           * Testing mode:
-           * allow another spin.
-           */
           button.disabled = false;
 
         }
