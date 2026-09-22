@@ -3371,9 +3371,9 @@ min-width:0!important
 
 .db-left-content.editing{
 width:100%!important;
-height:calc(100vh - 120px)!important;
+height: 100% !important;
 min-height:0!important;
-max-height:calc(100vh - 120px)!important;
+max-height: 100% !important;
 overflow:hidden!important;
 display:flex!important;
 flex-direction:column!important;
@@ -3384,7 +3384,7 @@ overscroll-behavior-y:contain!important;
 .db-left-content.editing .et-edit-panel{
 flex:1 1 auto!important;
 width:100%!important;
-height:auto!important;
+height: 100% !important;
 min-height:0!important;
 max-height:none!important;
 overflow-y:auto!important;
