@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL TEST VERSION");
+console.log("MTW SPIN WHEEL TEST VERSION 2");
 
 'use strict';
 
@@ -36,62 +36,73 @@ console.log("MTW SPIN WHEEL TEST VERSION");
   const slice = 360 / rewards.length;
 
   const gradientStops = rewards.map((_, i) => {
+
     const start = i * slice;
     const end = (i + 1) * slice;
 
     return `${colours[i]} ${start}deg ${end}deg`;
+
   }).join(", ");
 
   /*
-   * Build the 32 bulbs with actual pixel percentages.
-   * No CSS sin/cos.
+   * Build the outer bulbs using calculated positions.
    */
-  const lights = Array.from({ length: 32 }, (_, i) => {
+  const lights = Array.from(
+    { length: 32 },
+    (_, i) => {
 
-    const angle = i * (360 / 32) - 90;
-    const radius = 47;
+      const angle =
+        i * (360 / 32) - 90;
 
-    const x =
-      50 + Math.cos(angle * Math.PI / 180) * radius;
+      const radius = 47;
 
-    const y =
-      50 + Math.sin(angle * Math.PI / 180) * radius;
+      const x =
+        50 +
+        Math.cos(
+          angle * Math.PI / 180
+        ) * radius;
 
-    return `
-      <span
-        style="
-          left:${x}%;
-          top:${y}%;
-          --light:${i};
-        "
-      ></span>
-    `;
+      const y =
+        50 +
+        Math.sin(
+          angle * Math.PI / 180
+        ) * radius;
 
-  }).join("");
+      return `
+        <span
+          style="
+            left:${x}%;
+            top:${y}%;
+            --light:${i};
+          "
+        ></span>
+      `;
+
+    }
+  ).join("");
 
   /*
-   * Position labels directly inside each pizza slice.
-   *
-   * Each slice is 45 degrees.
-   * Labels sit around 62% of the wheel radius,
-   * following the exact centre angle of each slice.
+   * Position each label from the exact
+   * centre angle of its pizza slice.
    */
-  const labels = rewards.map((reward, i) => {
+  const labels = rewards.map(
+    (reward, i) => {
 
-    const centre = i * slice + slice / 2;
+      const centre =
+        i * slice +
+        slice / 2;
 
-    return `
-      <div
-        class="mtw-label"
-        style="
-          --angle:${centre}deg;
-        "
-      >
-        <span>${reward.label}</span>
-      </div>
-    `;
+      return `
+        <div
+          class="mtw-label"
+          style="--angle:${centre}deg;"
+        >
+          <span>${reward.label}</span>
+        </div>
+      `;
 
-  }).join("");
+    }
+  ).join("");
 
   root.innerHTML = `
     <div class="mtw-spin-wrap">
@@ -158,7 +169,8 @@ console.log("MTW SPIN WHEEL TEST VERSION");
     </div>
   `;
 
-  const style = document.createElement("style");
+  const style =
+    document.createElement("style");
 
   style.textContent = `
 
@@ -184,8 +196,10 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
     .mtw-wheel-stage {
       position: relative;
+
       width: min(88vw, 560px);
       height: min(88vw, 560px);
+
       margin: 0 auto 35px;
 
       display: flex;
@@ -195,6 +209,7 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
     .mtw-wheel-shadow {
       position: absolute;
+
       width: 82%;
       height: 82%;
 
@@ -209,7 +224,7 @@ console.log("MTW SPIN WHEEL TEST VERSION");
       z-index: 0;
     }
 
-    /* OUTER GAME-SHOW LIGHTS */
+    /* OUTER LIGHTS */
 
     .mtw-light-ring {
       position: absolute;
@@ -227,8 +242,6 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
       width: 13px;
       height: 13px;
-
-      margin: 0;
 
       border-radius: 50%;
 
@@ -257,6 +270,7 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
       0% {
         opacity: .45;
+
         transform:
           translate(-50%, -50%)
           scale(.78);
@@ -264,6 +278,7 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
       100% {
         opacity: 1;
+
         transform:
           translate(-50%, -50%)
           scale(1);
@@ -285,6 +300,7 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
       0% {
         opacity: .3;
+
         background: #ff9d00;
 
         box-shadow:
@@ -294,6 +310,7 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
       100% {
         opacity: 1;
+
         background: #fff36a;
 
         box-shadow:
@@ -304,10 +321,9 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
     }
 
-    /* ACTUAL WHEEL */
+    /* WHEEL */
 
     .mtw-wheel {
-
       position: relative;
 
       width: 88%;
@@ -321,7 +337,8 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
       border: 10px solid #161616;
 
-      background: var(--wheel-gradient);
+      background:
+        var(--wheel-gradient);
 
       box-shadow:
         0 0 0 4px rgba(255,255,255,.12),
@@ -332,21 +349,23 @@ console.log("MTW SPIN WHEEL TEST VERSION");
       transform: rotate(0deg);
 
       transition:
-        transform 4.1s cubic-bezier(.08,.78,.12,1);
+        transform
+        4.1s
+        cubic-bezier(.08,.78,.12,1);
     }
 
     /*
-     * IMPORTANT:
+     * No transparent overlay.
+     * No segment-line layer.
+     * No inner ring.
      *
-     * There is deliberately NO ::after overlay here.
-     *
-     * The coloured pizza slices are the actual surface.
+     * Just the actual pizza slices,
+     * labels and centre hub.
      */
 
-    /* LABEL SYSTEM */
+    /* LABELS */
 
     .mtw-labels {
-
       position: absolute;
 
       inset: 0;
@@ -370,7 +389,8 @@ console.log("MTW SPIN WHEEL TEST VERSION");
         translate(-50%, -50%)
         rotate(var(--angle));
 
-      transform-origin: center center;
+      transform-origin:
+        center center;
 
       pointer-events: none;
     }
@@ -382,12 +402,15 @@ console.log("MTW SPIN WHEEL TEST VERSION");
       left: 50%;
 
       /*
-       * Move the text into the middle
-       * of the actual pizza slice.
+       * The previous 26% put the text
+       * too close to the centre.
+       *
+       * 34% gives the text much more
+       * breathing room around the hub.
        */
-      top: 26%;
+      top: 34%;
 
-      width: 34%;
+      width: 42%;
 
       transform:
         translateX(-50%)
@@ -396,13 +419,13 @@ console.log("MTW SPIN WHEEL TEST VERSION");
       text-align: center;
 
       font-size:
-        clamp(10px, 2.2vw, 16px);
+        clamp(12px, 2.7vw, 19px);
 
       font-weight: 1000;
 
       line-height: 1.05;
 
-      letter-spacing: .2px;
+      letter-spacing: .25px;
 
       color: #ffffff;
 
@@ -414,7 +437,7 @@ console.log("MTW SPIN WHEEL TEST VERSION");
     }
 
     /*
-     * Light slices use dark text.
+     * Dark text on the two white slices.
      */
     .mtw-label:nth-child(3) span,
     .mtw-label:nth-child(6) span {
@@ -456,7 +479,6 @@ console.log("MTW SPIN WHEEL TEST VERSION");
       display: flex;
 
       align-items: center;
-
       justify-content: center;
 
       box-shadow:
@@ -759,12 +781,14 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
       0% {
         opacity: 0;
+
         transform:
           translateY(10px);
       }
 
       100% {
         opacity: 1;
+
         transform:
           translateY(0);
       }
@@ -799,8 +823,7 @@ console.log("MTW SPIN WHEEL TEST VERSION");
       0% {
         opacity: .3;
 
-        background:
-          #ff8a00;
+        background: #ff8a00;
 
         transform:
           translate(-50%, -50%)
@@ -810,8 +833,7 @@ console.log("MTW SPIN WHEEL TEST VERSION");
       100% {
         opacity: 1;
 
-        background:
-          #fff36a;
+        background: #fff36a;
 
         transform:
           translate(-50%, -50%)
@@ -819,6 +841,8 @@ console.log("MTW SPIN WHEEL TEST VERSION");
       }
 
     }
+
+    /* MOBILE */
 
     @media (max-width: 480px) {
 
@@ -860,11 +884,11 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
       .mtw-label span {
 
-        top: 25%;
+        top: 32%;
 
-        width: 36%;
+        width: 42%;
 
-        font-size: 9px;
+        font-size: 11px;
       }
 
       .mtw-pointer {
@@ -886,6 +910,10 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
   document.head.appendChild(style);
 
+  /*
+   * Checkout comments prize handling.
+   */
+
   let prizePrefix = "";
 
   function getPrizeInput() {
@@ -898,7 +926,8 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
   function protectPrizeInTextarea(reward) {
 
-    const input = getPrizeInput();
+    const input =
+      getPrizeInput();
 
     if (!input || !reward) return;
 
@@ -1021,7 +1050,6 @@ console.log("MTW SPIN WHEEL TEST VERSION");
           input.value =
             prizePrefix +
             value;
-
         }
 
       }
@@ -1093,11 +1121,6 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
   /*
    * LOCAL STORAGE DISABLED FOR TESTING.
-   *
-   * We are deliberately NOT calling localStorage here.
-   *
-   * Once testing is finished, the one-spin-per-customer
-   * lock can be turned back on.
    */
 
   function alreadyUsed() {
@@ -1153,15 +1176,15 @@ console.log("MTW SPIN WHEEL TEST VERSION");
       rewards[winnerIndex];
 
     /*
-     * The centre of the selected slice.
+     * Centre angle of the winning
+     * pizza slice.
      */
     const winnerCentre =
       winnerIndex * slice +
       slice / 2;
 
     /*
-     * Pointer is at 12 o'clock.
-     * Positive CSS rotation is clockwise.
+     * Pointer sits at 12 o'clock.
      */
     const targetAngle =
       360 - winnerCentre;
@@ -1216,6 +1239,10 @@ console.log("MTW SPIN WHEEL TEST VERSION");
 
         }
 
+        /*
+         * Add the result to the checkout
+         * comments field.
+         */
         protectPrizeInTextarea(
           reward
         );
@@ -1267,8 +1294,8 @@ console.log("MTW SPIN WHEEL TEST VERSION");
             "TEST MODE";
 
           /*
-           * Testing only:
-           * allow another spin after TRY AGAIN.
+           * Testing mode:
+           * allow another spin.
            */
           button.disabled = false;
 
