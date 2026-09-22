@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("ABVABA");
+console.log("ABVABA22");
 
 (function () {
 
@@ -627,9 +627,9 @@ overscroll-behavior-y:contain!important;
 .db-left-content.editing .barcode-edit-panel {
 flex: 1 1 auto !important;
 width: 100% !important;
-height: 100% !important;
+height: 50% !important;
 min-height: 0 !important;
-max-height: none !important;
+max-height: 50% !important;
 overflow-y: auto !important;
 overflow-x: hidden !important;
 box-sizing: border-box !important;
