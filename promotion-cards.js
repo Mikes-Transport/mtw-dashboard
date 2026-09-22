@@ -398,7 +398,7 @@ const { $, $$ } = window.MTW;
      $('.card-click-scroll-right');
 
     els.left =
-      $('.db-left-content');
+      $('.');
 
     els.menu =
       $('.db-menu-list');
@@ -3366,8 +3366,13 @@ flex:0 0 auto!important;
 min-width:0!important
 }
 
+.db-left-content {
+height:100%!important;
+}
+
 .db-left-content.editing{
 width:100%!important;
+height:100%!important;
 min-height:0!important;
 overflow:hidden!important;
 display:flex!important;
