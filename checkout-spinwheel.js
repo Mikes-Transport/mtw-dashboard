@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL TEST VERSION 3");
+console.log("MTW SPIN WHEEL TEST VERSION 4");
 
 'use strict';
 
@@ -194,6 +194,10 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
       padding: 25px 10px 35px;
     }
 
+    /* =========================================
+       WHEEL STAGE
+    ========================================= */
+
     .mtw-wheel-stage {
       position: relative;
 
@@ -224,7 +228,9 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
       z-index: 0;
     }
 
-    /* OUTER LIGHTS */
+    /* =========================================
+       OUTER LIGHTS
+    ========================================= */
 
     .mtw-light-ring {
       position: absolute;
@@ -321,7 +327,9 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
 
     }
 
-    /* WHEEL */
+    /* =========================================
+       WHEEL
+    ========================================= */
 
     .mtw-wheel {
       position: relative;
@@ -352,11 +360,13 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
         transform
         4.1s
         cubic-bezier(.08,.78,.12,1);
+
+      will-change: transform;
     }
 
-    /*
-     * Fake shine restored.
-     */
+    /* =========================================
+       FAKE GLOSS / SHINE
+    ========================================= */
 
     .mtw-wheel::after {
       content: "";
@@ -370,8 +380,8 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
       background:
         linear-gradient(
           125deg,
-          rgba(255,255,255,.20) 0%,
-          rgba(255,255,255,.08) 18%,
+          rgba(255,255,255,.26) 0%,
+          rgba(255,255,255,.10) 18%,
           rgba(255,255,255,0) 42%
         );
 
@@ -380,7 +390,9 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
       z-index: 8;
     }
 
-    /* LABELS */
+    /* =========================================
+       LABELS
+    ========================================= */
 
     .mtw-labels {
       position: absolute;
@@ -437,29 +449,30 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
 
       letter-spacing: .25px;
 
-      color: #65b746;
+      color: #ffffff;
 
       text-shadow:
         0 2px 4px rgba(0,0,0,.95),
-        0 0 3px rgba(0,0,0,.8);
+        0 0 4px rgba(0,0,0,.75);
 
       white-space: normal;
     }
 
-    /*
-     * Keep reward text green on every slice,
-     * including the white slices.
-     */
+    /* ALL LABELS STAY WHITE */
+
     .mtw-label:nth-child(3) span,
     .mtw-label:nth-child(6) span {
 
-      color: #65b746;
+      color: #ffffff;
 
       text-shadow:
-        0 1px 3px rgba(0,0,0,.65);
+        0 2px 4px rgba(0,0,0,.95),
+        0 0 4px rgba(0,0,0,.75);
     }
 
-    /* CENTRE HUB */
+    /* =========================================
+       CENTRE HUB
+    ========================================= */
 
     .mtw-wheel-centre {
 
@@ -556,7 +569,9 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
         0 2px 3px rgba(0,0,0,.45);
     }
 
-    /* POINTER */
+    /* =========================================
+       POINTER
+    ========================================= */
 
     .mtw-pointer {
 
@@ -635,7 +650,9 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
       filter: blur(15px);
     }
 
-    /* BUTTON */
+    /* =========================================
+       SPIN BUTTON
+    ========================================= */
 
     .mtw-spin-button {
 
@@ -735,7 +752,9 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
       letter-spacing: 1px;
     }
 
-    /* RESULT */
+    /* =========================================
+       RESULT
+    ========================================= */
 
     .mtw-spin-status {
 
@@ -807,7 +826,9 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
 
     }
 
-    /* WINNER LIGHTS */
+    /* =========================================
+       WINNER LIGHTS
+    ========================================= */
 
     .mtw-wheel-stage.mtw-winner
     .mtw-light-ring span {
@@ -854,7 +875,9 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
 
     }
 
-    /* MOBILE */
+    /* =========================================
+       MOBILE
+    ========================================= */
 
     @media (max-width: 480px) {
 
@@ -902,6 +925,8 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
 
         font-size:
           clamp(13px, 2.9vw, 18px);
+
+        color: #ffffff;
       }
 
       .mtw-pointer {
@@ -923,9 +948,9 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
 
   document.head.appendChild(style);
 
-  /*
-   * Checkout comments prize handling.
-   */
+  /* =========================================
+     CHECKOUT COMMENTS PRIZE HANDLING
+  ========================================= */
 
   let prizePrefix = "";
 
@@ -1132,9 +1157,9 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
 
   }
 
-  /*
-   * LOCAL STORAGE DISABLED FOR TESTING.
-   */
+  /* =========================================
+     LOCAL STORAGE DISABLED FOR TESTING
+  ========================================= */
 
   function alreadyUsed() {
     return false;
@@ -1147,6 +1172,10 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
   function restorePreviousSpin() {
     // Disabled during testing.
   }
+
+  /* =========================================
+     SPIN
+  ========================================= */
 
   function spin() {
 
@@ -1178,6 +1207,15 @@ console.log("MTW SPIN WHEEL TEST VERSION 3");
       "THE WHEEL IS SPINNING...";
 
     status.textContent = "";
+
+    status.classList.remove(
+      "win",
+      "try-again"
+    );
+
+    stage.classList.remove(
+      "mtw-winner"
+    );
 
     const winnerIndex =
       Math.floor(
