@@ -1,4 +1,7 @@
-(() => {
+'use strict';
+
+(function () {
+
   const rewards = [
     { label: "10% OFF", value: "10% OFF", code: "SPIN-10" },
     { label: "FREE FREIGHT", value: "Free Freight", code: "SPIN-FREIGHT" },
@@ -9,187 +12,6 @@
     { label: "$50 VOUCHER", value: "$50 Voucher", code: "SPIN-50" },
     { label: "5% OFF", value: "5% OFF", code: "SPIN-5" }
   ];
-
-  const root = document.querySelector("#mtw-spin-wheel");
-
-  if (!root || !rewards.length) return;
-
-  root.innerHTML = `
-    <style>
-      #mtw-wheel-app {
-        width: 100%;
-        max-width: 520px;
-        margin: 0 auto;
-        text-align: center;
-        font-family: inherit;
-      }
-
-      #mtw-wheel-wrap {
-        position: relative;
-        width: min(90vw, 460px);
-        aspect-ratio: 1;
-        margin: 0 auto 26px;
-      }
-
-      #mtw-wheel {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        border: 9px solid #171717;
-        position: relative;
-        overflow: hidden;
-        box-sizing: border-box;
-        transform: rotate(0deg);
-        transition: transform 3.8s cubic-bezier(.12,.72,.15,1);
-        cursor: pointer;
-        box-shadow:
-          0 12px 30px rgba(0,0,0,.18),
-          0 3px 8px rgba(0,0,0,.12);
-        background: #fff;
-      }
-
-      #mtw-wheel canvas {
-        width: 100%;
-        height: 100%;
-        display: block;
-      }
-
-      #mtw-pointer {
-        position: absolute;
-        z-index: 5;
-        top: -7px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 0;
-        height: 0;
-        border-left: 17px solid transparent;
-        border-right: 17px solid transparent;
-        border-top: 34px solid #65b746;
-        filter: drop-shadow(0 3px 3px rgba(0,0,0,.25));
-      }
-
-      #mtw-pointer::after {
-        content: "";
-        position: absolute;
-        left: -7px;
-        top: -34px;
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        background: #fff;
-        box-shadow: 0 1px 4px rgba(0,0,0,.25);
-      }
-
-      #mtw-spin-button {
-        border: 0;
-        background: #65b746;
-        color: #fff;
-        font: inherit;
-        font-weight: 800;
-        font-size: 17px;
-        letter-spacing: .08em;
-        padding: 15px 36px;
-        border-radius: 999px;
-        cursor: pointer;
-        min-width: 170px;
-        box-shadow: 0 7px 18px rgba(101,183,70,.25);
-        transition:
-          transform .15s ease,
-          box-shadow .15s ease,
-          opacity .15s ease;
-      }
-
-      #mtw-spin-button:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 22px rgba(101,183,70,.3);
-      }
-
-      #mtw-spin-button:active:not(:disabled) {
-        transform: translateY(1px);
-      }
-
-      #mtw-spin-button:disabled {
-        opacity: .55;
-        cursor: not-allowed;
-        box-shadow: none;
-      }
-
-      #mtw-result {
-        margin-top: 20px;
-        min-height: 50px;
-        padding: 0 10px;
-        font-size: 25px;
-        line-height: 1.2;
-        font-weight: 850;
-      }
-
-      #mtw-result.win {
-        color: #65b746;
-      }
-
-      #mtw-result.try-again {
-        color: #555;
-      }
-
-      #mtw-result small {
-        display: block;
-        margin-top: 7px;
-        font-size: 13px;
-        font-weight: 600;
-        color: #777;
-      }
-
-      .mtw-spin-hidden-input {
-        position: absolute !important;
-        width: 1px !important;
-        height: 1px !important;
-        padding: 0 !important;
-        margin: -1px !important;
-        overflow: hidden !important;
-        clip: rect(0, 0, 0, 0) !important;
-        white-space: nowrap !important;
-        border: 0 !important;
-      }
-
-      @media (max-width: 480px) {
-        #mtw-wheel-wrap {
-          width: min(92vw, 400px);
-        }
-
-        #mtw-result {
-          font-size: 22px;
-        }
-      }
-    </style>
-
-    <div id="mtw-wheel-app">
-
-      <div id="mtw-wheel-wrap">
-        <div id="mtw-pointer"></div>
-
-        <div id="mtw-wheel">
-          <canvas></canvas>
-        </div>
-      </div>
-
-      <button id="mtw-spin-button" type="button">
-        SPIN TO WIN
-      </button>
-
-      <div id="mtw-result" aria-live="polite"></div>
-
-    </div>
-  `;
-
-  const wheel = root.querySelector("#mtw-wheel");
-  const canvas = root.querySelector("canvas");
-  const ctx = canvas.getContext("2d");
-  const button = root.querySelector("#mtw-spin-button");
-  const result = root.querySelector("#mtw-result");
-
-  let currentRotation = 0;
-  let spinning = false;
-  let hasSpun = false;
 
   const colours = [
     "#171717",
@@ -202,343 +24,493 @@
     "#65b746"
   ];
 
+  const STORAGE_KEY = "mtw_spin_wheel_used";
+
+  let currentRotation = 0;
+  let spinning = false;
+  let winningReward = null;
+  let prizePrefix = "";
+  let prizeInput = null;
+
+  const root = document.getElementById("mtw-spin-wheel");
+
+  if (!root) return;
+
+  root.innerHTML = `
+    <div class="mtw-spin-wrap">
+
+      <div class="mtw-wheel-area">
+
+        <div class="mtw-pointer"></div>
+
+        <div class="mtw-wheel" id="mtw-wheel">
+          ${rewards.map((reward, i) => `
+            <div
+              class="mtw-wheel-label"
+              style="--i:${i}; --slice:${360 / rewards.length}deg;"
+            >
+              <span>${reward.label}</span>
+            </div>
+          `).join("")}
+        </div>
+
+        <div class="mtw-wheel-centre">
+          <span>SPIN</span>
+        </div>
+
+      </div>
+
+      <button type="button" class="mtw-spin-button" id="mtw-spin-button">
+        SPIN THE WHEEL
+      </button>
+
+      <div class="mtw-spin-status" id="mtw-spin-status"></div>
+
+    </div>
+  `;
+
+  const wheel = document.getElementById("mtw-wheel");
+  const button = document.getElementById("mtw-spin-button");
+  const status = document.getElementById("mtw-spin-status");
+
+  const style = document.createElement("style");
+
+  style.textContent = `
+    #mtw-spin-wheel {
+      width: 100%;
+      max-width: 620px;
+      margin: 0 auto;
+      font-family: inherit;
+    }
+
+    .mtw-spin-wrap {
+      width: 100%;
+      text-align: center;
+    }
+
+    .mtw-wheel-area {
+      position: relative;
+      width: min(90vw, 520px);
+      height: min(90vw, 520px);
+      margin: 0 auto 30px;
+    }
+
+    .mtw-wheel {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 8px solid #171717;
+      box-shadow:
+        0 12px 30px rgba(0,0,0,.18),
+        inset 0 0 0 3px rgba(255,255,255,.15);
+      transform: rotate(0deg);
+      transition: transform 3.9s cubic-bezier(.12,.78,.15,1);
+      background:
+        conic-gradient(
+          ${colours.map((colour, i) =>
+            `${colour} ${i * (360 / rewards.length)}deg ${(i + 1) * (360 / rewards.length)}deg`
+          ).join(",")}
+        );
+    }
+
+    .mtw-wheel-label {
+      position: absolute;
+      inset: 0;
+      transform: rotate(
+        calc(var(--i) * var(--slice) + var(--slice) / 2)
+      );
+      pointer-events: none;
+    }
+
+    .mtw-wheel-label span {
+      position: absolute;
+      top: 11%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      font-size: clamp(11px, 2.5vw, 15px);
+      font-weight: 800;
+      line-height: 1.15;
+      text-align: center;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,.8);
+    }
+
+    .mtw-wheel-label:nth-child(3) span,
+    .mtw-wheel-label:nth-child(6) span {
+      color: #171717;
+      text-shadow: none;
+    }
+
+    .mtw-wheel-centre {
+      position: absolute;
+      z-index: 5;
+      top: 50%;
+      left: 50%;
+      width: 105px;
+      height: 105px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: #65b746;
+      border: 7px solid #171717;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,.3);
+    }
+
+    .mtw-wheel-centre span {
+      font-size: 18px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: .5px;
+    }
+
+    .mtw-pointer {
+      position: absolute;
+      z-index: 10;
+      top: -7px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-top: 35px solid #171717;
+      filter: drop-shadow(0 3px 3px rgba(0,0,0,.3));
+    }
+
+    .mtw-spin-button {
+      appearance: none;
+      border: 0;
+      border-radius: 10px;
+      padding: 15px 32px;
+      background: #65b746;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .2s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,.15);
+    }
+
+    .mtw-spin-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,.2);
+    }
+
+    .mtw-spin-button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .mtw-spin-status {
+      min-height: 28px;
+      margin-top: 18px;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .mtw-spin-status.win {
+      color: #65b746;
+    }
+
+    .mtw-spin-status.try-again {
+      color: #171717;
+    }
+  `;
+
+  document.head.appendChild(style);
+
   function getPrizeInput() {
     return document.querySelector(
       "textarea.input-block-level.form-control.mb-3"
     );
   }
 
-  function setPrizeInput(reward) {
-    if (!reward) return;
+  /*
+   * Puts the prize into the existing checkout comments textarea.
+   * Only the prize prefix is protected.
+   * Everything after the prefix remains editable.
+   */
+  function protectPrizeInTextarea(reward) {
 
     const input = getPrizeInput();
 
-    if (!input) {
-      console.warn(
-        "MTW Spin Wheel: Prize textarea not found."
+    if (!input || !reward) return;
+
+    prizeInput = input;
+
+    prizePrefix = `MTW SPIN WHEEL PRIZE: ${reward.value}\n\n`;
+
+    let existingComments = input.value || "";
+
+    if (existingComments.startsWith("MTW SPIN WHEEL PRIZE:")) {
+      existingComments = existingComments.replace(
+        /^MTW SPIN WHEEL PRIZE:[^\n]*(?:\n\n)?/,
+        ""
       );
-      return;
     }
 
-    input.value = reward.value;
+    input.value = prizePrefix + existingComments;
 
-    input.classList.add(
-      "mtw-spin-hidden-input"
+    input.dispatchEvent(
+      new Event("input", { bubbles: true })
     );
 
     input.dispatchEvent(
-      new Event("input", {
-        bubbles: true
-      })
+      new Event("change", { bubbles: true })
     );
 
-    input.dispatchEvent(
-      new Event("change", {
-        bubbles: true
-      })
-    );
+    /*
+     * Prevent keyboard editing of the locked prize section.
+     */
+    input.addEventListener("keydown", function (event) {
 
-    console.log(
-      "MTW Spin Prize:",
-      input.value
-    );
-  }
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
 
-  function sendPrizeToCheckout(reward) {
-    let attempts = 0;
+      const selectionTouchesPrize =
+        start < prizePrefix.length ||
+        end < prizePrefix.length;
 
-    const timer = setInterval(() => {
-      attempts++;
+      if (!selectionTouchesPrize) return;
 
-      const input = getPrizeInput();
+      /*
+       * Allow normal navigation, but don't allow the
+       * protected prize text to be deleted or changed.
+       */
+      const blockedKeys = [
+        "Backspace",
+        "Delete"
+      ];
 
-      if (input) {
-        setPrizeInput(reward);
-        clearInterval(timer);
-      }
+      if (blockedKeys.includes(event.key)) {
+        event.preventDefault();
 
-      if (attempts >= 30) {
-        clearInterval(timer);
-
-        console.warn(
-          "MTW Spin Wheel: Could not find checkout prize textarea."
+        input.setSelectionRange(
+          prizePrefix.length,
+          prizePrefix.length
         );
       }
-    }, 200);
-  }
-
-  function drawWheel() {
-    const size = 1000;
-
-    canvas.width = size;
-    canvas.height = size;
-
-    const centre = size / 2;
-    const radius = size / 2;
-    const slice =
-      (Math.PI * 2) / rewards.length;
-
-    ctx.clearRect(
-      0,
-      0,
-      size,
-      size
-    );
-
-    rewards.forEach((reward, i) => {
-      const start =
-        i * slice;
-
-      const end =
-        start + slice;
-
-      ctx.beginPath();
-
-      ctx.moveTo(
-        centre,
-        centre
-      );
-
-      ctx.arc(
-        centre,
-        centre,
-        radius,
-        start,
-        end
-      );
-
-      ctx.closePath();
-
-      ctx.fillStyle =
-        colours[i];
-
-      ctx.fill();
-
-      ctx.strokeStyle =
-        "#ffffff";
-
-      ctx.lineWidth = 6;
-
-      ctx.stroke();
-
-      ctx.save();
-
-      ctx.translate(
-        centre,
-        centre
-      );
-
-      ctx.rotate(
-        start + slice / 2
-      );
-
-      ctx.textAlign =
-        "right";
-
-      ctx.textBaseline =
-        "middle";
-
-      const isLight =
-        colours[i] === "#f4f4f4";
-
-      ctx.fillStyle =
-        isLight
-          ? "#171717"
-          : "#ffffff";
-
-      ctx.font =
-        "800 34px Arial";
-
-      ctx.fillText(
-        reward.label,
-        radius - 38,
-        0
-      );
-
-      ctx.restore();
     });
 
-    ctx.beginPath();
+    /*
+     * Prevent typing/pasting over the prize.
+     */
+    input.addEventListener("beforeinput", function (event) {
 
-    ctx.arc(
-      centre,
-      centre,
-      72,
-      0,
-      Math.PI * 2
-    );
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
 
-    ctx.fillStyle =
-      "#ffffff";
+      if (
+        start < prizePrefix.length ||
+        end < prizePrefix.length
+      ) {
+        event.preventDefault();
 
-    ctx.fill();
+        input.setSelectionRange(
+          prizePrefix.length,
+          prizePrefix.length
+        );
+      }
+    });
 
-    ctx.strokeStyle =
-      "#171717";
+    /*
+     * If anything somehow manages to alter the beginning
+     * of the textarea, restore the prize while keeping
+     * the customer's comments.
+     */
+    input.addEventListener("input", function () {
 
-    ctx.lineWidth = 6;
+      if (!input.value.startsWith(prizePrefix)) {
 
-    ctx.stroke();
+        let value = input.value;
 
-    ctx.beginPath();
+        if (value.startsWith("MTW SPIN WHEEL PRIZE:")) {
+          value = value.replace(
+            /^MTW SPIN WHEEL PRIZE:[^\n]*(?:\n\n)?/,
+            ""
+          );
+        }
 
-    ctx.arc(
-      centre,
-      centre,
-      53,
-      0,
-      Math.PI * 2
-    );
+        input.value = prizePrefix + value;
+      }
+    });
 
-    ctx.fillStyle =
-      "#65b746";
+    /*
+     * Stop the customer selecting the prize and replacing
+     * it with pasted text.
+     */
+    input.addEventListener("paste", function () {
 
-    ctx.fill();
+      setTimeout(function () {
 
-    ctx.fillStyle =
-      "#ffffff";
+        if (!input.value.startsWith(prizePrefix)) {
 
-    ctx.textAlign =
-      "center";
+          let value = input.value;
 
-    ctx.textBaseline =
-      "middle";
+          value = value.replace(
+            /^MTW SPIN WHEEL PRIZE:[^\n]*(?:\n\n)?/,
+            ""
+          );
 
-    ctx.font =
-      "900 23px Arial";
+          input.value = prizePrefix + value;
+        }
 
-    ctx.fillText(
-      "MTW",
-      centre,
-      centre
-    );
+      }, 0);
+
+    });
+
+    /*
+     * Keep the prize as the first part of the textarea.
+     */
+    input.addEventListener("cut", function (event) {
+
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
+
+      if (
+        start < prizePrefix.length ||
+        end < prizePrefix.length
+      ) {
+        event.preventDefault();
+
+        input.setSelectionRange(
+          prizePrefix.length,
+          prizePrefix.length
+        );
+      }
+
+    });
   }
 
-  function showResult(reward) {
-    if (reward.value === "Try Again") {
-      result.className =
-        "try-again";
+  function restorePrizeIfNeeded() {
 
-      result.innerHTML = `
-        Better luck next time!
-        <small>
-          Thanks for playing.
-        </small>
-      `;
+    if (!prizeInput || !prizePrefix) return;
 
-      return;
+    if (!prizeInput.value.startsWith(prizePrefix)) {
+
+      let comments = prizeInput.value || "";
+
+      comments = comments.replace(
+        /^MTW SPIN WHEEL PRIZE:[^\n]*(?:\n\n)?/,
+        ""
+      );
+
+      prizeInput.value = prizePrefix + comments;
+
+      prizeInput.dispatchEvent(
+        new Event("input", { bubbles: true })
+      );
     }
+  }
 
-    result.className =
-      "win";
+  function alreadyUsed() {
+    return localStorage.getItem(STORAGE_KEY) === "true";
+  }
 
-    result.innerHTML = `
-      🎉 ${reward.value}
-      <small>
-        Your prize has been added to your checkout.
-      </small>
-    `;
+  function markUsed() {
+    localStorage.setItem(STORAGE_KEY, "true");
+  }
+
+  function restorePreviousSpin() {
+
+    if (!alreadyUsed()) return;
+
+    button.disabled = true;
+    button.textContent = "ALREADY SPUN";
+
+    status.textContent = "You have already spun the wheel.";
   }
 
   function spin() {
-    if (spinning || hasSpun) {
-      return;
-    }
+
+    if (spinning || alreadyUsed()) return;
 
     spinning = true;
-    hasSpun = true;
+
+    /*
+     * IMPORTANT:
+     * Mark the spin as used immediately.
+     * This means refreshing during the animation won't
+     * give the customer another spin.
+     */
+    markUsed();
 
     button.disabled = true;
+    button.textContent = "SPINNING...";
 
-    result.className = "";
-    result.textContent = "";
+    status.textContent = "";
 
     const winnerIndex =
-      Math.floor(
-        Math.random() *
-        rewards.length
-      );
+      Math.floor(Math.random() * rewards.length);
 
-    const slice =
-      360 / rewards.length;
+    const reward = rewards[winnerIndex];
 
+    winningReward = reward;
+
+    const slice = 360 / rewards.length;
+
+    /*
+     * Pointer is at 12 o'clock = 270 degrees.
+     * Aim the centre of the winning slice at the pointer.
+     */
     const winnerCentre =
-      winnerIndex * slice +
-      slice / 2;
+      winnerIndex * slice + slice / 2;
 
     const targetAngle =
       270 - winnerCentre;
 
     const normalized =
-      (
-        (currentRotation % 360) +
-        360
-      ) % 360;
+      ((currentRotation % 360) + 360) % 360;
 
     const adjustment =
-      (
-        targetAngle -
-        normalized +
-        360
-      ) % 360;
+      (targetAngle - normalized + 360) % 360;
 
     const extraSpins =
-      360 *
-      (
-        5 +
-        Math.floor(
-          Math.random() * 3
-        )
-      );
+      360 * (5 + Math.floor(Math.random() * 3));
 
     const finalRotation =
       currentRotation +
       extraSpins +
       adjustment;
 
-    currentRotation =
-      finalRotation;
+    currentRotation = finalRotation;
 
     wheel.style.transform =
       `rotate(${finalRotation}deg)`;
 
-    setTimeout(() => {
-      const reward =
-        rewards[winnerIndex];
-
-      sendPrizeToCheckout(
-        reward
-      );
-
-      showResult(
-        reward
-      );
+    setTimeout(function () {
 
       spinning = false;
 
-      button.disabled = true;
+      protectPrizeInTextarea(reward);
 
-      button.textContent =
-        "ALREADY SPUN";
+      if (reward.code) {
 
-      console.log(
-        "MTW Spin Result:",
-        reward
-      );
+        status.textContent =
+          `🎉 YOU WON: ${reward.label}`;
+
+        status.classList.add("win");
+
+      } else {
+
+        status.textContent =
+          "TRY AGAIN — Better luck next time!";
+
+        status.classList.add("try-again");
+      }
+
+      button.textContent = "ALREADY SPUN";
 
     }, 3900);
   }
 
-  wheel.addEventListener(
-    "click",
-    spin
-  );
+  button.addEventListener("click", spin);
 
-  button.addEventListener(
-    "click",
-    spin
-  );
-
-  drawWheel();
+  restorePreviousSpin();
 
 })();
