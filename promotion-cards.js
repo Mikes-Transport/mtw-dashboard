@@ -1,4 +1,4 @@
-console.log("BOPOMMAMD");
+console.log("BITCH");
 
 'use strict';
 
@@ -3032,16 +3032,17 @@ const { $, $$ } = window.MTW;
             'price'
           ),
           contentEditor(
-          simpleFieldEditor(
             c,
             'partNumber'
           ),
-          contentEditor(
           simpleFieldEditor(
             c,
             'extraNote'
           ),
           contentEditor(
+            c,
+            'extraNote'
+          ),
           simpleFieldEditor(
             c,
             'oldPrice'
