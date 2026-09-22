@@ -1,6 +1,6 @@
-'use strict';
+console.log("WAGaaaaaa");
 
-console.log("WAGGGGAWAABN");
+'use strict';
 
 (function () {
 
