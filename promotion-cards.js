@@ -3368,9 +3368,7 @@ min-width:0!important
 
 .db-left-content.editing{
 width:100%!important;
-height:calc(100vh - 120px)!important;
 min-height:0!important;
-max-height:calc(100vh - 120px)!important;
 overflow:hidden!important;
 display:flex!important;
 flex-direction:column!important;
@@ -3393,6 +3391,7 @@ overscroll-behavior-y:contain!important;
 -webkit-overflow-scrolling:touch!important;
 scrollbar-width:thin;
 touch-action:pan-y;
+color: white;
 }
 
 .et-edit-panel::-webkit-scrollbar{
@@ -3469,6 +3468,9 @@ border:1px solid #ccc;
 border-radius:5px;
 font:inherit;
 font-size:12px
+background-color: #30353b;
+outline: none;
+color: white;
 }
 
 textarea.et-field-input{
