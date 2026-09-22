@@ -1,5 +1,7 @@
 'use strict';
 
+console.log("WAGGGGAWAABN")
+
 (function () {
 
   const rewards = [
