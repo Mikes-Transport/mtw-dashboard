@@ -1,8 +1,17 @@
 'use strict';
 
-console.log("WOWZERS");
+console.log("BOOOOM");
 
 (function () {
+
+const {
+db,
+$,
+$$,
+collection,
+getDocs,
+addDoc
+} = window.MTW;
 
 const LABEL = '.barcode-text-input-wrapper';
 
@@ -91,7 +100,8 @@ let quickImportModal = null;
 let csvModal = null;
 let clearConfirmModal = null;
 
-const $ = s => document.querySelector(s);
+let barcodeHistory = [];
+let selectedHistoryId = null;
 
 const els = {};
 const sources = {};
@@ -245,7 +255,11 @@ dropdown: !!els.dropdown,
 importCSV: !!els.importCSV,
 quickImport: !!els.quickImport,
 clearWrapper: !!els.clearWrapper,
-clear: !!els.clear
+clear: !!els.clear,
+historyPanel:
+!!document.querySelector(
+'.barcode-history-panel'
+)
 }
 );
 
@@ -540,11 +554,14 @@ style.id =
 style.textContent = `
 
 .db-list-dropdown-wrapper:not(.${DROPDOWN_OPEN_CLASS})
-.db-list-dropdown-card[data-barcode-template] {
+.db-list-dropdown-card[data-barcode-template],
+.db-list-dropdown-wrapper:not(.${DROPDOWN_OPEN_CLASS})
+.db-list-dropdown-card[data-barcode-history] {
 display: none !important;
 }
 
-.db-list-dropdown-card[data-barcode-template] {
+.db-list-dropdown-card[data-barcode-template],
+.db-list-dropdown-card[data-barcode-history] {
 cursor: pointer;
 }
 
@@ -745,6 +762,144 @@ font-weight: 600;
 background: #111;
 color: #fff;
 border-color: #111;
+}
+
+/* BARCODE HISTORY */
+
+.barcode-history-panel {
+display: none;
+width: 100%;
+box-sizing: border-box;
+}
+
+.barcode-history-inner {
+width: 100%;
+box-sizing: border-box;
+}
+
+.barcode-history-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 12px;
+margin-bottom: 16px;
+}
+
+.barcode-history-title {
+font-size: 18px;
+font-weight: 700;
+margin: 0;
+}
+
+.barcode-history-close {
+width: 32px;
+height: 32px;
+border: 0;
+background: transparent;
+font-size: 24px;
+line-height: 1;
+cursor: pointer;
+border-radius: 5px;
+}
+
+.barcode-history-close:hover {
+background: #f2f2f2;
+}
+
+.barcode-history-controls {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-bottom: 16px;
+}
+
+.barcode-history-select {
+flex: 1;
+min-width: 0;
+padding: 9px 10px;
+border: 1px solid #ccc;
+border-radius: 5px;
+background: #fff;
+font: inherit;
+font-size: 12px;
+}
+
+.barcode-history-load {
+border: 1px solid #111;
+background: #111;
+color: #fff;
+border-radius: 5px;
+padding: 9px 14px;
+cursor: pointer;
+font-size: 12px;
+font-weight: 600;
+white-space: nowrap;
+}
+
+.barcode-history-load:hover {
+background: #333;
+}
+
+.barcode-history-list {
+border: 1px solid #eee;
+border-radius: 6px;
+overflow: hidden;
+}
+
+.barcode-history-table {
+width: 100%;
+border-collapse: collapse;
+font-size: 12px;
+}
+
+.barcode-history-table th {
+background: #f5f5f5;
+border-bottom: 1px solid #ddd;
+padding: 9px 10px;
+text-align: left;
+font-weight: 700;
+}
+
+.barcode-history-table td {
+padding: 8px 10px;
+border-bottom: 1px solid #eee;
+vertical-align: middle;
+}
+
+.barcode-history-table tr:last-child td {
+border-bottom: 0;
+}
+
+.barcode-history-table tr:hover td {
+background: #fafafa;
+}
+
+.barcode-history-part {
+font-weight: 700;
+white-space: nowrap;
+}
+
+.barcode-history-description {
+color: #555;
+}
+
+.barcode-history-qty {
+text-align: center;
+font-weight: 700;
+width: 60px;
+}
+
+.barcode-history-empty {
+padding: 28px 16px;
+text-align: center;
+font-size: 12px;
+color: #888;
+}
+
+.barcode-history-status {
+font-size: 11px;
+color: #666;
+margin-bottom: 10px;
 }
 
 /* CLEAR ALL CONFIRM POPUP */
@@ -1356,6 +1511,19 @@ max-width: 250px;
 
 .barcode-clear-confirm-modal {
 padding: 10px;
+}
+
+.barcode-history-controls {
+align-items: stretch;
+flex-direction: column;
+}
+
+.barcode-history-load {
+width: 100%;
+}
+
+.barcode-history-table {
+font-size: 11px;
 }
 
 }
@@ -2844,6 +3012,8 @@ if (!host) {
 return;
 }
 
+closeHistoryPanel();
+
 openBarcodePanel();
 
 const old =
@@ -2940,6 +3110,8 @@ if (!TEMPLATES[id]) {
 return;
 }
 
+closeHistoryPanel();
+
 state.current =
 id;
 
@@ -2977,7 +3149,7 @@ DROPDOWN_OPEN_CLASS
 
 const cards =
 els.dropdown.querySelectorAll(
-'.db-list-dropdown-card[data-barcode-template]'
+'.db-list-dropdown-card[data-barcode-template], .db-list-dropdown-card[data-barcode-history]'
 );
 
 cards.forEach(
@@ -3047,9 +3219,58 @@ item
 }
 );
 
+const historyItem =
+document.createElement(
+'div'
+);
+
+historyItem.className =
+'db-list-dropdown-card';
+
+historyItem.dataset.barcodeHistory =
+'true';
+
+const historyHeading =
+document.createElement(
+'div'
+);
+
+historyHeading.className =
+'db-headingd-list';
+
+historyHeading.textContent =
+'Barcode History';
+
+historyItem.appendChild(
+historyHeading
+);
+
+wrapper.appendChild(
+historyItem
+);
+
 wrapper.addEventListener(
 'click',
 function (e) {
+
+const history =
+e.target.closest(
+'.db-list-dropdown-card[data-barcode-history]'
+);
+
+if (history) {
+
+e.preventDefault();
+e.stopPropagation();
+e.stopImmediatePropagation();
+
+openHistoryPanel();
+
+closeDropdown();
+
+return;
+
+}
 
 const item =
 e.target.closest(
@@ -3131,6 +3352,974 @@ keepDropdownOpen();
 }
 
 }
+
+/* ----------------------------------------
+   BARCODE HISTORY
+---------------------------------------- */
+
+async function createCommitHash(
+payload
+) {
+
+const raw =
+JSON.stringify(
+payload
+);
+
+const data =
+new TextEncoder().encode(
+raw
+);
+
+const hashBuffer =
+await crypto.subtle.digest(
+'SHA-256',
+data
+);
+
+return Array
+.from(
+new Uint8Array(
+hashBuffer
+)
+)
+.map(
+b =>
+b.toString(16).padStart(2, '0')
+)
+.join('')
+.slice(0, 8)
+.toUpperCase();
+
+}
+
+function getHistorySnapshot() {
+
+return {
+
+template:
+state.current,
+
+templateName:
+TEMPLATES[state.current]
+? TEMPLATES[state.current].name
+: '',
+
+cards:
+state.cards.map(
+card => ({
+
+template:
+card.template,
+
+partNumber:
+card.partNumber || '',
+
+subtext:
+card.subtext || '',
+
+partNumberSize:
+Number(
+card.partNumberSize
+) ||
+getTemplateDefaults(
+card.template
+).partNumberSize,
+
+subtextSize:
+Number(
+card.subtextSize
+) ||
+getTemplateDefaults(
+card.template
+).subtextSize,
+
+barcodeSize:
+Number(
+card.barcodeSize
+) ||
+getTemplateDefaults(
+card.template
+).barcodeSize
+
+})
+)
+
+};
+
+}
+
+async function saveBarcodeCommit() {
+
+if (!db) {
+
+console.error(
+'[barcode] Firebase db is not available.'
+);
+
+return null;
+
+}
+
+if (
+!state.current ||
+!state.cards.length
+) {
+
+console.warn(
+'[barcode] Nothing to save to history.'
+);
+
+return null;
+
+}
+
+const date =
+Date.now();
+
+const snapshot =
+getHistorySnapshot();
+
+const hashPayload = {
+
+date,
+
+template:
+snapshot.template,
+
+cards:
+snapshot.cards
+
+};
+
+let commitHash;
+
+try {
+
+commitHash =
+await createCommitHash(
+hashPayload
+);
+
+} catch (error) {
+
+console.error(
+'[barcode] Could not create commit hash:',
+error
+);
+
+return null;
+
+}
+
+const commit = {
+
+date,
+
+commitHash,
+
+template:
+snapshot.template,
+
+templateName:
+snapshot.templateName,
+
+cards:
+snapshot.cards,
+
+cardCount:
+snapshot.cards.length
+
+};
+
+try {
+
+const ref =
+await addDoc(
+collection(
+db,
+'barcode-commits'
+),
+commit
+);
+
+console.log(
+'[barcode] barcode commit saved:',
+commitHash,
+ref.id
+);
+
+return {
+
+id:
+ref.id,
+
+...commit
+
+};
+
+} catch (error) {
+
+console.error(
+'[barcode] Failed to save barcode commit:',
+error
+);
+
+return null;
+
+}
+
+}
+
+function formatHistoryDate(
+timestamp
+) {
+
+const date =
+new Date(
+Number(timestamp)
+);
+
+if (
+Number.isNaN(
+date.getTime()
+)
+) {
+
+return '-';
+
+}
+
+return date.toLocaleString(
+'en-NZ',
+{
+day: '2-digit',
+month: 'short',
+year: 'numeric',
+hour: 'numeric',
+minute: '2-digit'
+}
+);
+
+}
+
+function getHistoryGroups(
+cards
+) {
+
+const groups = [];
+
+const map =
+new Map();
+
+(cards || []).forEach(
+card => {
+
+const partNumber =
+cleanPartNumber(
+card.partNumber
+);
+
+const description =
+String(
+card.subtext || ''
+).trim();
+
+const key =
+partNumber +
+'|' +
+description;
+
+if (!map.has(key)) {
+
+const group = {
+
+partNumber,
+
+description,
+
+qty: 0
+
+};
+
+map.set(
+key,
+group
+);
+
+groups.push(
+group
+);
+
+}
+
+map.get(key).qty++;
+
+}
+);
+
+return groups;
+
+}
+
+function buildHistoryPanel() {
+
+const panel =
+document.querySelector(
+'.barcode-history-panel'
+);
+
+if (!panel) {
+
+console.warn(
+'[barcode] History panel not found:',
+'.barcode-history-panel'
+);
+
+return null;
+
+}
+
+panel.innerHTML = '';
+
+const inner =
+document.createElement(
+'div'
+);
+
+inner.className =
+'barcode-history-inner';
+
+const header =
+document.createElement(
+'div'
+);
+
+header.className =
+'barcode-history-header';
+
+const title =
+document.createElement(
+'h2'
+);
+
+title.className =
+'barcode-history-title';
+
+title.textContent =
+'Barcode History';
+
+const close =
+document.createElement(
+'button'
+);
+
+close.type =
+'button';
+
+close.className =
+'barcode-history-close';
+
+close.textContent =
+'×';
+
+close.setAttribute(
+'aria-label',
+'Close'
+);
+
+close.addEventListener(
+'click',
+closeHistoryPanel
+);
+
+header.append(
+title,
+close
+);
+
+const controls =
+document.createElement(
+'div'
+);
+
+controls.className =
+'barcode-history-controls';
+
+const select =
+document.createElement(
+'select'
+);
+
+select.className =
+'barcode-history-select';
+
+select.innerHTML =
+'<option value="">Select a barcode commit...</option>';
+
+select.addEventListener(
+'change',
+function () {
+
+selectedHistoryId =
+select.value ||
+null;
+
+renderHistoryPreview(
+selectedHistoryId
+);
+
+}
+);
+
+const load =
+document.createElement(
+'button'
+);
+
+load.type =
+'button';
+
+load.className =
+'barcode-history-load';
+
+load.textContent =
+'Load';
+
+load.addEventListener(
+'click',
+loadSelectedHistory
+);
+
+controls.append(
+select,
+load
+);
+
+const status =
+document.createElement(
+'div'
+);
+
+status.className =
+'barcode-history-status';
+
+status.textContent =
+'Loading barcode history...';
+
+const list =
+document.createElement(
+'div'
+);
+
+list.className =
+'barcode-history-list';
+
+inner.append(
+header,
+controls,
+status,
+list
+);
+
+panel.appendChild(
+inner
+);
+
+return {
+
+panel,
+
+select,
+
+load,
+
+status,
+
+list
+
+};
+
+}
+
+function openHistoryPanel() {
+
+hideEdit();
+
+closeBarcodePanel();
+
+Object.keys(
+TEMPLATES
+).forEach(
+id => {
+
+const config =
+TEMPLATES[id];
+
+const templatePanel =
+document.querySelector(
+config.panel
+);
+
+if (
+templatePanel
+) {
+
+templatePanel.style.setProperty(
+'display',
+'none',
+'important'
+);
+
+}
+
+}
+);
+
+const panel =
+document.querySelector(
+'.barcode-history-panel'
+);
+
+if (!panel) {
+
+console.warn(
+'[barcode] History panel not found:',
+'.barcode-history-panel'
+);
+
+return;
+
+}
+
+panel.style.setProperty(
+'display',
+'block',
+'important'
+);
+
+const ui =
+buildHistoryPanel();
+
+if (!ui) {
+return;
+}
+
+selectedHistoryId =
+null;
+
+loadBarcodeHistory(
+ui
+);
+
+}
+
+function closeHistoryPanel() {
+
+const panel =
+document.querySelector(
+'.barcode-history-panel'
+);
+
+if (panel) {
+
+panel.style.removeProperty(
+'display'
+);
+
+}
+
+selectedHistoryId =
+null;
+
+}
+
+async function loadBarcodeHistory(
+ui
+) {
+
+if (!db) {
+
+ui.status.textContent =
+'Firebase database is unavailable.';
+
+return;
+
+}
+
+try {
+
+const snapshot =
+await getDocs(
+collection(
+db,
+'barcode-commits'
+)
+);
+
+barcodeHistory =
+snapshot.docs
+.map(
+doc => ({
+
+id:
+doc.id,
+
+...doc.data()
+
+})
+)
+.sort(
+(a, b) =>
+Number(
+b.date || 0
+) -
+Number(
+a.date || 0
+)
+);
+
+ui.select.innerHTML =
+'<option value="">Select a barcode commit...</option>';
+
+barcodeHistory.forEach(
+commit => {
+
+const option =
+document.createElement(
+'option'
+);
+
+option.value =
+commit.id;
+
+option.textContent =
+formatHistoryDate(
+commit.date
+) +
+' — ' +
+(
+commit.commitHash ||
+'-'
+);
+
+ui.select.appendChild(
+option
+);
+
+}
+);
+
+ui.status.textContent =
+barcodeHistory.length +
+' saved commit' +
+(
+barcodeHistory.length === 1
+? ''
+: 's'
+);
+
+if (!barcodeHistory.length) {
+
+ui.list.innerHTML =
+'<div class="barcode-history-empty">' +
+'No barcode history has been saved yet.' +
+'</div>';
+
+return;
+
+}
+
+ui.list.innerHTML =
+'<div class="barcode-history-empty">' +
+'Select a commit above to view its saved labels.' +
+'</div>';
+
+} catch (error) {
+
+console.error(
+'[barcode] Failed to load barcode history:',
+error
+);
+
+ui.status.textContent =
+'Unable to load barcode history.';
+
+ui.list.innerHTML =
+'<div class="barcode-history-empty">' +
+'There was a problem loading barcode history.' +
+'</div>';
+
+}
+
+}
+
+function renderHistoryPreview(
+historyId
+) {
+
+const panel =
+document.querySelector(
+'.barcode-history-panel'
+);
+
+if (!panel) {
+return;
+}
+
+const list =
+panel.querySelector(
+'.barcode-history-list'
+);
+
+if (!list) {
+return;
+}
+
+const commit =
+barcodeHistory.find(
+item =>
+item.id === historyId
+);
+
+if (!commit) {
+
+list.innerHTML =
+'<div class="barcode-history-empty">' +
+'Select a commit above to view its saved labels.' +
+'</div>';
+
+return;
+
+}
+
+const groups =
+getHistoryGroups(
+commit.cards
+);
+
+if (!groups.length) {
+
+list.innerHTML =
+'<div class="barcode-history-empty">' +
+'This commit contains no barcode labels.' +
+'</div>';
+
+return;
+
+}
+
+const table =
+document.createElement(
+'table'
+);
+
+table.className =
+'barcode-history-table';
+
+const thead =
+document.createElement(
+'thead'
+);
+
+const headerRow =
+document.createElement(
+'tr'
+);
+
+[
+'Part Number',
+'Description',
+'Qty'
+].forEach(
+text => {
+
+const th =
+document.createElement(
+'th'
+);
+
+th.textContent =
+text;
+
+headerRow.appendChild(
+th
+);
+
+}
+);
+
+thead.appendChild(
+headerRow
+);
+
+const tbody =
+document.createElement(
+'tbody'
+);
+
+groups.forEach(
+group => {
+
+const tr =
+document.createElement(
+'tr'
+);
+
+const part =
+document.createElement(
+'td'
+);
+
+part.className =
+'barcode-history-part';
+
+part.textContent =
+group.partNumber;
+
+const description =
+document.createElement(
+'td'
+);
+
+description.className =
+'barcode-history-description';
+
+description.textContent =
+group.description;
+
+const qty =
+document.createElement(
+'td'
+);
+
+qty.className =
+'barcode-history-qty';
+
+qty.textContent =
+String(
+group.qty
+);
+
+tr.append(
+part,
+description,
+qty
+);
+
+tbody.appendChild(
+tr
+);
+
+}
+);
+
+table.append(
+thead,
+tbody
+);
+
+list.innerHTML = '';
+
+list.appendChild(
+table
+);
+
+}
+
+function loadSelectedHistory() {
+
+if (!selectedHistoryId) {
+
+console.warn(
+'[barcode] No history commit selected.'
+);
+
+return;
+
+}
+
+const commit =
+barcodeHistory.find(
+item =>
+item.id === selectedHistoryId
+);
+
+if (!commit) {
+
+console.warn(
+'[barcode] Selected history commit not found:',
+selectedHistoryId
+);
+
+return;
+
+}
+
+if (
+!TEMPLATES[
+commit.template
+]
+) {
+
+console.warn(
+'[barcode] Saved template no longer exists:',
+commit.template
+);
+
+return;
+
+}
+
+state.cards =
+(commit.cards || []).map(
+card =>
+cardData({
+
+template:
+card.template ||
+commit.template,
+
+partNumber:
+card.partNumber || '',
+
+subtext:
+card.subtext || '',
+
+partNumberSize:
+card.partNumberSize,
+
+subtextSize:
+card.subtextSize,
+
+barcodeSize:
+card.barcodeSize
+
+})
+);
+
+state.current =
+commit.template;
+
+selectedHistoryId =
+null;
+
+closeHistoryPanel();
+
+render();
+
+openBarcodePanel();
+
+console.log(
+'[barcode] Loaded barcode commit:',
+commit.commitHash
+);
+
+}
+
+/* ----------------------------------------
+   PRINT
+---------------------------------------- */
 
 function preparePrint() {
 
@@ -5584,7 +6773,7 @@ if (els.print) {
 
 els.print.addEventListener(
 'click',
-function (e) {
+async function (e) {
 
 e.preventDefault();
 e.stopPropagation();
@@ -5601,6 +6790,8 @@ console.warn(
 return;
 
 }
+
+await saveBarcodeCommit();
 
 requestAnimationFrame(
 () => {
@@ -5635,7 +6826,7 @@ function (e) {
 
 if (
 e.target.closest(
-'.db-list-dropdown-card[data-barcode-template]'
+'.db-list-dropdown-card[data-barcode-template], .db-list-dropdown-card[data-barcode-history]'
 )
 ) {
 
@@ -5741,6 +6932,12 @@ importCSV,
 
 openQuickImport:
 openQuickImportModal,
+
+openHistory:
+openHistoryPanel,
+
+loadHistory:
+loadBarcodeHistory,
 
 diagnose
 
