@@ -47,7 +47,7 @@ const DROPDOWN_OPEN_CLASS = 'barcode-dropdown-open';
 const TEMPLATE_DEFAULTS = {
 
 standard: {
-partNumberSize: 130,
+partNumberSize: 115,
 subtextSize: 43,
 barcodeSize: 50
 },
