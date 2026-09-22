@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("BOOOOM");
+console.log("BOOOOMAASD");
 
 (function () {
 
@@ -3689,6 +3689,25 @@ document.createElement(
 
 inner.className =
 'barcode-history-inner';
+
+const header =
+document.createElement(
+'div'
+);
+
+header.className =
+'barcode-history-header';
+
+const title =
+document.createElement(
+'div'
+);
+
+title.className =
+'barcode-history-title';
+
+title.textContent =
+'Barcode History';
 
 const close =
 document.createElement(
