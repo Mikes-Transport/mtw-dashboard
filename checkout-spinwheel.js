@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL TEST VERSION 4");
+console.log("MTW SPIN WHEEL TEST VERSION 5");
 
 'use strict';
 
@@ -873,6 +873,36 @@ console.log("MTW SPIN WHEEL TEST VERSION 4");
           scale(1.25);
       }
 
+    }
+
+    #block_30 {
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      overflow: visible !important;
+      box-sizing: border-box !important;
+    }
+    
+    #block_30 #mtw-spin-wheel {
+      width: 100% !important;
+      max-width: 680px !important;
+      margin: 0 auto !important;
+    }
+    
+    #block_30 .mtw-spin-wrap {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    
+    #block_30 .mtw-wheel-stage {
+      width: min(88vw, 560px) !important;
+      max-width: 100% !important;
+      height: auto !important;
+      aspect-ratio: 1 / 1 !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
     }
 
     /* =========================================
