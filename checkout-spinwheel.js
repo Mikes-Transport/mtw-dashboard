@@ -1,18 +1,21 @@
+javascript
 (() => {
   const rewards = [
-    { label: "10% OFF", value: "10% OFF" },
-    { label: "Free Freight", value: "Free Freight" },
-    { label: "$20 Voucher", value: "$20 Voucher" },
-    { label: "Try Again", value: "Try Again" },
-    { label: "15% OFF", value: "15% OFF" },
-    { label: "Free Gift", value: "Free Gift" },
-    { label: "$50 Voucher", value: "$50 Voucher" },
-    { label: "5% OFF", value: "5% OFF" }
+    { label: "10% OFF", value: "10% OFF", code: "SPIN-10" },
+    { label: "FREE FREIGHT", value: "Free Freight", code: "SPIN-FREIGHT" },
+    { label: "$20 VOUCHER", value: "$20 Voucher", code: "SPIN-20" },
+    { label: "TRY AGAIN", value: "Try Again", code: null },
+    { label: "15% OFF", value: "15% OFF", code: "SPIN-15" },
+    { label: "FREE GIFT", value: "Free Gift", code: "SPIN-GIFT" },
+    { label: "$50 VOUCHER", value: "$50 Voucher", code: "SPIN-50" },
+    { label: "5% OFF", value: "5% OFF", code: "SPIN-5" }
   ];
 
   const root = document.querySelector("#mtw-spin-wheel");
 
   if (!root || !rewards.length) return;
+
+  const STORAGE_KEY = "mtw_spin_wheel_result";
 
   root.innerHTML = `
     <style>
@@ -28,21 +31,24 @@
         position: relative;
         width: min(90vw, 460px);
         aspect-ratio: 1;
-        margin: 0 auto 25px;
+        margin: 0 auto 26px;
       }
 
       #mtw-wheel {
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        border: 8px solid #111;
+        border: 9px solid #171717;
         position: relative;
         overflow: hidden;
         box-sizing: border-box;
         transform: rotate(0deg);
-        transition: transform 2s cubic-bezier(.12,.72,.15,1);
+        transition: transform 3.8s cubic-bezier(.12,.72,.15,1);
         cursor: pointer;
-        box-shadow: 0 8px 25px rgba(0,0,0,.2);
+        box-shadow:
+          0 12px 30px rgba(0,0,0,.18),
+          0 3px 8px rgba(0,0,0,.12);
+        background: #fff;
       }
 
       #mtw-wheel canvas {
@@ -54,44 +60,109 @@
       #mtw-pointer {
         position: absolute;
         z-index: 5;
-        top: -4px;
+        top: -7px;
         left: 50%;
         transform: translateX(-50%);
         width: 0;
         height: 0;
-        border-left: 18px solid transparent;
-        border-right: 18px solid transparent;
-        border-top: 34px solid #111;
-        filter: drop-shadow(0 2px 2px rgba(0,0,0,.25));
+        border-left: 17px solid transparent;
+        border-right: 17px solid transparent;
+        border-top: 34px solid #d71920;
+        filter: drop-shadow(0 3px 3px rgba(0,0,0,.25));
+      }
+
+      #mtw-pointer::after {
+        content: "";
+        position: absolute;
+        left: -7px;
+        top: -34px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 4px rgba(0,0,0,.25);
       }
 
       #mtw-spin-button {
         border: 0;
-        background: #111;
+        background: #d71920;
         color: #fff;
         font: inherit;
-        font-weight: 700;
-        font-size: 18px;
-        padding: 14px 30px;
-        border-radius: 8px;
+        font-weight: 800;
+        font-size: 17px;
+        letter-spacing: .08em;
+        padding: 15px 36px;
+        border-radius: 999px;
         cursor: pointer;
-        min-width: 150px;
+        min-width: 170px;
+        box-shadow: 0 7px 18px rgba(215,25,32,.25);
+        transition:
+          transform .15s ease,
+          box-shadow .15s ease,
+          opacity .15s ease;
       }
 
-      #mtw-spin-button:hover {
-        opacity: .85;
+      #mtw-spin-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px rgba(215,25,32,.3);
+      }
+
+      #mtw-spin-button:active:not(:disabled) {
+        transform: translateY(1px);
       }
 
       #mtw-spin-button:disabled {
-        opacity: .5;
+        opacity: .55;
         cursor: not-allowed;
+        box-shadow: none;
       }
 
       #mtw-result {
-        margin-top: 18px;
-        font-size: 24px;
-        font-weight: 800;
-        min-height: 32px;
+        margin-top: 20px;
+        min-height: 50px;
+        padding: 0 10px;
+        font-size: 25px;
+        line-height: 1.2;
+        font-weight: 850;
+      }
+
+      #mtw-result.win {
+        color: #d71920;
+      }
+
+      #mtw-result.try-again {
+        color: #555;
+      }
+
+      #mtw-result small {
+        display: block;
+        margin-top: 7px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #777;
+      }
+
+      /* Hide the prize input from customers */
+      .mtw-spin-hidden-input {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+      }
+
+      @media (max-width: 480px) {
+        #mtw-wheel-wrap {
+          width: min(92vw, 400px);
+        }
+
+        #mtw-result {
+          font-size: 22px;
+        }
       }
     </style>
 
@@ -105,7 +176,7 @@
       </div>
 
       <button id="mtw-spin-button" type="button">
-        SPIN
+        SPIN TO WIN
       </button>
 
       <div id="mtw-result" aria-live="polite"></div>
@@ -122,14 +193,14 @@
   let spinning = false;
 
   const colours = [
-    "#111111",
+    "#171717",
     "#d71920",
-    "#f5f5f5",
-    "#777777",
-    "#111111",
+    "#f4f4f4",
+    "#2f2f2f",
     "#d71920",
-    "#f5f5f5",
-    "#777777"
+    "#f4f4f4",
+    "#171717",
+    "#d71920"
   ];
 
   function drawWheel() {
@@ -159,11 +230,11 @@
       );
       ctx.closePath();
 
-      ctx.fillStyle = colours[i % colours.length];
+      ctx.fillStyle = colours[i];
       ctx.fill();
 
       ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 5;
+      ctx.lineWidth = 6;
       ctx.stroke();
 
       ctx.save();
@@ -174,27 +245,29 @@
       ctx.textAlign = "right";
       ctx.textBaseline = "middle";
 
-      const isLight =
-        colours[i % colours.length] === "#f5f5f5";
+      const isLight = colours[i] === "#f4f4f4";
 
-      ctx.fillStyle = isLight ? "#111111" : "#ffffff";
-      ctx.font = "700 34px Arial";
+      ctx.fillStyle = isLight
+        ? "#171717"
+        : "#ffffff";
+
+      ctx.font = "800 34px Arial";
 
       ctx.fillText(
         reward.label,
-        radius - 35,
+        radius - 38,
         0
       );
 
       ctx.restore();
     });
 
-    // Centre
+    // Centre hub
     ctx.beginPath();
     ctx.arc(
       centre,
       centre,
-      65,
+      72,
       0,
       Math.PI * 2
     );
@@ -202,16 +275,159 @@
     ctx.fillStyle = "#ffffff";
     ctx.fill();
 
-    ctx.strokeStyle = "#111111";
-    ctx.lineWidth = 5;
+    ctx.strokeStyle = "#171717";
+    ctx.lineWidth = 6;
     ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(
+      centre,
+      centre,
+      53,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fillStyle = "#d71920";
+    ctx.fill();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "900 23px Arial";
+    ctx.fillText("MTW", centre, centre);
+  }
+
+  /*
+    Finds the Webninja checkout input.
+
+    We wait for it because the checkout form may
+    load after this script.
+  */
+  function getPrizeInput() {
+    return document.querySelector(
+      ".input-block-level.form-control.mb-3"
+    );
+  }
+
+  /*
+    Writes the prize into the checkout input
+    while keeping the input invisible.
+  */
+  function setPrizeInput(prize) {
+    if (!prize) return;
+
+    const input = getPrizeInput();
+
+    if (!input) return;
+
+    input.value = prize;
+
+    input.readOnly = true;
+    input.setAttribute("readonly", "readonly");
+
+    input.classList.add("mtw-spin-hidden-input");
+
+    // Make sure Webninja notices the value change
+    input.dispatchEvent(
+      new Event("input", { bubbles: true })
+    );
+
+    input.dispatchEvent(
+      new Event("change", { bubbles: true })
+    );
+  }
+
+  /*
+    Keep checking briefly for the Webninja input
+    in case the checkout form loads dynamically.
+  */
+  function populateCheckoutInput(prize) {
+    let attempts = 0;
+
+    const timer = setInterval(() => {
+      attempts++;
+
+      const input = getPrizeInput();
+
+      if (input) {
+        setPrizeInput(prize);
+        clearInterval(timer);
+      }
+
+      if (attempts >= 30) {
+        clearInterval(timer);
+      }
+    }, 500);
+  }
+
+  function getSavedResult() {
+    try {
+      return JSON.parse(
+        localStorage.getItem(STORAGE_KEY)
+      );
+    } catch {
+      return null;
+    }
+  }
+
+  function showSavedResult(saved) {
+    if (!saved) return;
+
+    button.disabled = true;
+    button.textContent = "ALREADY SPUN";
+
+    // Put saved prize back into checkout input
+    if (saved.value) {
+      populateCheckoutInput(saved.value);
+    }
+
+    if (saved.value === "Try Again") {
+      result.className = "try-again";
+
+      result.innerHTML = `
+        Better luck next time!
+        <small>You have already used your spin.</small>
+      `;
+    } else {
+      result.className = "win";
+
+      result.innerHTML = `
+        🎉 ${saved.value}
+        <small>Your prize has been saved for checkout.</small>
+      `;
+    }
+  }
+
+  function saveResult(reward) {
+    const data = {
+      value: reward.value,
+      code: reward.code,
+      timestamp: new Date().toISOString()
+    };
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(data)
+    );
+
+    return data;
   }
 
   function spin() {
     if (spinning) return;
 
+    // Prevent second spin
+    const existingResult = getSavedResult();
+
+    if (existingResult) {
+      showSavedResult(existingResult);
+      return;
+    }
+
     spinning = true;
     button.disabled = true;
+    result.className = "";
     result.textContent = "";
 
     const winnerIndex =
@@ -219,11 +435,25 @@
 
     const slice = 360 / rewards.length;
 
-    const winnerAngle =
+    /*
+      The pointer is at 12 o'clock.
+
+      Canvas starts at 3 o'clock.
+
+      Calculate the exact centre of the winning
+      segment and rotate it to the pointer.
+    */
+    const winnerCentre =
       winnerIndex * slice + slice / 2;
 
     const targetAngle =
-      360 - winnerAngle;
+      270 - winnerCentre;
+
+    const normalized =
+      ((currentRotation % 360) + 360) % 360;
+
+    const adjustment =
+      ((targetAngle - normalized) + 360) % 360;
 
     const extraSpins =
       360 * (5 + Math.floor(Math.random() * 3));
@@ -231,8 +461,7 @@
     const finalRotation =
       currentRotation +
       extraSpins +
-      targetAngle -
-      (currentRotation % 360);
+      adjustment;
 
     currentRotation = finalRotation;
 
@@ -240,16 +469,51 @@
       `rotate(${finalRotation}deg)`;
 
     setTimeout(() => {
-      result.textContent =
-        `🎉 ${rewards[winnerIndex].value}`;
+      const reward = rewards[winnerIndex];
+
+      // Save result
+      const saved = saveResult(reward);
+
+      // Send prize to checkout input
+      if (reward.value !== "Try Again") {
+        populateCheckoutInput(reward.value);
+      }
+
+      if (reward.value === "Try Again") {
+        result.className = "try-again";
+
+        result.innerHTML = `
+          Better luck next time!
+          <small>You have already used your spin.</small>
+        `;
+      } else {
+        result.className = "win";
+
+        result.innerHTML = `
+          🎉 ${reward.value}
+          <small>Your prize has been saved for checkout.</small>
+        `;
+      }
 
       spinning = false;
-      button.disabled = false;
-    }, 2050);
+      button.disabled = true;
+      button.textContent = "ALREADY SPUN";
+
+      console.log("MTW Spin Result:", saved);
+
+    }, 3900);
   }
 
   wheel.addEventListener("click", spin);
   button.addEventListener("click", spin);
 
   drawWheel();
+
+  // Restore an existing spin
+  const saved = getSavedResult();
+
+  if (saved) {
+    showSavedResult(saved);
+  }
 })();
+
