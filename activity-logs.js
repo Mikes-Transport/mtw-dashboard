@@ -57,12 +57,17 @@ const { db, $, $$, collection, getDocs } = window.MTW;
     body.innerHTML = '';
 
     try {
-      const s = await getDocs(collection(db, 'search-logs'));
-       const s = await getDocs(collection(db, 'login-logs'));
-
-      all = s.docs.map(d => {
+      const [searchSnap, loginSnap] = await Promise.all([
+        getDocs(collection(db, 'search-logs')),
+        getDocs(collection(db, 'login-logs'))
+      ]);
+    
+      all = [
+        ...searchSnap.docs,
+        ...loginSnap.docs
+      ].map(d => {
         const x = d.data();
-
+    
         return {
           action: x.action || '-',
           email: x.email || '-',
@@ -73,17 +78,21 @@ const { db, $, $$, collection, getDocs } = window.MTW;
           time: x.time || null
         };
       });
-
-      all.sort((a, b) => b.time - a.time);
-
+    
+      all.sort((a, b) => {
+        const aTime = a.time?.toMillis ? a.time.toMillis() : 0;
+        const bTime = b.time?.toMillis ? b.time.toMillis() : 0;
+        return bTime - aTime;
+      });
+    
       filtered = [...all];
       page = 1;
-
+    
       render();
+    
     } catch (e) {
       console.error('Failed to load activity logs:', e);
     }
-  }
 
   function filter() {
     filtered = [...all];
