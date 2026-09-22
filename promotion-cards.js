@@ -3456,7 +3456,7 @@ margin-bottom:12px
 display:block;
 font-size:11px;
 font-weight:600;
-color: black;
+color: white;
 margin-bottom:5px
 }
 
@@ -3493,7 +3493,7 @@ border-radius:5px;
 background:#fff;
 font:inherit;
 font-size:11px
-color: black;
+color: black !important;
 outline: none;
 }
 
