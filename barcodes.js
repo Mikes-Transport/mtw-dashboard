@@ -3690,25 +3690,6 @@ document.createElement(
 inner.className =
 'barcode-history-inner';
 
-const header =
-document.createElement(
-'div'
-);
-
-header.className =
-'barcode-history-header';
-
-const title =
-document.createElement(
-'h2'
-);
-
-title.className =
-'barcode-history-title';
-
-title.textContent =
-'Barcode History';
-
 const close =
 document.createElement(
 'button'
