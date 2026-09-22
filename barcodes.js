@@ -1,6 +1,6 @@
 'use strict';
 
-console.log("YOUOK KABABA");
+console.log("YOUOK OTAA");
 
 (function () {
 
@@ -239,7 +239,8 @@ pages: !!els.pages,
 left: !!els.left,
 menu: !!els.menu,
 dropdown: !!els.dropdown,
-importCSV: !!els.importCSV
+importCSV: !!els.importCSV,
+quickImport: !!els.quickImport
 }
 );
 
@@ -384,6 +385,9 @@ $('.barcode-print-card-button');
 
 els.importCSV =
 $('.barcode-import-card-button');
+
+els.quickImport =
+$('.barcode-quickimp-card-button');
 
 els.dropdown =
 findDropdown();
@@ -720,6 +724,246 @@ color: #fff;
 border-color: #111;
 }
 
+/* QUICK IMPORT */
+
+.barcode-quickimp-modal {
+position: fixed;
+inset: 0;
+z-index: 99999;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 24px;
+box-sizing: border-box;
+background: rgba(0,0,0,.45);
+}
+
+.barcode-quickimp-modal-box {
+width: min(950px, 100%);
+max-height: min(850px, 92vh);
+background: #fff;
+border-radius: 10px;
+box-shadow: 0 20px 60px rgba(0,0,0,.25);
+display: flex;
+flex-direction: column;
+overflow: hidden;
+font-family: inherit;
+}
+
+.barcode-quickimp-modal-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 18px 22px;
+border-bottom: 1px solid #eee;
+flex: 0 0 auto;
+}
+
+.barcode-quickimp-modal-title {
+font-size: 18px;
+font-weight: 700;
+margin: 0;
+}
+
+.barcode-quickimp-modal-close {
+width: 32px;
+height: 32px;
+border: 0;
+background: transparent;
+font-size: 24px;
+line-height: 1;
+cursor: pointer;
+border-radius: 5px;
+}
+
+.barcode-quickimp-modal-close:hover {
+background: #f2f2f2;
+}
+
+.barcode-quickimp-modal-body {
+padding: 20px 22px;
+overflow-y: auto;
+min-height: 0;
+}
+
+.barcode-quickimp-description {
+margin: 0 0 12px;
+font-size: 12px;
+line-height: 1.5;
+color: #666;
+}
+
+.barcode-quickimp-textarea {
+display: block;
+width: 100%;
+min-height: 240px;
+box-sizing: border-box;
+resize: vertical;
+padding: 12px;
+border: 1px solid #ccc;
+border-radius: 6px;
+background: #fff;
+color: #222;
+font: inherit;
+font-size: 12px;
+line-height: 1.5;
+outline: none;
+}
+
+.barcode-quickimp-textarea:focus {
+border-color: #111;
+}
+
+.barcode-quickimp-options {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 12px;
+margin-top: 14px;
+padding: 12px;
+border: 1px solid #eee;
+border-radius: 6px;
+background: #fafafa;
+}
+
+.barcode-quickimp-checkbox-label {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 13px;
+font-weight: 600;
+cursor: pointer;
+}
+
+.barcode-quickimp-checkbox {
+width: 16px;
+height: 16px;
+margin: 0;
+cursor: pointer;
+}
+
+.barcode-quickimp-summary {
+font-size: 12px;
+color: #666;
+}
+
+.barcode-quickimp-preview-title {
+margin: 18px 0 8px;
+font-size: 12px;
+font-weight: 700;
+}
+
+.barcode-quickimp-preview-wrap {
+border: 1px solid #eee;
+border-radius: 6px;
+overflow: auto;
+max-height: 280px;
+}
+
+.barcode-quickimp-preview {
+width: 100%;
+border-collapse: collapse;
+font-size: 12px;
+}
+
+.barcode-quickimp-preview th {
+position: sticky;
+top: 0;
+z-index: 2;
+background: #f5f5f5;
+border-bottom: 1px solid #ddd;
+padding: 9px 10px;
+text-align: left;
+font-weight: 700;
+white-space: nowrap;
+}
+
+.barcode-quickimp-preview td {
+padding: 7px 10px;
+border-bottom: 1px solid #eee;
+vertical-align: middle;
+}
+
+.barcode-quickimp-preview tr:last-child td {
+border-bottom: 0;
+}
+
+.barcode-quickimp-preview tr:hover td {
+background: #fafafa;
+}
+
+.barcode-quickimp-preview-part {
+font-weight: 700;
+white-space: nowrap;
+}
+
+.barcode-quickimp-preview-description {
+color: #555;
+min-width: 300px;
+}
+
+.barcode-quickimp-preview-qty {
+width: 65px;
+padding: 6px 7px;
+border: 1px solid #ccc;
+border-radius: 5px;
+font-size: 12px;
+box-sizing: border-box;
+text-align: center;
+}
+
+.barcode-quickimp-preview-qty:focus {
+outline: none;
+border-color: #111;
+}
+
+.barcode-quickimp-empty {
+padding: 24px 12px;
+text-align: center;
+font-size: 12px;
+color: #888;
+}
+
+.barcode-quickimp-error {
+margin-top: 10px;
+font-size: 12px;
+color: #b00020;
+}
+
+.barcode-quickimp-modal-footer {
+display: flex;
+align-items: center;
+justify-content: flex-end;
+gap: 8px;
+padding: 14px 22px;
+border-top: 1px solid #eee;
+flex: 0 0 auto;
+}
+
+.barcode-quickimp-button {
+border: 1px solid #ccc;
+background: #fff;
+border-radius: 5px;
+padding: 9px 14px;
+cursor: pointer;
+font-size: 12px;
+font-weight: 600;
+}
+
+.barcode-quickimp-button:hover {
+background: #f5f5f5;
+}
+
+.barcode-quickimp-button.primary {
+background: #111;
+color: #fff;
+border-color: #111;
+}
+
+.barcode-quickimp-button.primary:hover {
+background: #333;
+}
+
 /* CSV IMPORT POPUP */
 
 .barcode-csv-modal {
@@ -918,6 +1162,35 @@ display: none;
 }
 
 @media (max-width: 700px) {
+
+.barcode-quickimp-modal {
+padding: 10px;
+}
+
+.barcode-quickimp-modal-box {
+max-height: 94vh;
+}
+
+.barcode-quickimp-modal-body {
+padding: 16px;
+}
+
+.barcode-quickimp-textarea {
+min-height: 220px;
+}
+
+.barcode-quickimp-options {
+align-items: flex-start;
+flex-direction: column;
+}
+
+.barcode-quickimp-summary {
+width: 100%;
+}
+
+.barcode-quickimp-preview-description {
+min-width: 200px;
+}
 
 .barcode-csv-modal {
 padding: 10px;
@@ -2588,6 +2861,1051 @@ return item;
 }
 
 /* ----------------------------------------
+   QUICK IMPORT
+---------------------------------------- */
+
+let quickImportModal = null;
+
+function closeQuickImportModal() {
+
+if (!quickImportModal) {
+return;
+}
+
+quickImportModal.remove();
+
+quickImportModal = null;
+
+}
+
+function parseQuickDelimitedLine(
+line,
+delimiter
+) {
+
+const cells = [];
+
+let cell = '';
+let quoted = false;
+
+for (
+let i = 0;
+i < line.length;
+i++
+) {
+
+const char =
+line[i];
+
+const next =
+line[i + 1];
+
+if (
+char === '"' &&
+quoted &&
+next === '"'
+) {
+
+cell += '"';
+
+i++;
+
+continue;
+
+}
+
+if (char === '"') {
+
+quoted =
+!quoted;
+
+continue;
+
+}
+
+if (
+char === delimiter &&
+!quoted
+) {
+
+cells.push(
+cell
+);
+
+cell = '';
+
+continue;
+
+}
+
+cell += char;
+
+}
+
+cells.push(
+cell
+);
+
+return cells;
+
+}
+
+function normaliseQuickHeader(
+value
+) {
+
+return String(
+value ?? ''
+)
+.replace(
+/^\uFEFF/,
+''
+)
+.replace(
+/^"|"$/g,
+''
+)
+.trim()
+.toLowerCase()
+.replace(
+/\s+/g,
+' '
+);
+
+}
+
+function parseQuickImport(
+text
+) {
+
+const lines =
+String(
+text || ''
+)
+.replace(
+/\r\n/g,
+'\n'
+)
+.replace(
+/\r/g,
+'\n'
+)
+.split('\n')
+.filter(
+line =>
+line.trim() !== ''
+);
+
+if (!lines.length) {
+return [];
+}
+
+let headerIndex =
+-1;
+
+let delimiter =
+'\t';
+
+for (
+let i = 0;
+i < lines.length;
+i++
+) {
+
+const testDelimiter =
+lines[i].includes('\t')
+? '\t'
+: ',';
+
+const cells =
+parseQuickDelimitedLine(
+lines[i],
+testDelimiter
+);
+
+const headers =
+cells.map(
+normaliseQuickHeader
+);
+
+const hasStockCode =
+headers.includes(
+'stock code'
+);
+
+const hasDescription =
+headers.includes(
+'description'
+);
+
+const hasQty =
+headers.includes(
+'qty'
+);
+
+if (
+hasStockCode &&
+hasDescription &&
+hasQty
+) {
+
+headerIndex =
+i;
+
+delimiter =
+testDelimiter;
+
+break;
+
+}
+
+}
+
+if (headerIndex === -1) {
+return [];
+}
+
+const headers =
+parseQuickDelimitedLine(
+lines[headerIndex],
+delimiter
+)
+.map(
+normaliseQuickHeader
+);
+
+const stockCodeIndex =
+headers.indexOf(
+'stock code'
+);
+
+const descriptionIndex =
+headers.indexOf(
+'description'
+);
+
+const qtyIndex =
+headers.indexOf(
+'qty'
+);
+
+if (
+stockCodeIndex === -1 ||
+descriptionIndex === -1 ||
+qtyIndex === -1
+) {
+
+return [];
+
+}
+
+const rows = [];
+
+for (
+let i = headerIndex + 1;
+i < lines.length;
+i++
+) {
+
+const cells =
+parseQuickDelimitedLine(
+lines[i],
+delimiter
+);
+
+const partNumber =
+cleanPartNumber(
+cells[stockCodeIndex] || ''
+);
+
+if (!partNumber) {
+continue;
+}
+
+const description =
+String(
+cells[descriptionIndex] || ''
+)
+.trim();
+
+let qty =
+parseInt(
+String(
+cells[qtyIndex] || ''
+)
+.trim(),
+10
+);
+
+if (
+!Number.isFinite(qty) ||
+qty < 1
+) {
+
+qty = 1;
+
+}
+
+rows.push({
+partNumber,
+description,
+qty
+});
+
+}
+
+return rows;
+
+}
+
+function renderQuickImportPreview(
+rows,
+tbody,
+summary,
+empty,
+error,
+qtyInputs
+) {
+
+tbody.innerHTML = '';
+
+qtyInputs.length = 0;
+
+if (!rows.length) {
+
+empty.style.display =
+'block';
+
+summary.textContent =
+'No valid rows found';
+
+return;
+
+}
+
+empty.style.display =
+'none';
+
+let total = 0;
+
+rows.forEach(
+row => {
+
+const tr =
+document.createElement(
+'tr'
+);
+
+const partCell =
+document.createElement(
+'td'
+);
+
+partCell.className =
+'barcode-quickimp-preview-part';
+
+partCell.textContent =
+row.partNumber;
+
+const descriptionCell =
+document.createElement(
+'td'
+);
+
+descriptionCell.className =
+'barcode-quickimp-preview-description';
+
+descriptionCell.textContent =
+row.description || '';
+
+const qtyCell =
+document.createElement(
+'td'
+);
+
+const qty =
+document.createElement(
+'input'
+);
+
+qty.type =
+'number';
+
+qty.min =
+'1';
+
+qty.step =
+'1';
+
+qty.className =
+'barcode-quickimp-preview-qty';
+
+qty.value =
+String(
+Math.max(
+1,
+parseInt(
+row.qty,
+10
+) || 1
+)
+);
+
+qty.addEventListener(
+'input',
+function () {
+
+let value =
+parseInt(
+qty.value,
+10
+);
+
+if (
+!Number.isFinite(value) ||
+value < 1
+) {
+
+value = 1;
+
+}
+
+qty.value =
+value;
+
+row.qty =
+value;
+
+updateQuickImportSummary(
+summary,
+rows,
+qtyInputs
+);
+
+}
+);
+
+qtyInputs.push(
+qty
+);
+
+qtyCell.appendChild(
+qty
+);
+
+tr.append(
+partCell,
+descriptionCell,
+qtyCell
+);
+
+tbody.appendChild(
+tr
+);
+
+total +=
+Math.max(
+1,
+parseInt(
+row.qty,
+10
+) || 1
+);
+
+}
+);
+
+summary.textContent =
+total +
+' label' +
+(
+total === 1
+? ''
+: 's'
+) +
+' ready to import';
+
+if (error) {
+
+error.textContent =
+'';
+
+}
+
+}
+
+function updateQuickImportSummary(
+summary,
+rows,
+qtyInputs
+) {
+
+let total = 0;
+
+qtyInputs.forEach(
+input => {
+
+let value =
+parseInt(
+input.value,
+10
+);
+
+if (
+!Number.isFinite(value) ||
+value < 1
+) {
+
+value = 1;
+
+}
+
+total +=
+value;
+
+}
+);
+
+summary.textContent =
+total +
+' label' +
+(
+total === 1
+? ''
+: 's'
+) +
+' ready to import';
+
+}
+
+function openQuickImportModal() {
+
+closeQuickImportModal();
+
+const modal =
+document.createElement(
+'div'
+);
+
+modal.className =
+'barcode-quickimp-modal';
+
+modal.setAttribute(
+'role',
+'dialog'
+);
+
+modal.setAttribute(
+'aria-modal',
+'true'
+);
+
+const box =
+document.createElement(
+'div'
+);
+
+box.className =
+'barcode-quickimp-modal-box';
+
+const header =
+document.createElement(
+'div'
+);
+
+header.className =
+'barcode-quickimp-modal-header';
+
+const title =
+document.createElement(
+'h2'
+);
+
+title.className =
+'barcode-quickimp-modal-title';
+
+title.textContent =
+'Quick Import';
+
+const closeButton =
+document.createElement(
+'button'
+);
+
+closeButton.type =
+'button';
+
+closeButton.className =
+'barcode-quickimp-modal-close';
+
+closeButton.textContent =
+'×';
+
+closeButton.setAttribute(
+'aria-label',
+'Close'
+);
+
+closeButton.addEventListener(
+'click',
+closeQuickImportModal
+);
+
+header.append(
+title,
+closeButton
+);
+
+const body =
+document.createElement(
+'div'
+);
+
+body.className =
+'barcode-quickimp-modal-body';
+
+const description =
+document.createElement(
+'p'
+);
+
+description.className =
+'barcode-quickimp-description';
+
+description.textContent =
+'Paste your order data below. Quick Import only uses Stock Code, Description and Qty.';
+
+const textarea =
+document.createElement(
+'textarea'
+);
+
+textarea.className =
+'barcode-quickimp-textarea';
+
+textarea.placeholder =
+'Paste order data here...';
+
+textarea.spellcheck =
+false;
+
+const options =
+document.createElement(
+'div'
+);
+
+options.className =
+'barcode-quickimp-options';
+
+const label =
+document.createElement(
+'label'
+);
+
+label.className =
+'barcode-quickimp-checkbox-label';
+
+const checkbox =
+document.createElement(
+'input'
+);
+
+checkbox.type =
+'checkbox';
+
+checkbox.className =
+'barcode-quickimp-checkbox';
+
+checkbox.checked =
+true;
+
+const labelText =
+document.createElement(
+'span'
+);
+
+labelText.textContent =
+'Part Number + Description';
+
+label.append(
+checkbox,
+labelText
+);
+
+const summary =
+document.createElement(
+'div'
+);
+
+summary.className =
+'barcode-quickimp-summary';
+
+summary.textContent =
+'No data pasted';
+
+options.append(
+label,
+summary
+);
+
+const previewTitle =
+document.createElement(
+'div'
+);
+
+previewTitle.className =
+'barcode-quickimp-preview-title';
+
+previewTitle.textContent =
+'Preview';
+
+const previewWrap =
+document.createElement(
+'div'
+);
+
+previewWrap.className =
+'barcode-quickimp-preview-wrap';
+
+const table =
+document.createElement(
+'table'
+);
+
+table.className =
+'barcode-quickimp-preview';
+
+const thead =
+document.createElement(
+'thead'
+);
+
+const headerRow =
+document.createElement(
+'tr'
+);
+
+[
+'Part Number',
+'Description',
+'Qty'
+].forEach(
+text => {
+
+const th =
+document.createElement(
+'th'
+);
+
+th.textContent =
+text;
+
+headerRow.appendChild(
+th
+);
+
+}
+);
+
+thead.appendChild(
+headerRow
+);
+
+const tbody =
+document.createElement(
+'tbody'
+);
+
+const empty =
+document.createElement(
+'div'
+);
+
+empty.className =
+'barcode-quickimp-empty';
+
+empty.textContent =
+'Paste order data above to preview the labels.';
+
+const error =
+document.createElement(
+'div'
+);
+
+error.className =
+'barcode-quickimp-error';
+
+previewWrap.appendChild(
+table
+);
+
+table.append(
+thead,
+tbody
+);
+
+const qtyInputs = [];
+
+let parsedRows = [];
+
+function refreshPreview() {
+
+parsedRows =
+parseQuickImport(
+textarea.value
+);
+
+renderQuickImportPreview(
+parsedRows,
+tbody,
+summary,
+empty,
+error,
+qtyInputs
+);
+
+}
+
+textarea.addEventListener(
+'input',
+refreshPreview
+);
+
+checkbox.addEventListener(
+'change',
+function () {
+
+const template =
+state.current ||
+DEFAULTS.template;
+
+if (!parsedRows.length) {
+return;
+}
+
+parsedRows.forEach(
+row => {
+
+if (checkbox.checked) {
+
+row.description =
+simplifyDescription(
+row.description,
+template
+);
+
+}
+
+}
+);
+
+renderQuickImportPreview(
+parsedRows,
+tbody,
+summary,
+empty,
+error,
+qtyInputs
+);
+
+}
+);
+
+const previewContainer =
+document.createElement(
+'div'
+);
+
+previewContainer.append(
+previewTitle,
+previewWrap,
+empty,
+error
+);
+
+body.append(
+description,
+textarea,
+options,
+previewContainer
+);
+
+const footer =
+document.createElement(
+'div'
+);
+
+footer.className =
+'barcode-quickimp-modal-footer';
+
+const cancel =
+document.createElement(
+'button'
+);
+
+cancel.type =
+'button';
+
+cancel.className =
+'barcode-quickimp-button';
+
+cancel.textContent =
+'Cancel';
+
+cancel.addEventListener(
+'click',
+closeQuickImportModal
+);
+
+const importButton =
+document.createElement(
+'button'
+);
+
+importButton.type =
+'button';
+
+importButton.className =
+'barcode-quickimp-button primary';
+
+importButton.textContent =
+'Import Labels';
+
+importButton.addEventListener(
+'click',
+function () {
+
+if (!parsedRows.length) {
+
+error.textContent =
+'No valid Stock Code, Description and Qty data was found.';
+
+return;
+
+}
+
+const template =
+state.current ||
+DEFAULTS.template;
+
+const useDescription =
+checkbox.checked;
+
+let imported =
+0;
+
+parsedRows.forEach(
+(row, index) => {
+
+let qtyValue =
+parseInt(
+qtyInputs[index]?.value ??
+row.qty,
+10
+);
+
+if (
+!Number.isFinite(qtyValue) ||
+qtyValue < 1
+) {
+
+qtyValue = 1;
+
+}
+
+const description =
+useDescription
+? simplifyDescription(
+row.description,
+template
+)
+: '';
+
+for (
+let i = 0;
+i < qtyValue;
+i++
+) {
+
+const card =
+cardData({
+template,
+partNumber:
+row.partNumber,
+subtext:
+description
+});
+
+state.cards.push(
+card
+);
+
+imported++;
+
+}
+
+}
+);
+
+state.current =
+template;
+
+closeQuickImportModal();
+
+render();
+
+showCSVSuccess(
+imported
+);
+
+}
+);
+
+footer.append(
+cancel,
+importButton
+);
+
+box.append(
+header,
+body,
+footer
+);
+
+modal.appendChild(
+box
+);
+
+modal.addEventListener(
+'click',
+function (e) {
+
+if (
+e.target === modal
+) {
+
+closeQuickImportModal();
+
+}
+
+}
+);
+
+document.body.appendChild(
+modal
+);
+
+quickImportModal =
+modal;
+
+setTimeout(
+() => textarea.focus(),
+50
+);
+
+}
+
+/* ----------------------------------------
    CSV IMPORT POPUP
 ---------------------------------------- */
 
@@ -2815,7 +4133,10 @@ setTimeout(
 
 }
 
-function openCSVModal(rows) {
+function openCSVModal(
+rows,
+titleText = 'Import CSV'
+) {
 
 closeCSVModal();
 
@@ -2862,7 +4183,7 @@ title.className =
 'barcode-csv-modal-title';
 
 title.textContent =
-'Import CSV';
+titleText;
 
 const closeButton =
 document.createElement(
@@ -3061,7 +4382,15 @@ qty.step =
 '1';
 
 qty.value =
-'1';
+String(
+Math.max(
+1,
+parseInt(
+row.qty,
+10
+) || 1
+)
+);
 
 qtyInputs.push(
 qty
@@ -3553,6 +4882,61 @@ console.log(
 
 }
 
+/* ----------------------------------------
+   QUICK IMPORT SETUP
+---------------------------------------- */
+
+function setupQuickImport() {
+
+const button =
+$('.barcode-quickimp-card-button');
+
+if (!button) {
+
+console.warn(
+'[barcode] Quick Import button not found:',
+'.barcode-quickimp-card-button'
+);
+
+return;
+
+}
+
+if (
+button.dataset.quickImportReady ===
+'true'
+) {
+
+return;
+
+}
+
+button.dataset.quickImportReady =
+'true';
+
+button.addEventListener(
+'click',
+function (e) {
+
+e.preventDefault();
+e.stopPropagation();
+
+console.log(
+'[barcode] opening Quick Import'
+);
+
+openQuickImportModal();
+
+}
+);
+
+console.log(
+'[barcode] Quick Import button connected:',
+'.barcode-quickimp-card-button'
+);
+
+}
+
 function init() {
 
 cache();
@@ -3607,6 +4991,8 @@ card
 }
 
 setupCSVImport();
+
+setupQuickImport();
 
 if (els.print) {
 
@@ -3763,6 +5149,9 @@ hideEdit,
 selectTemplate,
 
 importCSV,
+
+openQuickImport:
+openQuickImportModal,
 
 diagnose
 
