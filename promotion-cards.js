@@ -1,3 +1,5 @@
+console.log("BOPOMMAMD");
+
 'use strict';
 
 const { $, $$ } = window.MTW;
