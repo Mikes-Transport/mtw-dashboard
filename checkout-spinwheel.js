@@ -64,7 +64,7 @@
         height: 0;
         border-left: 17px solid transparent;
         border-right: 17px solid transparent;
-        border-top: 34px solid #d71920;
+        border-top: 34px solid #65b746;
         filter: drop-shadow(0 3px 3px rgba(0,0,0,.25));
       }
 
@@ -82,7 +82,7 @@
 
       #mtw-spin-button {
         border: 0;
-        background: #d71920;
+        background: #65b746;
         color: #fff;
         font: inherit;
         font-weight: 800;
@@ -92,7 +92,7 @@
         border-radius: 999px;
         cursor: pointer;
         min-width: 170px;
-        box-shadow: 0 7px 18px rgba(215,25,32,.25);
+        box-shadow: 0 7px 18px rgba(101,183,70,.25);
         transition:
           transform .15s ease,
           box-shadow .15s ease,
@@ -101,7 +101,7 @@
 
       #mtw-spin-button:hover:not(:disabled) {
         transform: translateY(-2px);
-        box-shadow: 0 10px 22px rgba(215,25,32,.3);
+        box-shadow: 0 10px 22px rgba(101,183,70,.3);
       }
 
       #mtw-spin-button:active:not(:disabled) {
@@ -124,7 +124,7 @@
       }
 
       #mtw-result.win {
-        color: #d71920;
+        color: #65b746;
       }
 
       #mtw-result.try-again {
@@ -139,7 +139,6 @@
         color: #777;
       }
 
-      /* Hide prize textarea without removing it from form submission */
       .mtw-spin-hidden-input {
         position: absolute !important;
         width: 1px !important;
@@ -194,30 +193,21 @@
 
   const colours = [
     "#171717",
-    "#d71920",
+    "#65b746",
     "#f4f4f4",
     "#2f2f2f",
-    "#d71920",
+    "#65b746",
     "#f4f4f4",
     "#171717",
-    "#d71920"
+    "#65b746"
   ];
 
-  /*
-    Find the checkout textarea.
-  */
   function getPrizeInput() {
     return document.querySelector(
       "textarea.input-block-level.form-control.mb-3"
     );
   }
 
-  /*
-    Put the winning prize into the textarea.
-
-    The textarea is hidden from the customer but
-    remains part of the form submission.
-  */
   function setPrizeInput(reward) {
     if (!reward) return;
 
@@ -230,28 +220,12 @@
       return;
     }
 
-    /*
-      What gets submitted with the form.
-
-      Example:
-      10% OFF | SPIN-10
-
-      This gives the checkout form both the
-      readable prize and the unique prize code.
-    */
-    input.value =
-      `${reward.value} | ${reward.code || "NO-PRIZE"}`;
-
-    input.readOnly = true;
-    input.setAttribute("readonly", "readonly");
+    input.value = reward.value;
 
     input.classList.add(
       "mtw-spin-hidden-input"
     );
 
-    /*
-      Let the checkout system know the value changed.
-    */
     input.dispatchEvent(
       new Event("input", {
         bubbles: true
@@ -270,10 +244,6 @@
     );
   }
 
-  /*
-    The checkout textarea may not exist immediately,
-    so check for it for a few seconds.
-  */
   function sendPrizeToCheckout(reward) {
     let attempts = 0;
 
@@ -388,9 +358,6 @@
       ctx.restore();
     });
 
-    /*
-      Outer centre hub
-    */
     ctx.beginPath();
 
     ctx.arc(
@@ -413,9 +380,6 @@
 
     ctx.stroke();
 
-    /*
-      Inner red hub
-    */
     ctx.beginPath();
 
     ctx.arc(
@@ -427,7 +391,7 @@
     );
 
     ctx.fillStyle =
-      "#d71920";
+      "#65b746";
 
     ctx.fill();
 
@@ -477,9 +441,6 @@
   }
 
   function spin() {
-    /*
-      Prevent another spin.
-    */
     if (spinning || hasSpun) {
       return;
     }
@@ -492,9 +453,6 @@
     result.className = "";
     result.textContent = "";
 
-    /*
-      Pick winner.
-    */
     const winnerIndex =
       Math.floor(
         Math.random() *
@@ -504,16 +462,10 @@
     const slice =
       360 / rewards.length;
 
-    /*
-      Find centre of winning slice.
-    */
     const winnerCentre =
       winnerIndex * slice +
       slice / 2;
 
-    /*
-      Pointer is at 12 o'clock.
-    */
     const targetAngle =
       270 - winnerCentre;
 
@@ -530,9 +482,6 @@
         360
       ) % 360;
 
-    /*
-      5–7 full spins.
-    */
     const extraSpins =
       360 *
       (
@@ -553,34 +502,20 @@
     wheel.style.transform =
       `rotate(${finalRotation}deg)`;
 
-    /*
-      Wait for the animation to finish.
-    */
     setTimeout(() => {
       const reward =
         rewards[winnerIndex];
 
-      /*
-        Send the actual result to the
-        checkout textarea.
-      */
       sendPrizeToCheckout(
         reward
       );
 
-      /*
-        Show result.
-      */
       showResult(
         reward
       );
 
       spinning = false;
 
-      /*
-        Permanently disable the button
-        for this page/session.
-      */
       button.disabled = true;
 
       button.textContent =
@@ -594,10 +529,6 @@
     }, 3900);
   }
 
-  /*
-    Allow clicking either the wheel
-    or the button to spin.
-  */
   wheel.addEventListener(
     "click",
     spin
@@ -608,9 +539,6 @@
     spin
   );
 
-  /*
-    Draw the wheel.
-  */
   drawWheel();
 
 })();
