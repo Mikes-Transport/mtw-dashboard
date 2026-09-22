@@ -58,6 +58,7 @@ const { db, $, $$, collection, getDocs } = window.MTW;
 
     try {
       const s = await getDocs(collection(db, 'search-logs'));
+       const s = await getDocs(collection(db, 'login-logs'));
 
       all = s.docs.map(d => {
         const x = d.data();
