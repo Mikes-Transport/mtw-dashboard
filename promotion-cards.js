@@ -398,7 +398,7 @@ const { $, $$ } = window.MTW;
      $('.card-click-scroll-right');
 
     els.left =
-      $('.');
+      $('.db-content-left');
 
     els.menu =
       $('.db-menu-list');
