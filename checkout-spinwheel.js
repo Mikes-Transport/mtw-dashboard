@@ -169,7 +169,7 @@ console.log("MTW SPIN WHEEL TEST VERSION 5");
 
     #mtw-spin-wheel {
       width: 100%;
-      max-width: 443.516px;
+      // max-width: 443.516px;
       margin: 0 auto;
       font-family: inherit;
       box-sizing: border-box;
@@ -195,7 +195,7 @@ console.log("MTW SPIN WHEEL TEST VERSION 5");
       position: relative;
 
       width: min(88vw, 443.516px);
-      height: min(88vw, 560px);
+      height: min(88vw, 443.516px);
 
       margin: 0 auto 35px;
 
