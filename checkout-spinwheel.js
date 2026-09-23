@@ -1,11 +1,17 @@
-console.log("MTW SPIN WHEEL CHANCE VERSION 7");
+console.log("MTW SPIN WHEEL CHANCE VERSION 8");
 
 'use strict';
 
 (function () {
 
   const rewards = [
-    { label: "TRY AGAIN", value: "Try Again", code: null, chance: "20%" },
+    { label: "NO PRIZE", value: "NO PRIZE", code: null, chance: "5.9%" },
+    { label: "x2 AIR FRESHENERS", value: "X2 AIR FRESHENERS", code: "SPIN-AIRFRESHENER", chance: "23.5%" },
+    { label: "X1 RANDOM COFFEE MUG", value: "X1 COFFEE MUG", code: "SPIN-MUG", chance: "19.2%" },
+    { label: "X1 RANDOM EXTE MERCH", value: "X1 EXTE MERCH", code: "SPIN-EXTE", chance: "2.0%" },
+    { label: "X1 PARLOK BUNDLE", value: "X1 PARLOK BUNDLE", code: "SPIN-PARLOK", chance: "2.4%" },
+    { label: "X1 WICKED PACK", value: "X1 WICKED PACK", code: "SPIN-WICKED", chance: "27.5%" },
+    { label: "X1 RANDOM SNACK", value: "X1 RANDOM SNACK", code: "SPIN-SNACK", chance: "19.6%" }
   ];
 
   const colours = [
@@ -1433,7 +1439,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 7");
         } else {
 
           status.textContent =
-            "TRY AGAIN — Better luck next time!";
+            "NO PRIZE — Better luck next time!";
 
           status.classList.remove(
             "win"
