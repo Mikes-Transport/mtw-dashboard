@@ -1,11 +1,11 @@
-console.log("MTW SPIN WHEEL TEST VERSION 6");
+console.log("MTW SPIN WHEEL CHANCE VERSION 7");
 
 'use strict';
 
 (function () {
 
   const rewards = [
-    { label: "TRY AGAIN", value: "Try Again", code: null },
+    { label: "TRY AGAIN", value: "Try Again", code: null, chance: "20%" },
   ];
 
   const colours = [
@@ -26,76 +26,152 @@ console.log("MTW SPIN WHEEL TEST VERSION 6");
 
   if (!root) return;
 
-  const slice = 360 / rewards.length;
-
-  const gradientStops = rewards.map((_, i) => {
-
-    const start = i * slice;
-    const end = (i + 1) * slice;
-
-    return `${colours[i]} ${start}deg ${end}deg`;
-
-  }).join(", ");
-
   /*
-   * Build the outer bulbs using calculated positions.
+   * CHANCE SYSTEM
+   *
+   * Each reward can have a chance such as:
+   *
+   * chance: "20%"
+   * chance: "50%"
+   * chance: "5%"
+   *
+   * The total should equal 100%.
    */
-  const lights = Array.from(
-    { length: 32 },
-    (_, i) => {
 
-      const angle =
-        i * (360 / 32) - 90;
+  function getWeightedWinner() {
 
-      const radius = 47;
+    const totalChance =
+      rewards.reduce(
+        (total, reward) => {
 
-      const x =
-        50 +
-        Math.cos(
-          angle * Math.PI / 180
-        ) * radius;
+          const chance =
+            parseFloat(
+              String(reward.chance)
+                .replace("%", "")
+            ) || 0;
 
-      const y =
-        50 +
-        Math.sin(
-          angle * Math.PI / 180
-        ) * radius;
+          return total + chance;
 
-      return `
-        <span
-          style="
-            left:${x}%;
-            top:${y}%;
-            --light:${i};
-          "
-        ></span>
-      `;
+        },
+        0
+      );
+
+    if (totalChance <= 0) {
+
+      console.error(
+        "MTW Spin Wheel: No valid reward chances found."
+      );
+
+      return 0;
+    }
+
+    const random =
+      Math.random() * totalChance;
+
+    let cumulativeChance = 0;
+
+    for (
+      let i = 0;
+      i < rewards.length;
+      i++
+    ) {
+
+      const chance =
+        parseFloat(
+          String(rewards[i].chance)
+            .replace("%", "")
+        ) || 0;
+
+      cumulativeChance += chance;
+
+      if (random < cumulativeChance) {
+        return i;
+      }
 
     }
-  ).join("");
+
+    return rewards.length - 1;
+  }
+
+  const slice =
+    360 / rewards.length;
+
+  const gradientStops =
+    rewards.map((_, i) => {
+
+      const start =
+        i * slice;
+
+      const end =
+        (i + 1) * slice;
+
+      return `${colours[i % colours.length]} ${start}deg ${end}deg`;
+
+    }).join(", ");
 
   /*
-   * Position each label from the exact
-   * centre angle of its pizza slice.
+   * Build the outer bulbs.
    */
-  const labels = rewards.map(
-    (reward, i) => {
 
-      const centre =
-        i * slice +
-        slice / 2;
+  const lights =
+    Array.from(
+      { length: 32 },
+      (_, i) => {
 
-      return `
-        <div
-          class="mtw-label"
-          style="--angle:${centre}deg;"
-        >
-          <span>${reward.label}</span>
-        </div>
-      `;
+        const angle =
+          i * (360 / 32) - 90;
 
-    }
-  ).join("");
+        const radius = 47;
+
+        const x =
+          50 +
+          Math.cos(
+            angle * Math.PI / 180
+          ) * radius;
+
+        const y =
+          50 +
+          Math.sin(
+            angle * Math.PI / 180
+          ) * radius;
+
+        return `
+          <span
+            style="
+              left:${x}%;
+              top:${y}%;
+              --light:${i};
+            "
+          ></span>
+        `;
+
+      }
+    ).join("");
+
+  /*
+   * Position each label from the
+   * centre angle of its slice.
+   */
+
+  const labels =
+    rewards.map(
+      (reward, i) => {
+
+        const centre =
+          i * slice +
+          slice / 2;
+
+        return `
+          <div
+            class="mtw-label"
+            style="--angle:${centre}deg;"
+          >
+            <span>${reward.label}</span>
+          </div>
+        `;
+
+      }
+    ).join("");
 
   root.innerHTML = `
     <div class="mtw-spin-wrap">
@@ -169,7 +245,6 @@ console.log("MTW SPIN WHEEL TEST VERSION 6");
 
     #mtw-spin-wheel {
       width: 100%;
-      // max-width: 443.516px;
       margin: 0 auto;
       font-family: inherit;
       box-sizing: border-box;
@@ -450,8 +525,6 @@ console.log("MTW SPIN WHEEL TEST VERSION 6");
 
       white-space: normal;
     }
-
-    /* ALL LABELS STAY WHITE */
 
     .mtw-label:nth-child(3) span,
     .mtw-label:nth-child(6) span {
@@ -868,32 +941,49 @@ console.log("MTW SPIN WHEEL TEST VERSION 6");
 
     }
 
+    /* =========================================
+       WEBFLOW BLOCK
+    ========================================= */
+
     #block_30 {
+
       width: 100% !important;
       max-width: 100% !important;
+
       height: auto !important;
+
       min-height: 0 !important;
       max-height: none !important;
+
       overflow: visible !important;
+
       box-sizing: border-box !important;
     }
-    
+
     #block_30 #mtw-spin-wheel {
+
       width: 100% !important;
       max-width: 680px !important;
+
       margin: 0 auto !important;
     }
-    
+
     #block_30 .mtw-spin-wrap {
+
       width: 100% !important;
       max-width: 100% !important;
     }
-    
+
     #block_30 .mtw-wheel-stage {
+
       width: min(88vw, 560px) !important;
+
       max-width: 100% !important;
+
       height: auto !important;
+
       aspect-ratio: 1 / 1 !important;
+
       margin-left: auto !important;
       margin-right: auto !important;
     }
@@ -1240,14 +1330,21 @@ console.log("MTW SPIN WHEEL TEST VERSION 6");
       "mtw-winner"
     );
 
+    /*
+     * Select the winner using the
+     * configured chance percentages.
+     */
+
     const winnerIndex =
-      Math.floor(
-        Math.random() *
-        rewards.length
-      );
+      getWeightedWinner();
 
     const reward =
       rewards[winnerIndex];
+
+    /*
+     * Work out where the selected
+     * reward sits on the physical wheel.
+     */
 
     const winnerCentre =
       winnerIndex * slice +
