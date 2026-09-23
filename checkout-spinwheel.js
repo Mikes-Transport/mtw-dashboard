@@ -5,14 +5,7 @@ console.log("MTW SPIN WHEEL TEST VERSION 5");
 (function () {
 
   const rewards = [
-    { label: "10% OFF", value: "10% OFF", code: "SPIN-10" },
-    { label: "FREE FREIGHT", value: "Free Freight", code: "SPIN-FREIGHT" },
-    { label: "$20 VOUCHER", value: "$20 Voucher", code: "SPIN-20" },
     { label: "TRY AGAIN", value: "Try Again", code: null },
-    { label: "15% OFF", value: "15% OFF", code: "SPIN-15" },
-    { label: "FREE GIFT", value: "Free Gift", code: "SPIN-GIFT" },
-    { label: "$50 VOUCHER", value: "$50 Voucher", code: "SPIN-50" },
-    { label: "5% OFF", value: "5% OFF", code: "SPIN-5" }
   ];
 
   const colours = [
@@ -176,7 +169,7 @@ console.log("MTW SPIN WHEEL TEST VERSION 5");
 
     #mtw-spin-wheel {
       width: 100%;
-      max-width: 680px;
+      max-width: 443.516px;
       margin: 0 auto;
       font-family: inherit;
       box-sizing: border-box;
@@ -201,7 +194,7 @@ console.log("MTW SPIN WHEEL TEST VERSION 5");
     .mtw-wheel-stage {
       position: relative;
 
-      width: min(88vw, 560px);
+      width: min(88vw, 443.516px);
       height: min(88vw, 560px);
 
       margin: 0 auto 35px;
