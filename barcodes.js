@@ -85,10 +85,17 @@ const DEFAULTS = {
 template: 'standard',
 partNumber: '',
 subtext: '',
+
 showDate: false,
 date: '',
+dateHeadingSize: 10,
+dateSubtextSize: 9,
+
 showQty: false,
 manualQty: 0,
+qtyHeadingSize: 10,
+qtySubtextSize: 9,
+
 ...TEMPLATE_DEFAULTS.standard
 };
 
@@ -671,13 +678,6 @@ cursor: pointer;
 position: relative;
 }
 
-.barcode-card-overlay {
-position: absolute;
-inset: 0;
-z-index: 20;
-cursor: pointer;
-}
-
 .barcode-output-row {
 width: 100%;
 display: flex;
@@ -699,9 +699,10 @@ justify-self: center;
 
 .barcode-extra-fields {
 display: flex;
+flex-direction: column;
 align-items: center;
-justify-content: flex-end;
-gap: 10px;
+justify-content: center;
+gap: 4px;
 min-width: 0;
 }
 
@@ -1700,7 +1701,7 @@ font-size: 11px;
 }
 
 .barcode-extra-fields {
-gap: 6px;
+gap: 4px;
 }
 
 .barcode-extra-field {
@@ -1834,12 +1835,36 @@ data.date ||
 getSystemDate()
 ),
 
+dateHeadingSize:
+Number(
+data.dateHeadingSize
+) ||
+DEFAULTS.dateHeadingSize,
+
+dateSubtextSize:
+Number(
+data.dateSubtextSize
+) ||
+DEFAULTS.dateSubtextSize,
+
 showQty:
 Boolean(
 data.showQty
 ),
 
 manualQty,
+
+qtyHeadingSize:
+Number(
+data.qtyHeadingSize
+) ||
+DEFAULTS.qtyHeadingSize,
+
+qtySubtextSize:
+Number(
+data.qtySubtextSize
+) ||
+DEFAULTS.qtySubtextSize,
 
 partNumberSize:
 Number(
@@ -2427,6 +2452,15 @@ heading.className =
 heading.textContent =
 'Date';
 
+heading.style.fontSize =
+(
+Number(
+card.dateHeadingSize
+) ||
+DEFAULTS.dateHeadingSize
+) +
+'px';
+
 const subtext =
 document.createElement(
 'div'
@@ -2439,6 +2473,15 @@ subtext.textContent =
 formatBarcodeDate(
 card.date
 );
+
+subtext.style.fontSize =
+(
+Number(
+card.dateSubtextSize
+) ||
+DEFAULTS.dateSubtextSize
+) +
+'px';
 
 field.append(
 heading,
@@ -2477,6 +2520,15 @@ heading.className =
 heading.textContent =
 'QTY';
 
+heading.style.fontSize =
+(
+Number(
+card.qtyHeadingSize
+) ||
+DEFAULTS.qtyHeadingSize
+) +
+'px';
+
 const subtext =
 document.createElement(
 'div'
@@ -2497,6 +2549,15 @@ card.manualQty
 )
 : 0
 );
+
+subtext.style.fontSize =
+(
+Number(
+card.qtySubtextSize
+) ||
+DEFAULTS.qtySubtextSize
+) +
+'px';
 
 field.append(
 heading,
@@ -3444,8 +3505,66 @@ section(
 'Optional Fields',
 [
 dateToggle,
+
+numberField(
+'Date Heading Size',
+card.dateHeadingSize,
+value => {
+
+card.dateHeadingSize =
+Number(value) ||
+DEFAULTS.dateHeadingSize;
+
+live(card);
+
+}
+),
+
+numberField(
+'Date Subtext Size',
+card.dateSubtextSize,
+value => {
+
+card.dateSubtextSize =
+Number(value) ||
+DEFAULTS.dateSubtextSize;
+
+live(card);
+
+}
+),
+
 qtyToggle,
-manualQtyField
+manualQtyField,
+
+numberField(
+'QTY Heading Size',
+card.qtyHeadingSize,
+value => {
+
+card.qtyHeadingSize =
+Number(value) ||
+DEFAULTS.qtyHeadingSize;
+
+live(card);
+
+}
+),
+
+numberField(
+'QTY Subtext Size',
+card.qtySubtextSize,
+value => {
+
+card.qtySubtextSize =
+Number(value) ||
+DEFAULTS.qtySubtextSize;
+
+live(card);
+
+}
+)
+
 ]
 )
 );
@@ -3543,11 +3662,23 @@ DEFAULTS.showDate;
 card.date =
 getSystemDate();
 
+card.dateHeadingSize =
+DEFAULTS.dateHeadingSize;
+
+card.dateSubtextSize =
+DEFAULTS.dateSubtextSize;
+
 card.showQty =
 DEFAULTS.showQty;
 
 card.manualQty =
 DEFAULTS.manualQty;
+
+card.qtyHeadingSize =
+DEFAULTS.qtyHeadingSize;
+
+card.qtySubtextSize =
+DEFAULTS.qtySubtextSize;
 
 const defaults =
 getTemplateDefaults(
@@ -3594,11 +3725,23 @@ card.showDate,
 date:
 card.date,
 
+dateHeadingSize:
+card.dateHeadingSize,
+
+dateSubtextSize:
+card.dateSubtextSize,
+
 showQty:
 card.showQty,
 
 manualQty:
 card.manualQty,
+
+qtyHeadingSize:
+card.qtyHeadingSize,
+
+qtySubtextSize:
+card.qtySubtextSize,
 
 partNumberSize:
 card.partNumberSize,
@@ -4077,6 +4220,18 @@ date:
 card.date ||
 getSystemDate(),
 
+dateHeadingSize:
+Number(
+card.dateHeadingSize
+) ||
+DEFAULTS.dateHeadingSize,
+
+dateSubtextSize:
+Number(
+card.dateSubtextSize
+) ||
+DEFAULTS.dateSubtextSize,
+
 showQty:
 Boolean(
 card.showQty
@@ -4092,6 +4247,18 @@ card.manualQty
 )
 )
 : 0,
+
+qtyHeadingSize:
+Number(
+card.qtyHeadingSize
+) ||
+DEFAULTS.qtyHeadingSize,
+
+qtySubtextSize:
+Number(
+card.qtySubtextSize
+) ||
+DEFAULTS.qtySubtextSize,
 
 partNumberSize:
 Number(
@@ -4967,11 +5134,23 @@ card.showDate,
 date:
 card.date,
 
+dateHeadingSize:
+card.dateHeadingSize,
+
+dateSubtextSize:
+card.dateSubtextSize,
+
 showQty:
 card.showQty,
 
 manualQty:
 card.manualQty,
+
+qtyHeadingSize:
+card.qtyHeadingSize,
+
+qtySubtextSize:
+card.qtySubtextSize,
 
 partNumberSize:
 card.partNumberSize,
