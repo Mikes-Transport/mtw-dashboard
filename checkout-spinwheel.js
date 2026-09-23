@@ -1285,13 +1285,52 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 8");
     return false;
   }
 
+  // function alreadyUsed() {
+
+  //   return (
+  //     localStorage.getItem(
+  //       STORAGE_KEY
+  // }
+
   function markUsed() {
     // Disabled during testing.
   }
 
+  // function markUsed() {
+
+  //   localStorage.setItem(
+  //     STORAGE_KEY,
+  //     "true"
+  //   );
+  // }
+
+  
+
   function restorePreviousSpin() {
     // Disabled during testing.
   }
+
+  // function restorePreviousSpin() {
+
+  //   if (!alreadyUsed()) return;
+
+  //   button.disabled = true;
+
+  //   button.querySelector(
+  //     ".mtw-button-top"
+  //   ).textContent = "ALREADY SPUN";
+  //   ).textContent =
+  //     "ALREADY SPUN";
+
+  //   button.querySelector(
+  //     ".mtw-button-bottom"
+  //   ).textContent = "ONE SPIN PER CUSTOMER";
+  //   ).textContent =
+  //     "ONE SPIN PER CUSTOMER";
+
+  //   status.textContent =
+  //     "You have already spun the wheel.";
+  // }
 
   /* =========================================
      SPIN
