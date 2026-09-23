@@ -1,16 +1,16 @@
-console.log("MTW SPIN WHEEL CHANCE VERSION 8");
+console.log("MTW SPIN WHEEL CHANCE VERSION 9");
 
 'use strict';
 
 (function () {
 
   const rewards = [
-    { label: "NO PRIZE", value: "NO PRIZE", code: null, chance: "6.0%" },
+    { label: "NO PRIZE", value: "NO PRIZE", code: null, chance: "8.0%" },
     { label: "x2 AIR FRESHENERS", value: "X2 AIR FRESHENERS", code: "SPIN-AIRFRESHENER", chance: "20.0%" },
-    { label: "X1 MTW COFFEE MUG", value: "X1 MTW COFFEE MUG", code: "SPIN-TWMUG", chance: "10.5%" },
-    { label: "X1 RANDOM EXTE MERCH", value: "X1 EXTE MERCH", code: "SPIN-EXTE", chance: "4.0%" },
-    { label: "X1 PARLOK BUNDLE", value: "X1 PARLOK BUNDLE", code: "SPIN-PARLOK", chance: "4.0%" },
-    { label: "X1 WICKED PACK", value: "X1 WICKED PACK", code: "SPIN-WICKED", chance: "25.0%" },
+    { label: "X1 MTW COFFEE MUG", value: "X1 MTW COFFEE MUG", code: "SPIN-TWMUG", chance: "11.5%" },
+    { label: "X1 RANDOM EXTE MERCH", value: "X1 EXTE MERCH", code: "SPIN-EXTE", chance: "5.0%" },
+    { label: "X1 PARLOK BUNDLE", value: "X1 PARLOK BUNDLE", code: "SPIN-PARLOK", chance: "5.0%" },
+    { label: "X1 WICKED PACK", value: "X1 WICKED PACK", code: "SPIN-WICKED", chance: "20.0%" },
     { label: "X1 RANDOM SNACK", value: "X1 RANDOM SNACK", code: "SPIN-SNACK", chance: "20.0%" },
     { label: "X1 WC COFFEE MUG", value: "X1 WC COFFEE MUG", code: "SPIN-WCMUG", chance: "10.5%" }
   ];
