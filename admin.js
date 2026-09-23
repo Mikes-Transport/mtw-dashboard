@@ -8,7 +8,14 @@
       'barcodes',
       'secondhand-tool'
     ],
-
+    Stores: [
+      'barcodes'
+    ],
+    KeyAccounts: [
+      'promotion-label',
+      'barcodes',
+      'secondhand-tool'
+    ],
     Admin: [
       'promotion-label',
       'barcodes',
