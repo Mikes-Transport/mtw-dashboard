@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL TEST VERSION 5");
+console.log("MTW SPIN WHEEL TEST VERSION 6");
 
 'use strict';
 
@@ -434,7 +434,7 @@ console.log("MTW SPIN WHEEL TEST VERSION 5");
       text-align: center;
 
       font-size:
-        clamp(13px, 2.9vw, 18px);
+        clamp(13px, 2.9vw, 14px);
 
       font-weight: 1000;
 
