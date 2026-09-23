@@ -85,6 +85,10 @@ const DEFAULTS = {
 template: 'standard',
 partNumber: '',
 subtext: '',
+showDate: false,
+date: '',
+showQty: false,
+manualQty: 0,
 ...TEMPLATE_DEFAULTS.standard
 };
 
@@ -112,6 +116,92 @@ return (
 TEMPLATE_DEFAULTS[template] ||
 TEMPLATE_DEFAULTS.standard
 );
+
+}
+
+function getSystemDate() {
+
+const date =
+new Date();
+
+const year =
+date.getFullYear();
+
+const month =
+String(
+date.getMonth() + 1
+).padStart(
+2,
+'0'
+);
+
+const day =
+String(
+date.getDate()
+).padStart(
+2,
+'0'
+);
+
+return (
+year +
+'-' +
+month +
+'-' +
+day
+);
+
+}
+
+function formatBarcodeDate(value) {
+
+const raw =
+String(
+value || ''
+).trim();
+
+if (!raw) {
+return '';
+}
+
+const match =
+raw.match(
+/^(\d{4})-(\d{2})-(\d{2})$/
+);
+
+if (match) {
+
+return (
+match[3] +
+'/' +
+match[2] +
+'/' +
+match[1]
+);
+
+}
+
+const parsed =
+new Date(raw);
+
+if (
+!Number.isNaN(
+parsed.getTime()
+)
+) {
+
+return parsed.toLocaleDateString(
+'en-NZ',
+{
+day: '2-digit',
+month: '2-digit',
+year: 'numeric'
+}
+);
+
+}
+
+return raw;
 
 }
 
@@ -588,6 +678,58 @@ z-index: 20;
 cursor: pointer;
 }
 
+.barcode-output-row {
+width: 100%;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 12px;
+box-sizing: border-box;
+}
+
+.barcode-output-row.has-extras {
+display: grid;
+grid-template-columns: minmax(0, 1fr) auto;
+align-items: center;
+}
+
+.barcode-output-row.has-extras .barcode-populate {
+justify-self: center;
+}
+
+.barcode-extra-fields {
+display: flex;
+align-items: center;
+justify-content: flex-end;
+gap: 10px;
+min-width: 0;
+}
+
+.barcode-extra-field {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+text-align: center;
+min-width: 40px;
+box-sizing: border-box;
+}
+
+.barcode-extra-heading {
+font-size: 10px;
+font-weight: 700;
+line-height: 1.1;
+white-space: nowrap;
+}
+
+.barcode-extra-subtext {
+font-size: 9px;
+font-weight: 400;
+line-height: 1.2;
+white-space: nowrap;
+margin-top: 2px;
+}
+
 .barcode-populate {
 display: block !important;
 width: auto !important;
@@ -734,9 +876,39 @@ font: inherit;
 font-size: 11px;
 }
 
+.barcode-control:disabled {
+background: #f3f3f3;
+color: #999;
+cursor: not-allowed;
+}
+
 .barcode-number {
 width: 80px;
 min-width: 80px;
+}
+
+.barcode-checkbox-row {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 10px;
+margin-bottom: 10px;
+}
+
+.barcode-checkbox-label {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 12px;
+font-weight: 600;
+cursor: pointer;
+}
+
+.barcode-checkbox {
+width: 16px;
+height: 16px;
+margin: 0;
+cursor: pointer;
 }
 
 .barcode-edit-panel-footer {
@@ -1527,6 +1699,22 @@ width: 100%;
 font-size: 11px;
 }
 
+.barcode-extra-fields {
+gap: 6px;
+}
+
+.barcode-extra-field {
+min-width: 32px;
+}
+
+.barcode-extra-heading {
+font-size: 8px;
+}
+
+.barcode-extra-subtext {
+font-size: 7px;
+}
+
 }
 
 @media print {
@@ -1604,6 +1792,21 @@ getTemplateDefaults(
 template
 );
 
+const manualQtyValue =
+Number(
+data.manualQty
+);
+
+const manualQty =
+Number.isFinite(
+manualQtyValue
+) &&
+manualQtyValue >= 0
+? Math.floor(
+manualQtyValue
+)
+: 0;
+
 return {
 
 id:
@@ -1619,6 +1822,24 @@ DEFAULTS.partNumber,
 subtext:
 data.subtext ??
 DEFAULTS.subtext,
+
+showDate:
+Boolean(
+data.showDate
+),
+
+date:
+String(
+data.date ||
+getSystemDate()
+),
+
+showQty:
+Boolean(
+data.showQty
+),
+
+manualQty,
 
 partNumberSize:
 Number(
@@ -2149,10 +2370,224 @@ return text;
 
 }
 
+function renderBarcodeExtraFields(
+card,
+outputRow
+) {
+
+let extras =
+outputRow.querySelector(
+'.barcode-extra-fields'
+);
+
+if (!extras) {
+
+extras =
+document.createElement(
+'div'
+);
+
+extras.className =
+'barcode-extra-fields';
+
+outputRow.appendChild(
+extras
+);
+
+}
+
+extras.innerHTML = '';
+
+let hasExtras =
+false;
+
+if (
+card.showDate
+) {
+
+hasExtras =
+true;
+
+const field =
+document.createElement(
+'div'
+);
+
+field.className =
+'barcode-extra-field';
+
+const heading =
+document.createElement(
+'div'
+);
+
+heading.className =
+'barcode-extra-heading';
+
+heading.textContent =
+'Date';
+
+const subtext =
+document.createElement(
+'div'
+);
+
+subtext.className =
+'barcode-extra-subtext';
+
+subtext.textContent =
+formatBarcodeDate(
+card.date
+);
+
+field.append(
+heading,
+subtext
+);
+
+extras.appendChild(
+field
+);
+
+}
+
+if (
+card.showQty
+) {
+
+hasExtras =
+true;
+
+const field =
+document.createElement(
+'div'
+);
+
+field.className =
+'barcode-extra-field';
+
+const heading =
+document.createElement(
+'div'
+);
+
+heading.className =
+'barcode-extra-heading';
+
+heading.textContent =
+'QTY';
+
+const subtext =
+document.createElement(
+'div'
+);
+
+subtext.className =
+'barcode-extra-subtext';
+
+subtext.textContent =
+String(
+Number(
+card.manualQty
+) >= 0
+? Math.floor(
+Number(
+card.manualQty
+)
+)
+: 0
+);
+
+field.append(
+heading,
+subtext
+);
+
+extras.appendChild(
+field
+);
+
+}
+
+extras.style.display =
+hasExtras
+? 'flex'
+: 'none';
+
+outputRow.classList.toggle(
+'has-extras',
+hasExtras
+);
+
+}
+
+function ensureBarcodeOutputRow(
+card,
+barcode
+) {
+
+let outputRow =
+card.querySelector(
+'.barcode-output-row'
+);
+
+if (!outputRow) {
+
+outputRow =
+document.createElement(
+'div'
+);
+
+outputRow.className =
+'barcode-output-row';
+
+if (
+barcode.parentElement === card
+) {
+
+card.insertBefore(
+outputRow,
+barcode
+);
+
+} else {
+
+barcode.parentElement.insertBefore(
+outputRow,
+barcode
+);
+
+}
+
+outputRow.appendChild(
+barcode
+);
+
+} else if (
+barcode.parentElement !== outputRow
+) {
+
+outputRow.appendChild(
+barcode
+);
+
+}
+
+return outputRow;
+
+}
+
 function populateCard(
 card,
 data
 ) {
+
+if (!data.date) {
+
+data.date =
+getSystemDate();
+
+}
 
 const header =
 card.querySelector(
@@ -2190,6 +2625,12 @@ barcode
 );
 
 }
+
+const outputRow =
+ensureBarcodeOutputRow(
+card,
+barcode
+);
 
 if (header) {
 
@@ -2256,6 +2697,11 @@ barcode.style.boxSizing =
 '';
 
 }
+
+renderBarcodeExtraFields(
+data,
+outputRow
+);
 
 }
 
@@ -2623,7 +3069,8 @@ return wrap;
 function numberField(
 label,
 value,
-callback
+callback,
+min = 1
 ) {
 
 const wrap =
@@ -2657,6 +3104,11 @@ input.type =
 'number';
 
 input.min =
+String(
+min
+);
+
+input.step =
 '1';
 
 input.value =
@@ -2673,6 +3125,76 @@ input.value
 wrap.append(
 l,
 input
+);
+
+return wrap;
+
+}
+
+function checkboxField(
+label,
+checked,
+callback
+) {
+
+const wrap =
+document.createElement(
+'div'
+);
+
+wrap.className =
+'barcode-checkbox-row';
+
+const labelWrap =
+document.createElement(
+'label'
+);
+
+labelWrap.className =
+'barcode-checkbox-label';
+
+const input =
+document.createElement(
+'input'
+);
+
+input.type =
+'checkbox';
+
+input.className =
+'barcode-checkbox';
+
+input.checked =
+Boolean(
+checked
+);
+
+const text =
+document.createElement(
+'span'
+);
+
+text.textContent =
+label;
+
+labelWrap.append(
+input,
+text
+);
+
+wrap.appendChild(
+labelWrap
+);
+
+input.addEventListener(
+'change',
+function () {
+
+callback(
+input.checked
+);
+
+}
 );
 
 return wrap;
@@ -2825,6 +3347,109 @@ live(card);
 )
 );
 
+const dateToggle =
+checkboxField(
+'Date',
+card.showDate,
+checked => {
+
+card.showDate =
+checked;
+
+if (
+checked &&
+!card.date
+) {
+
+card.date =
+getSystemDate();
+
+}
+
+live(card);
+
+}
+);
+
+const qtyToggle =
+checkboxField(
+'QTY',
+card.showQty,
+checked => {
+
+card.showQty =
+checked;
+
+live(card);
+
+const input =
+manualQtyField.querySelector(
+'input'
+);
+
+if (input) {
+
+input.disabled =
+!checked;
+
+}
+
+}
+);
+
+const manualQtyField =
+numberField(
+'Manual QTY',
+card.manualQty,
+value => {
+
+let qty =
+parseInt(
+value,
+10
+);
+
+if (
+!Number.isFinite(qty) ||
+qty < 0
+) {
+
+qty = 0;
+
+}
+
+card.manualQty =
+qty;
+
+live(card);
+
+},
+0
+);
+
+const manualQtyInput =
+manualQtyField.querySelector(
+'input'
+);
+
+if (manualQtyInput) {
+
+manualQtyInput.disabled =
+!card.showQty;
+
+}
+
+panel.appendChild(
+section(
+'Optional Fields',
+[
+dateToggle,
+qtyToggle,
+manualQtyField
+]
+)
+);
+
 panel.appendChild(
 section(
 'Size',
@@ -2912,6 +3537,18 @@ DEFAULTS.partNumber;
 card.subtext =
 DEFAULTS.subtext;
 
+card.showDate =
+DEFAULTS.showDate;
+
+card.date =
+getSystemDate();
+
+card.showQty =
+DEFAULTS.showQty;
+
+card.manualQty =
+DEFAULTS.manualQty;
+
 const defaults =
 getTemplateDefaults(
 card.template
@@ -2950,6 +3587,18 @@ card.partNumber,
 
 subtext:
 card.subtext,
+
+showDate:
+card.showDate,
+
+date:
+card.date,
+
+showQty:
+card.showQty,
+
+manualQty:
+card.manualQty,
 
 partNumberSize:
 card.partNumberSize,
@@ -3418,6 +4067,31 @@ card.partNumber || '',
 
 subtext:
 card.subtext || '',
+
+showDate:
+Boolean(
+card.showDate
+),
+
+date:
+card.date ||
+getSystemDate(),
+
+showQty:
+Boolean(
+card.showQty
+),
+
+manualQty:
+Number(
+card.manualQty
+) >= 0
+? Math.floor(
+Number(
+card.manualQty
+)
+)
+: 0,
 
 partNumberSize:
 Number(
@@ -4286,6 +4960,18 @@ card.partNumber || '',
 
 subtext:
 card.subtext || '',
+
+showDate:
+card.showDate,
+
+date:
+card.date,
+
+showQty:
+card.showQty,
+
+manualQty:
+card.manualQty,
 
 partNumberSize:
 card.partNumberSize,
