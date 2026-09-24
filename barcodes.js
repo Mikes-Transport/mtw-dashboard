@@ -185,6 +185,7 @@ ROLE_HIDE[role] ||
 
 const allWrappers = [
 '.barcode-import-card-wrapper',
+'.barcode-quickimp-card-wrapper',
 '.label-save-template-wrapper',
 '.label-select-template-wrapper'
 ];
@@ -227,31 +228,48 @@ toHide.includes(
 '.barcode-import-card-wrapper'
 );
 
-[
-els.importCSV,
-els.quickImport
-].forEach(
-btn => {
+const hideQuickImport =
+toHide.includes(
+'.barcode-quickimp-card-wrapper'
+);
 
-if (!btn) {
-return;
-}
+if (
+els.importCSV
+) {
 
 if (hideImport) {
 
-btn.style.display =
+els.importCSV.style.display =
 'none';
 
 } else {
 
-btn.style.removeProperty(
+els.importCSV.style.removeProperty(
 'display'
 );
 
 }
 
 }
+
+if (
+els.quickImport
+) {
+
+if (hideQuickImport) {
+
+els.quickImport.style.display =
+'none';
+
+} else {
+
+els.quickImport.style.removeProperty(
+'display'
 );
+
+}
+
+}
 
 }
 
@@ -753,6 +771,9 @@ $('.db-menu-list');
 
 els.importWrapper =
 $('.barcode-import-card-wrapper');
+
+els.quickImportWrapper =
+$('.barcode-quickimp-card-wrapper');
 
 els.saveWrapper =
 $('.label-save-template-wrapper');
