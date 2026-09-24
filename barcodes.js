@@ -88,13 +88,13 @@ subtext: '',
 
 showDate: false,
 date: '',
-dateHeadingSize: 10,
-dateSubtextSize: 9,
+dateHeadingSize: 40,
+dateSubtextSize: 18,
 
 showQty: false,
 manualQty: 0,
-qtyHeadingSize: 10,
-qtySubtextSize: 9,
+qtyHeadingSize: 40,
+qtySubtextSize: 18,
 
 ...TEMPLATE_DEFAULTS.standard
 };
@@ -689,7 +689,7 @@ box-sizing: border-box;
 
 .barcode-output-row.has-extras {
 display: grid;
-grid-template-columns: minmax(0, 1fr) auto;
+grid-template-columns: 1fr 1fr;
 align-items: center;
 }
 
@@ -903,6 +903,7 @@ gap: 8px;
 font-size: 12px;
 font-weight: 600;
 cursor: pointer;
+color: white;
 }
 
 .barcode-checkbox {
