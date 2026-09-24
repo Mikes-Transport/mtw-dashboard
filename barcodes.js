@@ -793,27 +793,7 @@ els.templateWrapper =
 $('.label-select-template-wrapper');
 
 els.templateSelect =
-$('.label-template-selector') ||
-(
-els.templateWrapper
-? (
-els.templateWrapper.querySelector(
-'select'
-) ||
-els.templateWrapper.querySelector(
-'[data-label-template-list]'
-) ||
-(
-els.templateWrapper.matches &&
-els.templateWrapper.matches(
-'.label-template-selector'
-)
-? els.templateWrapper
-: null
-)
-)
-: null
-);
+getTemplateSelect();
 
 applyRoleVisibility();
 
@@ -6293,6 +6273,55 @@ commit.commitHash
    LABEL TEMPLATES (KeyAccounts saved layouts)
 ---------------------------------------- */
 
+function getTemplateSelect() {
+
+const host =
+$('.label-template-selector');
+
+if (
+host &&
+host.tagName === 'SELECT'
+) {
+
+return host;
+
+}
+
+if (host) {
+
+const inner =
+host.querySelector(
+'select'
+);
+
+if (inner) {
+return inner;
+}
+
+}
+
+if (
+els.templateWrapper
+) {
+
+const inner =
+els.templateWrapper.querySelector(
+'select'
+);
+
+if (inner) {
+return inner;
+}
+
+}
+
+return (
+els.templateSelect ||
+null
+);
+
+}
+
 function getLabelTemplateSnapshot() {
 
 const snapshot =
@@ -6693,27 +6722,9 @@ setTimeout(
 async function refreshTemplateSelector() {
 
 const list =
-els.templateSelect ||
-$('.label-template-selector') ||
-(
-els.templateWrapper
-? (
-els.templateWrapper.querySelector(
-'select'
-) ||
-els.templateWrapper.querySelector(
-'[data-label-template-list]'
-)
-)
-: null
-) ||
-els.templateWrapper;
+getTemplateSelect();
 
-if (
-els.templateWrapper &&
-!els.templateSelect &&
-list
-) {
+if (list) {
 
 els.templateSelect =
 list;
@@ -6724,13 +6735,8 @@ if (!list) {
 return;
 }
 
-const isNativeSelect =
-list.tagName === 'SELECT';
-
 const templateType =
 state.current;
-
-if (isNativeSelect) {
 
 list.innerHTML =
 '<option value="">Select a saved template...</option>';
@@ -6738,11 +6744,7 @@ list.innerHTML =
 list.disabled =
 false;
 
-}
-
 if (!templateType) {
-
-if (isNativeSelect) {
 
 list.innerHTML =
 '<option value="">Select a label template first</option>';
@@ -6750,37 +6752,17 @@ list.innerHTML =
 list.disabled =
 true;
 
-} else {
-
-list.innerHTML =
-'<div class="label-template-empty">' +
-'Select a label template first.' +
-'</div>';
-
-}
-
 return;
 
 }
 
 if (!db) {
 
-if (isNativeSelect) {
-
 list.innerHTML =
 '<option value="">Database unavailable</option>';
 
 list.disabled =
 true;
-
-} else {
-
-list.innerHTML =
-'<div class="label-template-empty">' +
-'Database unavailable.' +
-'</div>';
-
-}
 
 return;
 
@@ -6823,8 +6805,6 @@ a.date || 0
 )
 );
 
-if (isNativeSelect) {
-
 if (!labelTemplates.length) {
 
 list.innerHTML =
@@ -6864,62 +6844,6 @@ option
 }
 );
 
-return;
-
-}
-
-list.innerHTML = '';
-
-if (!labelTemplates.length) {
-
-list.innerHTML =
-'<div class="label-template-empty">' +
-'No saved templates for this label type yet.' +
-'</div>';
-
-return;
-
-}
-
-labelTemplates.forEach(
-item => {
-
-const entry =
-document.createElement(
-'div'
-);
-
-entry.className =
-'db-list-dropdown-card';
-
-entry.dataset.labelTemplate =
-item.id;
-
-const heading =
-document.createElement(
-'div'
-);
-
-heading.className =
-'db-headingd-list';
-
-heading.textContent =
-String(
-item.name ||
-'Untitled'
-);
-
-entry.appendChild(
-heading
-);
-
-list.appendChild(
-entry
-);
-
-}
-);
-
 } catch (error) {
 
 console.error(
@@ -6927,14 +6851,11 @@ console.error(
 error
 );
 
-if (!isNativeSelect) {
-
 list.innerHTML =
-'<div class="label-template-empty">' +
-'Could not load templates.' +
-'</div>';
+'<option value="">Could not load templates</option>';
 
-}
+list.disabled =
+true;
 
 }
 
@@ -7008,8 +6929,7 @@ state.current =
 item.template;
 
 if (
-els.templateSelect &&
-els.templateSelect.tagName === 'SELECT'
+els.templateSelect
 ) {
 
 els.templateSelect.value =
@@ -7341,48 +7261,19 @@ openSaveTemplateModal();
 
 function setupTemplateSelector() {
 
-let list =
-els.templateSelect ||
-$('.label-template-selector') ||
-(
-els.templateWrapper
-? (
-els.templateWrapper.querySelector(
-'select'
-) ||
-els.templateWrapper.querySelector(
-'[data-label-template-list]'
-)
-)
-: null
-) ||
-els.templateWrapper;
+const list =
+getTemplateSelect();
 
-if (
-!list &&
-els.templateWrapper
-) {
+if (list) {
 
-list =
-document.createElement(
-'select'
-);
-
-list.className =
-'label-template-selector';
-
-els.templateWrapper.appendChild(
-list
-);
+els.templateSelect =
+list;
 
 }
 
 if (!list) {
 return;
 }
-
-els.templateSelect =
-list;
 
 if (
 list.dataset.templateReady ===
@@ -7397,10 +7288,6 @@ return;
 
 list.dataset.templateReady =
 'true';
-
-if (
-list.tagName === 'SELECT'
-) {
 
 list.addEventListener(
 'change',
@@ -7420,41 +7307,6 @@ value
 
 }
 );
-
-} else {
-
-list.addEventListener(
-'click',
-function (e) {
-
-const entry =
-e.target.closest(
-'[data-label-template]'
-);
-
-if (!entry) {
-return;
-}
-
-e.preventDefault();
-e.stopPropagation();
-
-const value =
-entry.dataset.labelTemplate ||
-'';
-
-if (!value) {
-return;
-}
-
-applyLabelTemplateById(
-value
-);
-
-}
-);
-
-}
 
 refreshTemplateSelector();
 
