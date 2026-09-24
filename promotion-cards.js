@@ -1,4 +1,4 @@
-console.log("promo-cards np-v1");
+console.log("promo-cards np-v2");
 
 'use strict';
 
