@@ -1130,9 +1130,9 @@ overscroll-behavior-y:contain!important;
 .db-left-content.editing .et-edit-panel{
 flex:1 1 auto!important;
 width:100%!important;
-height: 50% !important;
+height: 30% !important;
 min-height:0!important;
-max-height: 50% !important;
+max-height: 30% !important;
 overflow-y:auto!important;
 overflow-x:hidden!important;
 box-sizing:border-box!important;
@@ -1142,10 +1142,12 @@ overscroll-behavior-y:contain!important;
 -webkit-overflow-scrolling:touch!important;
 scrollbar-width:thin;
 touch-action:pan-y;
+-ms-overflow-style: none; 
+scrollbar-width: none;
 }
 
 .et-edit-panel::-webkit-scrollbar{
-width:6px;
+display: none;
 }
 
 .et-edit-panel::-webkit-scrollbar-track{
