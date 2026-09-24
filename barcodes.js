@@ -678,6 +678,19 @@ cursor: pointer;
 position: relative;
 }
 
+.barcode-card-overlay {
+position: absolute;
+inset: 0;
+z-index: 5;
+display: block;
+cursor: pointer;
+background: transparent;
+}
+
+.barcode-card-overlay:hover {
+background: rgba(0,0,0,.08);
+}
+
 .barcode-output-row {
 width: 100%;
 display: flex;
@@ -1380,6 +1393,31 @@ outline: none;
 border-color: #111;
 }
 
+.barcode-quickimp-preview-stockqty {
+width: 65px;
+padding: 6px 7px;
+border: 1px solid #ccc;
+border-radius: 5px;
+font-size: 12px;
+box-sizing: border-box;
+text-align: center;
+}
+
+.barcode-quickimp-preview-stockqty:focus {
+outline: none;
+border-color: #111;
+}
+
+.barcode-quickimp-preview-stockqty:disabled {
+background: #f3f3f3;
+color: #999;
+cursor: not-allowed;
+}
+
+.barcode-quickimp-options {
+flex-wrap: wrap;
+}
+
 .barcode-quickimp-empty {
 padding: 24px 12px;
 text-align: center;
@@ -1570,6 +1608,31 @@ text-align: center;
 .barcode-csv-qty:focus {
 outline: none;
 border-color: #111;
+}
+
+.barcode-csv-stockqty {
+width: 70px;
+padding: 7px 8px;
+border: 1px solid #ccc;
+border-radius: 5px;
+font-size: 12px;
+box-sizing: border-box;
+text-align: center;
+}
+
+.barcode-csv-stockqty:focus {
+outline: none;
+border-color: #111;
+}
+
+.barcode-csv-stockqty:disabled {
+background: #f3f3f3;
+color: #999;
+cursor: not-allowed;
+}
+
+.barcode-csv-modal-options {
+flex-wrap: wrap;
 }
 
 .barcode-csv-modal-footer {
@@ -2827,13 +2890,25 @@ e.preventDefault();
 e.stopPropagation();
 
 /*
-Resolve the card from state again using its ID.
-This makes imported cards use the live state object
-just like manually added cards.
+Resolve the card from state again using its ID from the DOM.
+This keeps manually added AND imported cards editable, even if
+the original data object reference is stale.
 */
+const hostCard =
+e.currentTarget.closest(
+'.barcode-card'
+);
+
+const cardId =
+(hostCard &&
+hostCard.dataset &&
+hostCard.dataset.cardId) ||
+card.dataset.cardId ||
+data.id;
+
 const liveCard =
 get(
-data.id
+cardId
 );
 
 openEdit(
@@ -4989,7 +5064,8 @@ document.createElement(
 [
 'Part Number',
 'Description',
-'Qty'
+'Qty',
+'Stock QTY'
 ].forEach(
 text => {
 
@@ -5757,7 +5833,8 @@ qty = 1;
 rows.push({
 partNumber,
 description,
-qty
+qty,
+stockQty: 0
 });
 
 }
@@ -5772,12 +5849,20 @@ tbody,
 summary,
 empty,
 error,
-qtyInputs
+qtyInputs,
+stockQtyInputs,
+isStockEnabled
 ) {
 
 tbody.innerHTML = '';
 
 qtyInputs.length = 0;
+
+if (stockQtyInputs) {
+
+stockQtyInputs.length = 0;
+
+}
 
 if (!rows.length) {
 
@@ -5901,10 +5986,90 @@ qtyCell.appendChild(
 qty
 );
 
+const stockQtyCell =
+document.createElement(
+'td'
+);
+
+const stockQty =
+document.createElement(
+'input'
+);
+
+stockQty.type =
+'number';
+
+stockQty.min =
+'0';
+
+stockQty.step =
+'1';
+
+stockQty.className =
+'barcode-quickimp-preview-stockqty';
+
+stockQty.title =
+'Stock QTY shown on the label (separate from Qty labels to create)';
+
+stockQty.value =
+String(
+Math.max(
+0,
+parseInt(
+row.stockQty,
+10
+) || 0
+)
+);
+
+stockQty.disabled =
+!isStockEnabled;
+
+stockQty.addEventListener(
+'input',
+function () {
+
+let value =
+parseInt(
+stockQty.value,
+10
+);
+
+if (
+!Number.isFinite(value) ||
+value < 0
+) {
+
+value = 0;
+
+}
+
+stockQty.value =
+value;
+
+row.stockQty =
+value;
+
+}
+);
+
+if (stockQtyInputs) {
+
+stockQtyInputs.push(
+stockQty
+);
+
+}
+
+stockQtyCell.appendChild(
+stockQty
+);
+
 tr.append(
 partCell,
 descriptionCell,
-qtyCell
+qtyCell,
+stockQtyCell
 );
 
 tbody.appendChild(
@@ -6140,6 +6305,82 @@ checkbox,
 labelText
 );
 
+const dateLabel =
+document.createElement(
+'label'
+);
+
+dateLabel.className =
+'barcode-quickimp-checkbox-label';
+
+const dateCheckbox =
+document.createElement(
+'input'
+);
+
+dateCheckbox.type =
+'checkbox';
+
+dateCheckbox.className =
+'barcode-quickimp-checkbox';
+
+dateCheckbox.checked =
+false;
+
+const dateLabelText =
+document.createElement(
+'span'
+);
+
+dateLabelText.textContent =
+'Date';
+
+dateLabelText.title =
+'Uses system date on the label';
+
+dateLabel.append(
+dateCheckbox,
+dateLabelText
+);
+
+const stockLabel =
+document.createElement(
+'label'
+);
+
+stockLabel.className =
+'barcode-quickimp-checkbox-label';
+
+const stockCheckbox =
+document.createElement(
+'input'
+);
+
+stockCheckbox.type =
+'checkbox';
+
+stockCheckbox.className =
+'barcode-quickimp-checkbox';
+
+stockCheckbox.checked =
+false;
+
+const stockLabelText =
+document.createElement(
+'span'
+);
+
+stockLabelText.textContent =
+'Stock QTY';
+
+stockLabelText.title =
+'Stock amount shown on the label (separate from Qty labels to create)';
+
+stockLabel.append(
+stockCheckbox,
+stockLabelText
+);
+
 const summary =
 document.createElement(
 'div'
@@ -6153,6 +6394,8 @@ summary.textContent =
 
 options.append(
 label,
+dateLabel,
+stockLabel,
 summary
 );
 
@@ -6196,7 +6439,8 @@ document.createElement(
 [
 'Part Number',
 'Description',
-'Qty'
+'Qty',
+'Stock QTY'
 ].forEach(
 text => {
 
@@ -6254,6 +6498,8 @@ tbody
 
 const qtyInputs = [];
 
+const stockQtyInputs = [];
+
 let parsedRows = [];
 
 function refreshPreview() {
@@ -6269,7 +6515,9 @@ tbody,
 summary,
 empty,
 error,
-qtyInputs
+qtyInputs,
+stockQtyInputs,
+stockCheckbox.checked
 );
 
 }
@@ -6313,7 +6561,31 @@ tbody,
 summary,
 empty,
 error,
-qtyInputs
+qtyInputs,
+stockQtyInputs,
+stockCheckbox.checked
+);
+
+}
+);
+
+stockCheckbox.addEventListener(
+'change',
+function () {
+
+if (!parsedRows.length) {
+return;
+}
+
+renderQuickImportPreview(
+parsedRows,
+tbody,
+summary,
+empty,
+error,
+qtyInputs,
+stockQtyInputs,
+stockCheckbox.checked
 );
 
 }
@@ -6399,6 +6671,12 @@ DEFAULTS.template;
 const useDescription =
 checkbox.checked;
 
+const useDate =
+dateCheckbox.checked;
+
+const useStockQty =
+stockCheckbox.checked;
+
 let imported =
 0;
 
@@ -6418,6 +6696,23 @@ qtyValue < 1
 ) {
 
 qtyValue = 1;
+
+}
+
+let stockQtyValue =
+parseInt(
+stockQtyInputs[index]?.value ??
+row.stockQty ??
+0,
+10
+);
+
+if (
+!Number.isFinite(stockQtyValue) ||
+stockQtyValue < 0
+) {
+
+stockQtyValue = 0;
 
 }
 
@@ -6441,7 +6736,17 @@ template,
 partNumber:
 row.partNumber,
 subtext:
-description
+description,
+showDate:
+useDate,
+date:
+getSystemDate(),
+showQty:
+useStockQty,
+manualQty:
+useStockQty
+? stockQtyValue
+: 0
 });
 
 state.cards.push(
@@ -6863,6 +7168,82 @@ checkbox,
 labelText
 );
 
+const dateLabel =
+document.createElement(
+'label'
+);
+
+dateLabel.className =
+'barcode-csv-checkbox-label';
+
+const dateCheckbox =
+document.createElement(
+'input'
+);
+
+dateCheckbox.type =
+'checkbox';
+
+dateCheckbox.className =
+'barcode-csv-checkbox';
+
+dateCheckbox.checked =
+false;
+
+const dateLabelText =
+document.createElement(
+'span'
+);
+
+dateLabelText.textContent =
+'Date';
+
+dateLabelText.title =
+'Uses system date on the label';
+
+dateLabel.append(
+dateCheckbox,
+dateLabelText
+);
+
+const stockLabel =
+document.createElement(
+'label'
+);
+
+stockLabel.className =
+'barcode-csv-checkbox-label';
+
+const stockCheckbox =
+document.createElement(
+'input'
+);
+
+stockCheckbox.type =
+'checkbox';
+
+stockCheckbox.className =
+'barcode-csv-checkbox';
+
+stockCheckbox.checked =
+false;
+
+const stockLabelText =
+document.createElement(
+'span'
+);
+
+stockLabelText.textContent =
+'Stock QTY';
+
+stockLabelText.title =
+'Stock amount shown on the label (separate from Qty labels to create)';
+
+stockLabel.append(
+stockCheckbox,
+stockLabelText
+);
+
 const summary =
 document.createElement(
 'div'
@@ -6873,6 +7254,8 @@ summary.className =
 
 options.append(
 label,
+dateLabel,
+stockLabel,
 summary
 );
 
@@ -6905,7 +7288,8 @@ document.createElement(
 [
 'Part Number',
 'Description',
-'Qty'
+'Qty',
+'Stock QTY'
 ].forEach(
 text => {
 
@@ -6934,6 +7318,8 @@ document.createElement(
 );
 
 const qtyInputs = [];
+
+const stockQtyInputs = [];
 
 rows.forEach(
 row => {
@@ -7036,10 +7422,86 @@ qtyCell.appendChild(
 qty
 );
 
+const stockQtyCell =
+document.createElement(
+'td'
+);
+
+const stockQty =
+document.createElement(
+'input'
+);
+
+stockQty.type =
+'number';
+
+stockQty.className =
+'barcode-csv-stockqty';
+
+stockQty.min =
+'0';
+
+stockQty.step =
+'1';
+
+stockQty.title =
+'Stock QTY shown on the label (separate from Qty labels to create)';
+
+stockQty.value =
+String(
+Math.max(
+0,
+parseInt(
+row.stockQty,
+10
+) || 0
+)
+);
+
+stockQty.disabled =
+!stockCheckbox.checked;
+
+stockQty.addEventListener(
+'input',
+function () {
+
+let value =
+parseInt(
+stockQty.value,
+10
+);
+
+if (
+!Number.isFinite(value) ||
+value < 0
+) {
+
+value = 0;
+
+}
+
+stockQty.value =
+value;
+
+row.stockQty =
+value;
+
+}
+);
+
+stockQtyInputs.push(
+stockQty
+);
+
+stockQtyCell.appendChild(
+stockQty
+);
+
 tr.append(
 partCell,
 descriptionCell,
-qtyCell
+qtyCell,
+stockQtyCell
 );
 
 tbody.appendChild(
@@ -7056,6 +7518,22 @@ tbody
 
 tableWrap.appendChild(
 table
+);
+
+stockCheckbox.addEventListener(
+'change',
+function () {
+
+stockQtyInputs.forEach(
+input => {
+
+input.disabled =
+!stockCheckbox.checked;
+
+}
+);
+
+}
 );
 
 const footer =
@@ -7110,6 +7588,12 @@ DEFAULTS.template;
 const useDescription =
 checkbox.checked;
 
+const useDate =
+dateCheckbox.checked;
+
+const useStockQty =
+stockCheckbox.checked;
+
 let imported =
 0;
 
@@ -7128,6 +7612,23 @@ qtyValue < 1
 ) {
 
 qtyValue = 1;
+
+}
+
+let stockQtyValue =
+parseInt(
+stockQtyInputs[index]?.value ??
+row.stockQty ??
+0,
+10
+);
+
+if (
+!Number.isFinite(stockQtyValue) ||
+stockQtyValue < 0
+) {
+
+stockQtyValue = 0;
 
 }
 
@@ -7151,7 +7652,17 @@ template,
 partNumber:
 row.partNumber,
 subtext:
-description
+description,
+showDate:
+useDate,
+date:
+getSystemDate(),
+showQty:
+useStockQty,
+manualQty:
+useStockQty
+? stockQtyValue
+: 0
 });
 
 state.cards.push(
@@ -7373,7 +7884,9 @@ descriptionKey
 row[descriptionKey] ??
 ''
 ).trim()
-: ''
+: '',
+qty: 1,
+stockQty: 0
 };
 
 }
