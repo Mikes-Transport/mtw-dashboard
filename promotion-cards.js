@@ -1,4 +1,4 @@
-console.log("BITCH");
+console.log("promo-cards np-v1");
 
 'use strict';
 
@@ -6,37 +6,6 @@ const { $, $$ } = window.MTW;
 
 (function () {
 
-  const T = {
-    ep: {
-      card: 'et-everyday-card',
-      cut: 'everyday-card-cut',
-      inner: 'everyday-card',
-      title: 'everyday-card-title-wrapper',
-      h2: 'H2-text-card-white',
-      bodyWrap: 'everyday-card-body-wrapper',
-      body: 'everyday-card-body'
-    },
-    cp: {
-      card: 'et-clearance-card',
-      cut: 'clearance-card-cut',
-      inner: 'clearance-card',
-      title: 'clearance-card-title-wrapper',
-      h2: 'H2-text-card-black',
-      price: 'black',
-      bodyWrap: 'clearance-card-body-wrapper',
-      body: 'clearance-card-body'
-    },
-    pp: {
-      card: 'et-promo-card',
-      cut: 'promo-card-cut',
-      inner: 'promo-card',
-      title: 'promo-card-title-wrapper',
-      h2: 'H2-text-card-white',
-      price: 'red',
-      bodyWrap: 'promo-card-body-wrapper',
-      body: 'promo-card-body'
-    }
-  };
 
   const HEAD = {
     ep: 'EVERYDAY LOW PRICES!',
@@ -60,65 +29,45 @@ const { $, $$ } = window.MTW;
     oneup: [1, 1]
   };
 
-  const TEXT_CLASS = {
-    oneup: 'one',
-    twoup: 'two',
-    fourup: 'four',
-    sixup: 'six'
+  const FEEL_COLORS = {
+    ep: { frame: '#0da50d', head: '#202020', title: '#111111', desc: '#333333', price: '#0a7a3d', foot: '#333333' },
+    cp: { frame: '#1c1c1e', head: '#ffffff', title: '#111111', desc: '#333333', price: '#111111', foot: '#333333' },
+    pp: { frame: '#c1121f', head: '#ffffff', title: '#111111', desc: '#333333', price: '#c1121f', foot: '#333333' }
   };
 
-  const FIELD_NAMES = {
-    title: 'Product Title',
-    description: 'Description',
-    price: 'Price',
-    oldPrice: 'Old Price',
-    partNumber: 'Part Number',
-    extraNote: 'Extra Note'
+  const COLOR_FIELDS = [
+    ['frame', 'Card colour'],
+    ['head', 'Banner text'],
+    ['title', 'Product name'],
+    ['desc', 'Description'],
+    ['price', 'Price'],
+    ['foot', 'Bottom text']
+  ];
+
+  const SIZE_DEFAULTS = {
+    nineup: { head: 21, title: 15, desc: 11, price: 26, old: 10 },
+    sixup: { head: 24, title: 17, desc: 12, price: 32, old: 11 },
+    fourup: { head: 28, title: 20, desc: 13, price: 40, old: 13 },
+    twoup: { head: 32, title: 24, desc: 14, price: 54, old: 15 },
+    oneup: { head: 44, title: 34, desc: 18, price: 84, old: 20 }
   };
 
-  const DEFAULT_FIELDS = {
-    title: {
-      v: 1,
-      a: 'left',
-      fit: 1,
-      size: null,
-      line: null
-    },
-    description: {
-      v: 1,
-      a: 'left',
-      fit: 1,
-      size: null,
-      line: null
-    },
-    price: {
-      v: 1,
-      a: 'left',
-      fit: 1,
-      size: null,
-      line: null
-    },
-    oldPrice: {
-      v: 1,
-      a: 'right',
-      fit: 1,
-      size: null,
-      line: null
-    },
-    partNumber: {
-      v: 1,
-      a: 'left',
-      fit: 1,
-      size: null,
-      line: null
-    },
-    extraNote: {
-      v: 1,
-      a: 'left',
-      fit: 1,
-      size: null,
-      line: null
-    }
+  const SIZE_FIELDS = [
+    ['head', 'Banner text', 12, 72],
+    ['title', 'Product name', 10, 40],
+    ['desc', 'Description', 8, 24],
+    ['price', 'Main price', 14, 64],
+    ['old', 'Old price', 8, 24]
+  ];
+
+  const ORDER_DEFAULT = ['header', 'title', 'desc', 'price', 'foot'];
+
+  const BLOCK_LABELS = {
+    header: 'Top banner',
+    title: 'Product name',
+    desc: 'Description',
+    price: 'Price + old price',
+    foot: 'Part no. + note'
   };
 
   const state = {
@@ -136,212 +85,27 @@ const { $, $$ } = window.MTW;
     return JSON.parse(JSON.stringify(x));
   }
 
-  function defaultText(text = '') {
-    return {
-      text,
-      fields: {
-        v: 1,
-        a: 'left',
-        fit: 1,
-        size: null,
-        line: null
-      }
-    };
-  }
-
-  function defaultContent(text = '') {
-    return {
-      display: 'block',
-      direction: 'column',
-      justify: 'start',
-      align: 'stretch',
-      wrap: 'nowrap',
-      columns: 1,
-      rows: 1,
-      gap: 0,
-      rowGap: 0,
-      columnGap: 0,
-      items: [
-        {
-          text,
-          fields: {
-            v: 1,
-            a: 'left',
-            fit: 1,
-            size: null,
-            line: null
-          },
-          texts: [
-            defaultText(text)
-          ]
-        }
-      ]
-    };
-  }
-
-  function normalizeContent(x, text = '') {
-
-    const d = defaultContent(text);
-
-    if (!x) return d;
-
-    let items = [];
-
-    if (
-      Array.isArray(x.items) &&
-      x.items.length
-    ) {
-
-      items = x.items.map(item => {
-
-        const fallback =
-          defaultText(
-            item.text ?? ''
-          );
-
-        let texts;
-
-        if (
-          Array.isArray(item.texts) &&
-          item.texts.length
-        ) {
-
-          texts =
-            item.texts.map(t => ({
-              text:
-                t.text ?? '',
-              fields:
-                Object.assign(
-                  clone(
-                    fallback.fields
-                  ),
-                  t.fields || {}
-                )
-            }));
-
-        } else {
-
-          texts = [
-            {
-              text:
-                item.text ?? text,
-              fields:
-                Object.assign(
-                  clone(
-                    fallback.fields
-                  ),
-                  item.fields || {}
-                )
-            }
-          ];
-        }
-
-        return {
-          text:
-            texts[0]?.text ?? '',
-          fields:
-            Object.assign(
-              clone(
-                fallback.fields
-              ),
-              item.fields || {}
-            ),
-          texts
-        };
-      });
-
-    } else {
-
-      items = d.items;
-    }
-
-    return {
-      display:
-        x.display || d.display,
-      direction:
-        x.direction || d.direction,
-      justify:
-        x.justify || d.justify,
-      align:
-        x.align || d.align,
-      wrap:
-        x.wrap || d.wrap,
-      columns:
-        Number(x.columns) || 1,
-      rows:
-        Number(x.rows) || 1,
-      gap:
-        Number(x.gap) || 0,
-      rowGap:
-        Number(x.rowGap) || 0,
-      columnGap:
-        Number(x.columnGap) || 0,
-      items
-    };
-  }
-
   function cardData(x = {}) {
-
-    const c = Object.assign({
-
-      id:
-        'card-' +
-        (++id),
-
-      title:
-        'PRODUCT TITLE',
-
-      description:
-        'Product description goes here. Maximum of 2 lines.',
-
-      price:
-        '999.99',
-
-      oldPrice:
-        '999.99',
-
-      partNumber:
-        '#00000',
-
-      extraNote:
-        'EXCLUSIVE OF GST'
-
-    }, x);
-
-    c.style =
-      c.style || {};
-
-    c.style.fields =
-      Object.assign(
-        clone(DEFAULT_FIELDS),
-        c.style.fields || {}
-      );
-
-    c.style.description =
-      normalizeContent(
-        c.style.description,
-        c.description
-      );
-
-    c.style.partNumber =
-      normalizeContent(
-        c.style.partNumber,
-        c.partNumber
-      );
-
-    c.style.extraNote =
-      normalizeContent(
-        c.style.extraNote,
-        c.extraNote
-      );
-
-    c.style.oldPrice =
-      normalizeContent(
-        c.style.oldPrice,
-        c.oldPrice
-      );
-
-    return c;
+    x = x || {};
+    const type = x.type || state.type || 'ep';
+    return {
+      id: x.id || 'card-' + (++id),
+      type: HEADS[type] ? type : 'ep',
+      title: x.title != null ? x.title : 'PRODUCT TITLE',
+      descLines: Array.isArray(x.descLines) && x.descLines.length ? x.descLines.slice(0, 4) : ['Product description goes here.'],
+      price: x.price != null ? x.price : '999.99',
+      oldPrice: x.oldPrice != null ? x.oldPrice : '999.99',
+      partNumber: x.partNumber != null ? x.partNumber : '#00000',
+      gstNote: x.gstNote != null ? x.gstNote : 'EXCLUSIVE OF GST',
+      showOldPrice: x.showOldPrice !== false,
+      showPart: x.showPart !== false,
+      showGst: x.showGst !== false,
+      descCols: Math.min(3, Math.max(1, x.descCols || 1)),
+      order: Array.isArray(x.order) && x.order.length ? x.order.slice() : ORDER_DEFAULT.slice(),
+      tab: x.tab !== false,
+      colors: Object.assign({}, FEEL_COLORS[type] || FEEL_COLORS.ep, x.colors || {}),
+      sizes: Object.assign({}, x.sizes || {})
+    };
   }
 
   function get(i) {
@@ -415,1012 +179,120 @@ const { $, $$ } = window.MTW;
       $('.et-card-body-wrapper');
   }
 
-  function flexJ(v) {
-
-    return {
-      start: 'flex-start',
-      center: 'center',
-      end: 'flex-end',
-      between: 'space-between',
-      around: 'space-around',
-      even: 'space-evenly'
-    }[v] || v;
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
-  function flexA(v) {
-
-    return {
-      start: 'flex-start',
-      center: 'center',
-      end: 'flex-end',
-      stretch: 'stretch'
-    }[v] || v;
+  function money(v) {
+    const t = String(v == null ? '' : v).trim().replace(/^\$/, '');
+    return t ? '$' + t : '';
   }
 
-  function fieldStyle(
-    el,
-    c,
-    key
-  ) {
+  function effSize(c, k) {
+    if (c.sizes && c.sizes[k] != null) return c.sizes[k];
+    const d = SIZE_DEFAULTS[state.layout] || SIZE_DEFAULTS.nineup;
+    return d[k];
+  }
 
-    const f =
-      ((c.style || {}).fields ||
-        DEFAULT_FIELDS)[key] ||
-      DEFAULT_FIELDS[key];
-
-    el.style.display =
-      f.v ? '' : 'none';
-
-    el.style.textAlign =
-      f.a || '';
-
-    el.style.fontSize =
-      f.size
-        ? f.size + 'px'
+  function blockHtml(c, key) {
+    const col = c.colors || {};
+    if (key === 'header') {
+      return '<div class="np-head" style="' + (col.head ? 'color:' + esc(col.head) + ';' : '') + 'font-size:' + effSize(c, 'head') + 'px;">' + esc(HEADS[c.type] || '') + '</div>';
+    }
+    if (key === 'title') {
+      return '<h3 class="np-title" style="' + (col.title ? 'color:' + esc(col.title) + ';' : '') + 'font-size:' + effSize(c, 'title') + 'px;">' + esc(c.title || '') + '</h3>';
+    }
+    if (key === 'desc') {
+      const lines = c.descLines.filter(function(t) { return String(t || '').trim() !== ''; });
+      const cls = c.descCols > 1 ? 'np-descboxes cols-' + c.descCols : 'np-descboxes';
+      const boxes = lines.length ? lines : ['&nbsp;'];
+      return '<div class="' + cls + '">' + boxes.map(function(t) {
+        return '<div class="np-descbox" style="' + (col.desc ? 'color:' + esc(col.desc) + ';' : '') + 'font-size:' + effSize(c, 'desc') + 'px;"><p>' + esc(t) + '</p></div>';
+      }).join('') + '</div>';
+    }
+    if (key === 'price') {
+      return '<div class="np-price-row"><span class="np-price" style="' + (col.price ? 'color:' + esc(col.price) + ';' : '') + 'font-size:' + effSize(c, 'price') + 'px;">' + esc(money(c.price)) + '</span></div>';
+    }
+    if (key === 'foot') {
+      const st = col.foot ? 'color:' + esc(col.foot) + ';' : '';
+      const part = c.showPart ? '<div class="np-part" style="' + st + '">' + esc(c.partNumber || '') + '</div>' : '';
+      const hasOld = c.showOldPrice && String(c.oldPrice || '').trim() !== '';
+      const gst = (c.showGst || hasOld)
+        ? '<div class="np-botrow">' + (c.showGst ? '<span class="np-gst" style="' + st + '">' + esc(c.gstNote || '') + '</span>' : '<span></span>') + (hasOld ? '<span class="np-old" style="' + st + 'font-size:' + effSize(c, 'old') + 'px;">was ' + esc(money(c.oldPrice)) + '</span>' : '<span></span>') + '</div>'
         : '';
-
-    el.style.lineHeight =
-      f.line || '';
-  }
-
-  function applyContentStyle(
-    el,
-    c,
-    key
-  ) {
-
-    const s =
-      c.style[key];
-
-    if (!el || !s) return;
-
-    el.style.display =
-      s.display || 'block';
-
-    if (s.display === 'flex') {
-
-      el.style.flexDirection =
-        s.direction || 'column';
-
-      el.style.justifyContent =
-        flexJ(
-          s.justify || 'start'
-        );
-
-      el.style.alignItems =
-        flexA(
-          s.align || 'stretch'
-        );
-
-      el.style.flexWrap =
-        s.wrap || 'nowrap';
+      return '<div class="np-foot">' + part + gst + '</div>';
     }
-
-    if (s.display === 'grid') {
-
-      el.style.gridTemplateColumns =
-        'repeat(' +
-        (s.columns || 1) +
-        ',minmax(0,1fr))';
-
-      el.style.gridTemplateRows =
-        'repeat(' +
-        (s.rows || 1) +
-        ',minmax(0,auto))';
-    }
-
-    el.style.gap =
-      (s.gap ?? 0) + 'px';
-
-    el.style.rowGap =
-      (s.rowGap ?? 0) + 'px';
-
-    el.style.columnGap =
-      (s.columnGap ?? 0) + 'px';
-  }
-
-  function getItemTexts(item) {
-
-    if (
-      Array.isArray(item.texts) &&
-      item.texts.length
-    ) {
-      return item.texts;
-    }
-
-    return [
-      {
-        text:
-          item.text ?? '',
-        fields:
-          Object.assign(
-            {
-              v: 1,
-              a: 'left',
-              fit: 1,
-              size: null,
-              line: null
-            },
-            item.fields || {}
-          )
-      }
-    ];
-  }
-
-  function buildContent(
-    c,
-    key,
-    className
-  ) {
-
-    const s =
-      c.style[key];
-
-    const wrap =
-      document.createElement(
-        'div'
-      );
-
-    wrap.className =
-      className;
-
-    wrap.dataset.content =
-      key;
-
-    applyContentStyle(
-      wrap,
-      c,
-      key
-    );
-
-    s.items.forEach(
-      (item, index) => {
-
-        const cell =
-          document.createElement(
-            'div'
-          );
-
-        cell.className =
-          'card-config-item';
-
-        cell.dataset.contentItem =
-          index;
-
-        if (
-          s.display === 'grid' ||
-          s.display === 'flex'
-        ) {
-
-          cell.style.display =
-            'flex';
-
-          cell.style.flexDirection =
-            'column';
-
-          cell.style.minWidth =
-            '0';
-        }
-
-        getItemTexts(item)
-          .forEach(
-            (txt, textIndex) => {
-
-              const text =
-                document.createElement(
-                  'div'
-                );
-
-              text.className =
-                'card-config-text';
-
-              text.dataset.contentText =
-                textIndex;
-
-              text.textContent =
-                txt.text || '';
-
-              text.style.whiteSpace =
-                'pre-line';
-
-              const f =
-                txt.fields || {
-                  v: 1,
-                  a: 'left',
-                  fit: 1,
-                  size: null,
-                  line: null
-                };
-
-              text.style.display =
-                f.v ? '' : 'none';
-
-              text.style.textAlign =
-                f.a || 'left';
-
-              text.style.fontSize =
-                f.size
-                  ? f.size + 'px'
-                  : '';
-
-              text.style.lineHeight =
-                f.line || '';
-
-              cell.appendChild(
-                text
-              );
-            }
-          );
-
-        wrap.appendChild(
-          cell
-        );
-      }
-    );
-
-    return wrap;
+    return '';
   }
 
   function build(c) {
-
-    const t =
-      T[state.type];
-
-    const size =
-      TEXT_CLASS[state.layout];
-
-    const wrap =
-      document.createElement(
-        'div'
-      );
-
-    wrap.className =
-      t.card;
-
-    wrap.dataset.cardId =
-      c.id;
-
-    const cut =
-      document.createElement(
-        'div'
-      );
-
-    cut.className =
-      t.cut;
-
-    const inner =
-      document.createElement(
-        'div'
-      );
-
-    inner.className =
-      t.inner;
-
-    const titleWrap =
-      document.createElement(
-        'div'
-      );
-
-    titleWrap.className =
-      t.title;
-
-    const h2 =
-      document.createElement(
-        'h2'
-      );
-
-    h2.className =
-      t.h2;
-
-    h2.textContent =
-      HEAD[state.type];
-
-    titleWrap.appendChild(
-      h2
-    );
-
-    const bw =
-      document.createElement(
-        'div'
-      );
-
-    bw.className =
-      t.bodyWrap;
-
-    const body =
-      document.createElement(
-        'div'
-      );
-
-    body.className =
-      t.body;
-
-    const top =
-      document.createElement(
-        'div'
-      );
-
-    top.className =
-      'card-top-wrapper';
-
-    const title =
-      document.createElement(
-        'div'
-      );
-
-    title.className =
-      'card-grid-title';
-
-    title.dataset.field =
-      'title';
-
-    const titleText =
-      document.createElement(
-        'div'
-      );
-
-    titleText.className =
-      'card-text-title';
-
-    titleText.textContent =
-      c.title;
-
-    if (size) {
-      titleText.classList.add(
-        size
-      );
+    const wrap = document.createElement('div');
+    wrap.className = 'np-card';
+    wrap.dataset.cardId = c.id;
+    wrap.dataset.type = c.type;
+    wrap.tabIndex = 0;
+    const cut = document.createElement('div');
+    cut.className = 'np-cut';
+    if (c.colors && c.colors.frame) cut.style.background = c.colors.frame;
+    if (c.tab !== false) {
+      const tab = document.createElement('div');
+      tab.className = 'np-tab';
+      tab.title = 'Fold here for the shelf rail';
+      cut.appendChild(tab);
     }
-
-    title.appendChild(
-      titleText
-    );
-
-    const desc =
-      buildContent(
-        c,
-        'description',
-        'card-grid-description'
-      );
-
-    desc.dataset.field =
-      'description';
-
-    top.append(
-      title,
-      desc
-    );
-
-    const bottom =
-      document.createElement(
-        'div'
-      );
-
-    bottom.className =
-      'card-bottom-wrapper';
-
-    const price =
-      document.createElement(
-        'div'
-      );
-
-    price.className =
-      'card-text-price';
-
-    price.dataset.field =
-      'price';
-
-    if (size) {
-      price.classList.add(
-        size
-      );
-    }
-
-    if (t.price) {
-      price.classList.add(
-        t.price
-      );
-    }
-
-    price.textContent =
-      '$' + c.price;
-
-    const extraGrid =
-      document.createElement(
-        'div'
-      );
-
-    extraGrid.className =
-      'card-extra-info-grid';
-
-    const leftGroup =
-      document.createElement(
-        'div'
-      );
-
-    leftGroup.className =
-      'card-extra-info';
-
-    const part =
-      buildContent(
-        c,
-        'partNumber',
-        'card-grid-part-number'
-      );
-
-    part.dataset.field =
-      'partNumber';
-
-    const note =
-      buildContent(
-        c,
-        'extraNote',
-        'card-grid-extra-note'
-      );
-
-    note.dataset.field =
-      'extraNote';
-
-    leftGroup.append(
-      part,
-      note
-    );
-
-    const oldWrap =
-      document.createElement(
-        'div'
-      );
-
-    oldWrap.className =
-      'card-old-price-wrapper';
-
-    const old =
-      buildContent(
-        c,
-        'oldPrice',
-        'card-grid-old-price'
-      );
-
-    old.dataset.field =
-      'oldPrice';
-
-    oldWrap.appendChild(
-      old
-    );
-
-    extraGrid.append(
-      leftGroup,
-      oldWrap
-    );
-
-    bottom.append(
-      price,
-      extraGrid
-    );
-
-    body.append(
-      top,
-      bottom
-    );
-
-    bw.appendChild(
-      body
-    );
-
-    inner.append(
-      titleWrap,
-      bw
-    );
-
-    wrap.append(
-      cut,
-      inner
-    );
-
-    const overlay =
-      document.createElement(
-        'div'
-      );
-
-    overlay.className =
-      'et-card-overlay';
-
-    overlay.innerHTML = `
-      <div class="et-card-overlay-icon">
-        <svg viewBox="0 0 24 24" fill="none">
-          <path
-            d="M20 16v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="m12.5 15.8 9.5-9.6L17.8 2l-9.5 9.5L8 16l4.5-.2Z"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </div>
-    `;
-
-    overlay.onclick =
-      e => {
-
-        e.stopPropagation();
-
-        openEdit(c);
-      };
-
-    wrap.appendChild(
-      overlay
-    );
-
-    applyElementSettings(
-      wrap,
-      c
-    );
-
+    c.order.forEach(function(k) {
+      const html = (blockHtml(c, k) || '').trim();
+      if (!html) return;
+      const t = document.createElement('template');
+      t.innerHTML = html;
+      if (!t.content.firstChild) return;
+      if (k === 'header') {
+        cut.appendChild(t.content.firstChild);
+        return;
+      }
+      let body = cut.lastElementChild;
+      if (!body || !body.classList || !body.classList.contains('np-body')) {
+        body = document.createElement('div');
+        body.className = 'np-body';
+        cut.appendChild(body);
+      }
+      body.appendChild(t.content.firstChild);
+    });
+    const overlay = document.createElement('div');
+    overlay.className = 'np-overlay';
+    overlay.setAttribute('role', 'button');
+    overlay.setAttribute('aria-label', 'Edit card');
+    const btn = document.createElement('span');
+    btn.className = 'np-overlay-btn';
+    btn.textContent = 'Edit';
+    overlay.appendChild(btn);
+    overlay.addEventListener('click', function(e) {
+      e.stopPropagation();
+      openEdit(c);
+    });
+    wrap.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') openEdit(c);
+    });
+    wrap.appendChild(cut);
+    wrap.appendChild(overlay);
     return wrap;
   }
 
-  function applyElementSettings(
-    el,
-    c
-  ) {
-
-    const title =
-      el.querySelector(
-        '.card-grid-title'
-      );
-
-    const titleText =
-      title?.querySelector(
-        '.card-text-title'
-      );
-
-    if (titleText) {
-
-      fieldStyle(
-        titleText,
-        c,
-        'title'
-      );
-    }
-
-    [
-      'description',
-      'partNumber',
-      'extraNote',
-      'oldPrice'
-    ].forEach(
-      key => {
-
-        const target =
-          el.querySelector(
-            '[data-field="' +
-            key +
-            '"]'
-          );
-
-        if (!target) return;
-
-        applyContentStyle(
-          target,
-          c,
-          key
-        );
-
-        target
-          .querySelectorAll(
-            '.card-config-item'
-          )
-          .forEach(
-            (cell, index) => {
-
-              const item =
-                c.style[key]
-                  .items[index];
-
-              if (!item) return;
-
-              getItemTexts(item)
-                .forEach(
-                  (txt, textIndex) => {
-
-                    const x =
-                      cell
-                        .querySelectorAll(
-                          '.card-config-text'
-                        )[textIndex];
-
-                    if (!x) return;
-
-                    const f =
-                      txt.fields || {};
-
-                    x.style.display =
-                      f.v
-                        ? ''
-                        : 'none';
-
-                    x.style.textAlign =
-                      f.a || 'left';
-
-                    x.style.fontSize =
-                      f.size
-                        ? f.size + 'px'
-                        : '';
-
-                    x.style.lineHeight =
-                      f.line || '';
-                  }
-                );
-            }
-          );
-      }
-    );
-
-    const price =
-      el.querySelector(
-        '[data-field="price"]'
-      );
-
-    if (price) {
-
-      fieldStyle(
-        price,
-        c,
-        'price'
-      );
-    }
-  }
-
-  function resetFonts(el) {
-
-    el
-      .querySelectorAll(
-        '.card-text-title,' +
-        '.card-config-text,' +
-        '.card-text-price,' +
-        '.card-text-price-old,' +
-        '.card-text-extra'
-      )
-      .forEach(
-        x => {
-          x.style.fontSize = '';
-        }
-      );
-  }
-
-  function fitAll() {
-
-    document
-      .querySelectorAll(
-        '.et-everyday-card[data-card-id],' +
-        '.et-clearance-card[data-card-id],' +
-        '.et-promo-card[data-card-id]'
-      )
-      .forEach(
-        el => {
-
-          const top =
-            el.querySelector(
-              '.card-top-wrapper'
-            );
-
-          if (!top) return;
-
-          const keys = [
-            ['price', .55, .97],
-            ['oldPrice', .75, .99],
-            ['partNumber', .75, .99],
-            ['extraNote', .75, .99],
-            ['title', .85, .995],
-            ['description', .85, .995]
-          ];
-
-          const base = {};
-
-          keys.forEach(
-            x => {
-
-              const e =
-                el.querySelector(
-                  '[data-field="' +
-                  x[0] +
-                  '"]'
-                );
-
-              base[x[0]] =
-                e
-                  ? parseFloat(
-                      getComputedStyle(e)
-                        .fontSize
-                    ) || 0
-                  : 0;
-            }
-          );
-
-          let n = 0;
-
-          while (
-            n < 80 &&
-            top.scrollHeight >
-              top.clientHeight + 1
-          ) {
-
-            let changed =
-              false;
-
-            keys.forEach(
-              ([k, min, ratio]) => {
-
-                const e =
-                  el.querySelector(
-                    '[data-field="' +
-                    k +
-                    '"]'
-                  );
-
-                if (!e) return;
-
-                const cur =
-                  parseFloat(
-                    getComputedStyle(e)
-                      .fontSize
-                  ) || 0;
-
-                const floor =
-                  base[k] * min;
-
-                if (cur > floor) {
-
-                  const next =
-                    Math.max(
-                      cur * ratio,
-                      floor
-                    );
-
-                  e
-                    .querySelectorAll(
-                      '.card-config-text'
-                    )
-                    .forEach(
-                      x => {
-                        x.style.fontSize =
-                          next + 'px';
-                      }
-                    );
-
-                  if (
-                    k === 'title' ||
-                    k === 'price'
-                  ) {
-                    e.style.fontSize =
-                      next + 'px';
-                  }
-
-                  if (next < cur) {
-                    changed = true;
-                  }
-                }
-              }
-            );
-
-            if (!changed) break;
-
-            n++;
-          }
-        }
-      );
-  }
-
-  function live(c, key) {
-
-    const el =
-      document.querySelector(
-        '[data-card-id="' +
-        c.id +
-        '"].et-everyday-card,' +
-        '[data-card-id="' +
-        c.id +
-        '"].et-clearance-card,' +
-        '[data-card-id="' +
-        c.id +
-        '"].et-promo-card'
-      );
-
-    if (el) {
-
-      const target =
-        el.querySelector(
-          '[data-field="' +
-          key +
-          '"]'
-        );
-
-      if (target) {
-
-        if (
-          key === 'title' ||
-          key === 'price'
-        ) {
-
-          const x =
-            target.querySelector(
-              '.card-text-title'
-            ) ||
-            target;
-
-          x.textContent =
-            key === 'price'
-              ? '$' + c[key]
-              : c[key];
-
-        } else {
-
-          const s =
-            c.style[key];
-
-          target.innerHTML = '';
-
-          s.items.forEach(
-            item => {
-
-              const cell =
-                document.createElement(
-                  'div'
-                );
-
-              cell.className =
-                'card-config-item';
-
-              if (
-                s.display === 'grid' ||
-                s.display === 'flex'
-              ) {
-
-                cell.style.display =
-                  'flex';
-
-                cell.style.flexDirection =
-                  'column';
-
-                cell.style.minWidth =
-                  '0';
-              }
-
-              getItemTexts(item)
-                .forEach(
-                  txt => {
-
-                    const text =
-                      document.createElement(
-                        'div'
-                      );
-
-                    text.className =
-                      'card-config-text';
-
-                    text.textContent =
-                      txt.text || '';
-
-                    text.style.whiteSpace =
-                      'pre-line';
-
-                    const f =
-                      txt.fields || {};
-
-                    text.style.display =
-                      f.v
-                        ? ''
-                        : 'none';
-
-                    text.style.textAlign =
-                      f.a || 'left';
-
-                    text.style.fontSize =
-                      f.size
-                        ? f.size + 'px'
-                        : '';
-
-                    text.style.lineHeight =
-                      f.line || '';
-
-                    cell.appendChild(
-                      text
-                    );
-                  }
-                );
-
-              target.appendChild(
-                cell
-              );
-            }
-          );
-
-          applyContentStyle(
-            target,
-            c,
-            key
-          );
-        }
-
-        resetFonts(el);
-
-        requestAnimationFrame(
-          fitAll
-        );
-      }
-    }
-
-    const currentRow =
-      els.cardView?.querySelector(
-        '[data-card-id="' +
-        c.id +
-        '"]'
-      );
-
-    if (currentRow) {
-
-      const txt =
-        currentRow.querySelectorAll(
-          '.et-small-txt'
-        );
-
-      if (
-        key === 'title' &&
-        txt[0]
-      ) {
-        txt[0].textContent =
-          c.title;
-      }
-
-      if (
-        key === 'partNumber' &&
-        txt[1]
-      ) {
-        txt[1].textContent =
-          c.partNumber;
-      }
-    }
+  function live(c) {
+    if (!c || !els.pages) return;
+    els.pages.querySelectorAll('[data-card-id="' + c.id + '"]').forEach(function(el) {
+      el.replaceWith(build(c));
+    });
+    renderList();
   }
 
   function refreshCard(i) {
-
-    const c =
-      get(i);
-
-    if (!c) return;
-
-    const old =
-      document.querySelector(
-        '[data-card-id="' +
-        i +
-        '"].et-everyday-card,' +
-        '[data-card-id="' +
-        i +
-        '"].et-clearance-card,' +
-        '[data-card-id="' +
-        i +
-        '"].et-promo-card'
-      );
-
-    if (old) {
-
-      const fresh =
-        build(c);
-
-      old.replaceWith(
-        fresh
-      );
-
-      requestAnimationFrame(
-        fitAll
-      );
-    }
+    const c = get(i);
+    if (!c || !els.pages) return;
+    els.pages.querySelectorAll('[data-card-id="' + i + '"]').forEach(function(el) {
+      el.replaceWith(build(c));
+    });
+    renderList();
   }
 
   function row(c) {
@@ -1644,7 +516,7 @@ const { $, $$ } = window.MTW;
           );
 
         grid.className =
-          'et-grid-cards ' +
+          'np-grid-cards ' +
           state.layout;
 
         const g =
@@ -1665,6 +537,9 @@ const { $, $$ } = window.MTW;
 
         grid.style.gridAutoFlow =
           'row';
+
+        grid.style.gap =
+          '6px';
 
         grid.style.width =
           '100%';
@@ -1694,10 +569,6 @@ const { $, $$ } = window.MTW;
     );
 
     renderList();
-
-    requestAnimationFrame(
-      fitAll
-    );
   }
 
   function openEdit(c) {
@@ -1770,1430 +641,256 @@ const { $, $$ } = window.MTW;
     }
   }
 
-  function select(
-    label,
-    value,
-    options,
-    fn
-  ) {
-
-    const wrap =
-      document.createElement(
-        'div'
-      );
-
-    wrap.className =
-      'et-control-row';
-
-    const l =
-      document.createElement(
-        'label'
-      );
-
-    l.className =
-      'et-control-label';
-
-    l.textContent =
-      label;
-
-    const s =
-      document.createElement(
-        'select'
-      );
-
-    s.className =
-      'et-control';
-
-    options.forEach(
-      ([v, t]) => {
-
-        const o =
-          document.createElement(
-            'option'
-          );
-
-        o.value =
-          v;
-
-        o.textContent =
-          t;
-
-        o.selected =
-          String(v) ===
-          String(value);
-
-        s.appendChild(
-          o
-        );
-      }
-    );
-
-    s.onchange =
-      () => fn(s.value);
-
-    wrap.append(
-      l,
-      s
-    );
-
-    return wrap;
+  function npSecLabel(t) {
+    const d = document.createElement('div');
+    d.className = 'np-sec-label';
+    d.textContent = t;
+    return d;
   }
 
-  function num(
-    label,
-    value,
-    fn
-  ) {
-
-    const wrap =
-      document.createElement(
-        'div'
-      );
-
-    wrap.className =
-      'et-control-row';
-
-    const l =
-      document.createElement(
-        'label'
-      );
-
-    l.className =
-      'et-control-label';
-
-    l.textContent =
-      label;
-
-    const input =
-      document.createElement(
-        'input'
-      );
-
-    input.className =
-      'et-control et-number';
-
-    input.type =
-      'number';
-
-    input.value =
-      value ?? '';
-
-    input.oninput =
-      () => fn(
-        input.value
-      );
-
-    wrap.append(
-      l,
-      input
-    );
-
-    return wrap;
+  function npField(labelText, inputEl) {
+    const w = document.createElement('div');
+    w.className = 'np-f';
+    const l = document.createElement('label');
+    l.textContent = labelText;
+    w.appendChild(l);
+    w.appendChild(inputEl);
+    return w;
   }
 
-  function control(
-    label,
-    value,
-    fn
-  ) {
-
-    const wrap =
-      document.createElement(
-        'div'
-      );
-
-    wrap.className =
-      'et-control-row';
-
-    const l =
-      document.createElement(
-        'label'
-      );
-
-    l.className =
-      'et-control-label';
-
-    l.textContent =
-      label;
-
-    const input =
-      document.createElement(
-        'input'
-      );
-
-    input.className =
-      'et-checkbox';
-
-    input.type =
-      'checkbox';
-
-    input.checked =
-      !!value;
-
-    input.onchange =
-      () => fn(
-        input.checked
-      );
-
-    wrap.append(
-      l,
-      input
-    );
-
-    return wrap;
+  function npTextInput(value, multiline, onInput) {
+    const el = document.createElement(multiline ? 'textarea' : 'input');
+    if (!multiline) el.type = 'text';
+    el.value = value == null ? '' : value;
+    el.addEventListener('input', function() { onInput(el.value); });
+    return el;
   }
 
-  function contentField(
-    c,
-    key,
-    type
-  ) {
-
-    const wrap =
-      document.createElement(
-        'div'
-      );
-
-    wrap.className =
-      'et-field-group';
-
-    const label =
-      document.createElement(
-        'label'
-      );
-
-    label.className =
-      'et-field-label';
-
-    label.textContent =
-      FIELD_NAMES[key];
-
-    const input =
-      document.createElement(
-        type === 'textarea'
-          ? 'textarea'
-          : 'input'
-      );
-
-    input.className =
-      'et-field-input';
-
-    input.value =
-      c[key] ?? '';
-
-    if (
-      type === 'textarea'
-    ) {
-      input.rows = 4;
-    }
-
-    input.oninput = () => {
-
-      c[key] =
-        input.value;
-
-      if (
-        key === 'description' ||
-        key === 'partNumber' ||
-        key === 'extraNote' ||
-        key === 'oldPrice'
-      ) {
-
-        const content =
-          c.style[key];
-
-        if (
-          content &&
-          content.items &&
-          content.items[0]
-        ) {
-
-          content.items[0].text =
-            input.value;
-
-          if (
-            !Array.isArray(
-              content.items[0].texts
-            )
-          ) {
-
-            content.items[0].texts = [
-              defaultText(
-                input.value
-              )
-            ];
-          }
-
-          content.items[0]
-            .texts[0]
-            .text =
-              input.value;
-        }
-      }
-
-      live(
-        c,
-        key,
-        input.value
-      );
-    };
-
-    wrap.append(
-      label,
-      input
-    );
-
-    return wrap;
+  function npStepper(label, get, set, min, max, after) {
+    const row = document.createElement('div');
+    row.className = 'np-stepper';
+    const nm = document.createElement('span');
+    nm.className = 'np-stepper-name';
+    nm.textContent = label;
+    const minus = document.createElement('button');
+    minus.type = 'button';
+    minus.textContent = '−';
+    const val = document.createElement('span');
+    val.className = 'np-stepper-val';
+    const paint = function() { val.textContent = get() + 'px'; };
+    paint();
+    const plus = document.createElement('button');
+    plus.type = 'button';
+    plus.textContent = '+';
+    const bump = function(d) { set(Math.min(max, Math.max(min, get() + d))); paint(); after(); };
+    minus.addEventListener('click', function() { bump(-1); });
+    plus.addEventListener('click', function() { bump(1); });
+    row.appendChild(nm);
+    row.appendChild(minus);
+    row.appendChild(val);
+    row.appendChild(plus);
+    return row;
   }
 
-  function fieldSettings(
-    c,
-    item,
-    onChange
-  ) {
-
-    item.fields =
-      item.fields || {
-        v: 1,
-        a: 'left',
-        fit: 1,
-        size: null,
-        line: null
-      };
-
-    const f =
-      item.fields;
-
-    const box =
-      document.createElement(
-        'div'
-      );
-
-    box.className =
-      'et-text-settings';
-
-    box.append(
-
-      control(
-        'Visible',
-        f.v,
-        v => {
-          f.v = v;
-          onChange();
-        }
-      ),
-
-      select(
-        'Alignment',
-        f.a,
-        [
-          ['left', 'Left'],
-          ['center', 'Center'],
-          ['right', 'Right']
-        ],
-        v => {
-          f.a = v;
-          onChange();
-        }
-      ),
-
-      num(
-        'Font Size',
-        f.size,
-        v => {
-          f.size =
-            v
-              ? Number(v)
-              : null;
-
-          onChange();
-        }
-      ),
-
-      num(
-        'Line Height',
-        f.line,
-        v => {
-          f.line =
-            v || null;
-
-          onChange();
-        }
-      ),
-
-      control(
-        'Auto Fit',
-        f.fit,
-        v => {
-          f.fit = v;
-          onChange();
-        }
-      )
-    );
-
-    return box;
+  function npCheck(labelText, checked, onChange) {
+    const w = document.createElement('label');
+    w.className = 'np-check';
+    const s = document.createElement('span');
+    s.textContent = labelText;
+    const box = document.createElement('input');
+    box.type = 'checkbox';
+    box.checked = !!checked;
+    box.addEventListener('change', function() { onChange(box.checked); });
+    w.appendChild(s);
+    w.appendChild(box);
+    return w;
   }
 
-  function contentEditor(
-    c,
-    key
-  ) {
-
-    const s =
-      c.style[key];
-
-    const box =
-      document.createElement(
-        'div'
-      );
-
-    box.className =
-      'et-content-editor';
-
-    const head =
-      document.createElement(
-        'div'
-      );
-
-    head.className =
-      'et-content-editor-header';
-
-    const name =
-      document.createElement(
-        'div'
-      );
-
-    name.className =
-      'et-field-editor-name';
-
-    name.textContent =
-      FIELD_NAMES[key];
-
-    const toggle =
-      document.createElement(
-        'button'
-      );
-
-    toggle.type =
-      'button';
-
-    toggle.className =
-      'et-field-editor-toggle';
-
-    toggle.textContent =
-      'Edit';
-
-    head.append(
-      name,
-      toggle
-    );
-
-    const body =
-      document.createElement(
-        'div'
-      );
-
-    body.className =
-      'et-content-editor-body';
-
-    toggle.onclick = () => {
-
-      box.classList.toggle(
-        'open'
-      );
-
-      toggle.textContent =
-        box.classList.contains(
-          'open'
-        )
-          ? 'Close'
-          : 'Edit';
-    };
-
-    const settings =
-      document.createElement(
-        'div'
-      );
-
-    settings.className =
-      'et-content-settings';
-
-    settings.append(
-
-      select(
-        'Display',
-        s.display,
-        [
-          ['block', 'Normal'],
-          ['flex', 'Flex'],
-          ['grid', 'Grid']
-        ],
-        v => {
-          s.display = v;
-          refreshCard(c.id);
-        }
-      ),
-
-      select(
-        'Flex Direction',
-        s.direction,
-        [
-          ['column', 'Column'],
-          ['row', 'Row'],
-          [
-            'column-reverse',
-            'Column Reverse'
-          ],
-          [
-            'row-reverse',
-            'Row Reverse'
-          ]
-        ],
-        v => {
-          s.direction = v;
-          refreshCard(c.id);
-        }
-      ),
-
-      select(
-        'Justify Content',
-        s.justify,
-        [
-          ['start', 'Start'],
-          ['center', 'Center'],
-          ['end', 'End'],
-          [
-            'between',
-            'Space Between'
-          ],
-          [
-            'around',
-            'Space Around'
-          ],
-          [
-            'even',
-            'Space Evenly'
-          ]
-        ],
-        v => {
-          s.justify = v;
-          refreshCard(c.id);
-        }
-      ),
-
-      select(
-        'Align Items',
-        s.align,
-        [
-          ['stretch', 'Stretch'],
-          ['start', 'Start'],
-          ['center', 'Center'],
-          ['end', 'End']
-        ],
-        v => {
-          s.align = v;
-          refreshCard(c.id);
-        }
-      ),
-
-      select(
-        'Wrap',
-        s.wrap,
-        [
-          ['nowrap', 'No Wrap'],
-          ['wrap', 'Wrap'],
-          [
-            'wrap-reverse',
-            'Wrap Reverse'
-          ]
-        ],
-        v => {
-          s.wrap = v;
-          refreshCard(c.id);
-        }
-      ),
-
-      num(
-        'Columns',
-        s.columns,
-        v => {
-          s.columns =
-            Math.max(
-              1,
-              Number(v) || 1
-            );
-
-          refreshCard(c.id);
-        }
-      ),
-
-      num(
-        'Rows',
-        s.rows,
-        v => {
-          s.rows =
-            Math.max(
-              1,
-              Number(v) || 1
-            );
-
-          refreshCard(c.id);
-        }
-      ),
-
-      num(
-        'Gap',
-        s.gap,
-        v => {
-          s.gap =
-            Number(v) || 0;
-
-          refreshCard(c.id);
-        }
-      ),
-
-      num(
-        'Row Gap',
-        s.rowGap,
-        v => {
-          s.rowGap =
-            Number(v) || 0;
-
-          refreshCard(c.id);
-        }
-      ),
-
-      num(
-        'Column Gap',
-        s.columnGap,
-        v => {
-          s.columnGap =
-            Number(v) || 0;
-
-          refreshCard(c.id);
-        }
-      )
-    );
-
-    body.appendChild(
-      settings
-    );
-
-    const items =
-      document.createElement(
-        'div'
-      );
-
-    items.className =
-      'et-grid-item-list';
-
-    function rebuildItems() {
-
-      items.innerHTML = '';
-
-      s.items.forEach(
-        (item, index) => {
-
-          const itemBox =
-            document.createElement(
-              'div'
-            );
-
-          itemBox.className =
-            'et-grid-item';
-
-          const itemHead =
-            document.createElement(
-              'div'
-            );
-
-          itemHead.className =
-            'et-grid-item-header';
-
-          const itemTitle =
-            document.createElement(
-              'div'
-            );
-
-          itemTitle.className =
-            'et-grid-item-title';
-
-          itemTitle.textContent =
-            'Grid Item ' +
-            (index + 1);
-
-          const remove =
-            document.createElement(
-              'button'
-            );
-
-          remove.type =
-            'button';
-
-          remove.className =
-            'et-remove-button';
-
-          remove.textContent =
-            '×';
-
-          remove.onclick = () => {
-
-            if (
-              s.items.length <= 1
-            ) {
-              return;
-            }
-
-            s.items.splice(
-              index,
-              1
-            );
-
-            rebuildItems();
-
-            refreshCard(
-              c.id
-            );
-          };
-
-          itemHead.append(
-            itemTitle,
-            remove
-          );
-
-          const texts =
-            document.createElement(
-              'div'
-            );
-
-          texts.className =
-            'et-grid-item-texts';
-
-          item.texts =
-            Array.isArray(
-              item.texts
-            ) &&
-            item.texts.length
-              ? item.texts
-              : [
-                  {
-                    text:
-                      item.text || '',
-                    fields:
-                      item.fields ||
-                      clone(
-                        DEFAULT_FIELDS
-                          .description
-                      )
-                  }
-                ];
-
-          item.text =
-            item.texts[0]?.text ||
-            '';
-
-          item.fields =
-            item.texts[0]?.fields ||
-            item.fields ||
-            clone(
-              DEFAULT_FIELDS
-                .description
-            );
-
-          item.texts.forEach(
-            (txt, textIndex) => {
-
-              const textBox =
-                document.createElement(
-                  'div'
-                );
-
-              textBox.className =
-                'et-grid-text';
-
-              const textHead =
-                document.createElement(
-                  'div'
-                );
-
-              textHead.className =
-                'et-grid-text-header';
-
-              const textName =
-                document.createElement(
-                  'div'
-                );
-
-              textName.className =
-                'et-grid-text-title';
-
-              textName.textContent =
-                'Text ' +
-                (textIndex + 1);
-
-              const removeText =
-                document.createElement(
-                  'button'
-                );
-
-              removeText.type =
-                'button';
-
-              removeText.className =
-                'et-remove-button';
-
-              removeText.textContent =
-                '×';
-
-              removeText.onclick = () => {
-
-                if (
-                  item.texts.length <= 1
-                ) {
-                  return;
-                }
-
-                item.texts.splice(
-                  textIndex,
-                  1
-                );
-
-                item.text =
-                  item.texts[0]?.text ||
-                  '';
-
-                item.fields =
-                  item.texts[0]?.fields ||
-                  item.fields;
-
-                rebuildItems();
-
-                refreshCard(
-                  c.id
-                );
-              };
-
-              textHead.append(
-                textName,
-                removeText
-              );
-
-              const textarea =
-                document.createElement(
-                  'textarea'
-                );
-
-              textarea.className =
-                'et-field-input';
-
-              textarea.rows = 2;
-
-              textarea.value =
-                txt.text ?? '';
-
-              textarea.oninput = () => {
-
-                txt.text =
-                  textarea.value;
-
-                if (
-                  textIndex === 0
-                ) {
-                  item.text =
-                    textarea.value;
-                }
-
-                refreshCard(
-                  c.id
-                );
-              };
-
-              textBox.append(
-                textHead,
-                textarea,
-                fieldSettings(
-                  c,
-                  txt,
-                  () => {
-
-                    if (
-                      textIndex === 0
-                    ) {
-
-                      item.text =
-                        txt.text;
-
-                      item.fields =
-                        txt.fields;
-                    }
-
-                    refreshCard(
-                      c.id
-                    );
-                  }
-                )
-              );
-
-              texts.appendChild(
-                textBox
-              );
-            }
-          );
-
-          const addText =
-            document.createElement(
-              'button'
-            );
-
-          addText.type =
-            'button';
-
-          addText.className =
-            'et-small-add';
-
-          addText.textContent =
-            '+ Text';
-
-          addText.onclick = () => {
-
-            item.texts.push(
-              defaultText('')
-            );
-
-            rebuildItems();
-
-            refreshCard(
-              c.id
-            );
-          };
-
-          itemBox.append(
-            itemHead,
-            texts,
-            addText
-          );
-
-          items.appendChild(
-            itemBox
-          );
-        }
-      );
-
-      const addItem =
-        document.createElement(
-          'button'
-        );
-
-      addItem.type =
-        'button';
-
-      addItem.className =
-        'et-small-add';
-
-      addItem.textContent =
-        '+ Grid Item';
-
-      addItem.onclick = () => {
-
-        s.items.push({
-          text: '',
-          fields:
-            clone(
-              DEFAULT_FIELDS
-                .description
-            ),
-          texts: [
-            defaultText('')
-          ]
-        });
-
-        rebuildItems();
-
-        refreshCard(
-          c.id
-        );
-      };
-
-      items.appendChild(
-        addItem
-      );
-    }
-
-    rebuildItems();
-
-    body.appendChild(
-      items
-    );
-
-    box.append(
-      head,
-      body
-    );
-
-    return box;
-  }
-
-  function simpleFieldEditor(
-    c,
-    key
-  ) {
-
-    const f =
-      c.style.fields[key] ||
-      (
-        c.style.fields[key] =
-          clone(
-            DEFAULT_FIELDS[key]
-          )
-      );
-
-    const box =
-      document.createElement(
-        'div'
-      );
-
-    box.className =
-      'et-field-editor';
-
-    const head =
-      document.createElement(
-        'div'
-      );
-
-    head.className =
-      'et-field-editor-header';
-
-    const name =
-      document.createElement(
-        'div'
-      );
-
-    name.className =
-      'et-field-editor-name';
-
-    name.textContent =
-      FIELD_NAMES[key];
-
-    const toggle =
-      document.createElement(
-        'button'
-      );
-
-    toggle.type =
-      'button';
-
-    toggle.className =
-      'et-field-editor-toggle';
-
-    toggle.textContent =
-      'Edit';
-
-    head.append(
-      name,
-      toggle
-    );
-
-    const body =
-      document.createElement(
-        'div'
-      );
-
-    body.className =
-      'et-field-editor-body';
-
-    toggle.onclick = () => {
-
-      box.classList.toggle(
-        'open'
-      );
-
-      toggle.textContent =
-        box.classList.contains(
-          'open'
-        )
-          ? 'Close'
-          : 'Edit';
-    };
-
-    body.append(
-
-      control(
-        'Visible',
-        f.v,
-        v => {
-          f.v = v;
-          refreshCard(c.id);
-        }
-      ),
-
-      select(
-        'Alignment',
-        f.a,
-        [
-          ['left', 'Left'],
-          ['center', 'Center'],
-          ['right', 'Right']
-        ],
-        v => {
-          f.a = v;
-          refreshCard(c.id);
-        }
-      ),
-
-      num(
-        'Font Size',
-        f.size,
-        v => {
-          f.size =
-            v
-              ? Number(v)
-              : null;
-
-          refreshCard(c.id);
-        }
-      ),
-
-      num(
-        'Line Height',
-        f.line,
-        v => {
-          f.line =
-            v || null;
-
-          refreshCard(c.id);
-        }
-      ),
-
-      control(
-        'Auto Fit',
-        f.fit,
-        v => {
-          f.fit = v;
-          refreshCard(c.id);
-        }
-      )
-    );
-
-    box.append(
-      head,
-      body
-    );
-
-    return box;
-  }
-
-  function section(
-    title,
-    children
-  ) {
-
-    const s =
-      document.createElement(
-        'div'
-      );
-
-    s.className =
-      'et-edit-section';
-
-    const h =
-      document.createElement(
-        'div'
-      );
-
-    h.className =
-      'et-edit-section-title';
-
-    h.textContent =
-      title;
-
-    s.appendChild(
-      h
-    );
-
-    children.forEach(
-      x => {
-        s.appendChild(x);
-      }
-    );
-
+  function npSelect(options, value, onChange) {
+    const s = document.createElement('select');
+    options.forEach(function(o) {
+      const op = document.createElement('option');
+      op.value = o[0];
+      op.textContent = o[1];
+      if (o[0] === value) op.selected = true;
+      s.appendChild(op);
+    });
+    s.addEventListener('change', function() { onChange(s.value); });
     return s;
   }
 
+  function npColorRow(labelText, value, onInput) {
+    const row = document.createElement('div');
+    row.className = 'np-color-row';
+    const nm = document.createElement('span');
+    nm.textContent = labelText;
+    const pick = document.createElement('input');
+    pick.type = 'color';
+    pick.value = value || '#000000';
+    pick.addEventListener('input', function() { onInput(pick.value); });
+    row.appendChild(nm);
+    row.appendChild(pick);
+    return row;
+  }
+
+  function npFooterBtn(label, cls, onClick) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'et-edit-button' + (cls ? ' ' + cls : '');
+    b.textContent = label;
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
   function buildPanel(c) {
+    function sync() { render(); openEdit(c); }
+    const panel = document.createElement('div');
+    panel.className = 'et-edit-panel';
+    panel.dataset.cardId = c.id;
+    const header = document.createElement('div');
+    header.className = 'et-edit-panel-header';
+    const title = document.createElement('div');
+    title.className = 'et-edit-panel-title';
+    title.textContent = 'Edit Card';
+    const x = document.createElement('button');
+    x.type = 'button';
+    x.className = 'et-edit-panel-close';
+    x.textContent = '×';
+    x.setAttribute('aria-label', 'Close');
+    x.addEventListener('click', hideEdit);
+    header.appendChild(title);
+    header.appendChild(x);
+    panel.appendChild(header);
 
-    const panel =
-      document.createElement(
-        'div'
-      );
-
-    panel.className =
-      'et-edit-panel';
-
-    panel.dataset.cardId =
-      c.id;
-
-    const header =
-      document.createElement(
-        'div'
-      );
-
-    header.className =
-      'et-edit-panel-header';
-
-    const title =
-      document.createElement(
-        'div'
-      );
-
-    title.className =
-      'et-edit-panel-title';
-
-    title.textContent =
-      'Edit Card';
-
-    const close =
-      document.createElement(
-        'button'
-      );
-
-    close.type =
-      'button';
-
-    close.className =
-      'et-edit-panel-close';
-
-    close.textContent =
-      '×';
-
-    close.onclick =
-      hideEdit;
-
-    header.append(
-      title,
-      close
-    );
-
-    panel.appendChild(
-      header
-    );
-
-    panel.appendChild(
-      section(
-        'Content',
-        [
-          contentField(
-            c,
-            'title',
-            'input'
-          ),
-          contentField(
-            c,
-            'description',
-            'textarea'
-          ),
-          contentField(
-            c,
-            'price',
-            'input'
-          ),
-          contentField(
-            c,
-            'oldPrice',
-            'input'
-          ),
-          contentField(
-            c,
-            'partNumber',
-            'input'
-          ),
-          contentField(
-            c,
-            'extraNote',
-            'input'
-          )
-        ]
-      )
-    );
-
-    panel.appendChild(
-      section(
-        'Elements',
-        [
-          contentEditor(
-            c,
-            'description'
-          ),
-          simpleFieldEditor(
-            c,
-            'title'
-          ),
-          simpleFieldEditor(
-            c,
-            'price'
-          ),
-          contentEditor(
-            c,
-            'partNumber'
-          ),
-          simpleFieldEditor(
-            c,
-            'extraNote'
-          ),
-          contentEditor(
-            c,
-            'extraNote'
-          ),
-          simpleFieldEditor(
-            c,
-            'oldPrice'
-          )
-        ]
-      )
-    );
-
-    const footer =
-      document.createElement(
-        'div'
-      );
-
-    footer.className =
-      'et-edit-panel-footer';
-
-    const reset =
-      document.createElement(
-        'button'
-      );
-
-    reset.type =
-      'button';
-
-    reset.className =
-      'et-edit-button';
-
-    reset.textContent =
-      'Reset';
-
-    reset.onclick = () => {
-
-      c.style = {
-
-        fields:
-          clone(
-            DEFAULT_FIELDS
-          ),
-
-        description:
-          defaultContent(
-            c.description
-          ),
-
-        partNumber:
-          defaultContent(
-            c.partNumber
-          ),
-
-        extraNote:
-          defaultContent(
-            c.extraNote
-          ),
-
-        oldPrice:
-          defaultContent(
-            c.oldPrice
-          )
-      };
-
-      const old =
-        els.left.querySelector(
-          '.et-edit-panel'
-        );
-
-      if (old) {
-        old.remove();
+    panel.appendChild(npSecLabel('Content'));
+    panel.appendChild(npField('Product Title', npTextInput(c.title, false, function(v) { c.title = v; live(c); })));
+    const boxLabel = document.createElement('div');
+    boxLabel.className = 'np-sec-label';
+    boxLabel.textContent = 'Description boxes (each prints as its own box)';
+    panel.appendChild(boxLabel);
+    c.descLines.forEach(function(line, i) {
+      const ed = document.createElement('div');
+      ed.className = 'np-descbox-edit';
+      const head = document.createElement('div');
+      head.className = 'np-descbox-head';
+      const nm = document.createElement('span');
+      nm.textContent = 'Box ' + (i + 1);
+      head.appendChild(nm);
+      if (c.descLines.length > 1) {
+        const rm = document.createElement('button');
+        rm.type = 'button';
+        rm.className = 'np-mini';
+        rm.textContent = 'Remove';
+        rm.addEventListener('click', function() { c.descLines.splice(i, 1); sync(); });
+        head.appendChild(rm);
       }
+      const ta = document.createElement('textarea');
+      ta.value = line || '';
+      ta.addEventListener('input', function() { c.descLines[i] = ta.value; live(c); });
+      ed.appendChild(head);
+      ed.appendChild(ta);
+      panel.appendChild(ed);
+    });
+    if (c.descLines.length < 4) {
+      const addBox = document.createElement('button');
+      addBox.type = 'button';
+      addBox.className = 'np-mini go';
+      addBox.textContent = '+ Add description box';
+      addBox.addEventListener('click', function() { c.descLines.push(''); sync(); });
+      panel.appendChild(addBox);
+    }
+    panel.appendChild(npField('Price', npTextInput(c.price, false, function(v) { c.price = v; live(c); })));
+    panel.appendChild(npField('Old Price', npTextInput(c.oldPrice, false, function(v) { c.oldPrice = v; live(c); })));
+    panel.appendChild(npField('Part Number', npTextInput(c.partNumber, false, function(v) { c.partNumber = v; live(c); })));
+    panel.appendChild(npField('Extra Note', npTextInput(c.gstNote, false, function(v) { c.gstNote = v; live(c); })));
 
-      els.left.appendChild(
-        buildPanel(c)
-      );
+    panel.appendChild(npSecLabel('Text size'));
+    SIZE_FIELDS.forEach(function(f) {
+      if (!c.sizes) c.sizes = {};
+      panel.appendChild(npStepper(f[1], function() {
+        return c.sizes[f[0]] != null ? c.sizes[f[0]] : effSize(c, f[0]);
+      }, function(v) { c.sizes[f[0]] = v; live(c); }, f[2], f[3], function() {}));
+    });
+    const resetSizes = document.createElement('button');
+    resetSizes.type = 'button';
+    resetSizes.className = 'np-linkbtn';
+    resetSizes.textContent = 'Reset to layout defaults';
+    resetSizes.addEventListener('click', function() { c.sizes = {}; sync(); });
+    panel.appendChild(resetSizes);
 
-      requestAnimationFrame(
-        () => {
+    panel.appendChild(npSecLabel('Show on card'));
+    panel.appendChild(npCheck('Old price', c.showOldPrice, function(v) { c.showOldPrice = v; sync(); }));
+    panel.appendChild(npCheck('Part number', c.showPart, function(v) { c.showPart = v; sync(); }));
+    panel.appendChild(npCheck('Note', c.showGst, function(v) { c.showGst = v; sync(); }));
 
-          const newPanel =
-            els.left.querySelector(
-              '.et-edit-panel'
-            );
+    panel.appendChild(npSecLabel('Boxes'));
+    panel.appendChild(npField('Box columns', npSelect([['1', '1 column'], ['2', '2 columns'], ['3', '3 columns']], String(c.descCols), function(v) { c.descCols = parseInt(v, 10) || 1; sync(); })));
 
-          if (newPanel) {
-            newPanel.scrollTop =
-              0;
-          }
-        }
-      );
+    panel.appendChild(npSecLabel('Arrange (top to bottom)'));
+    c.order.forEach(function(key, i) {
+      const row = document.createElement('div');
+      row.className = 'np-order-row';
+      const nm = document.createElement('span');
+      nm.textContent = (i + 1) + '. ' + (BLOCK_LABELS[key] || key);
+      const btns = document.createElement('span');
+      const up = document.createElement('button');
+      up.type = 'button';
+      up.className = 'np-mini';
+      up.textContent = '↑';
+      up.disabled = i === 0;
+      const dn = document.createElement('button');
+      dn.type = 'button';
+      dn.className = 'np-mini';
+      dn.textContent = '↓';
+      dn.disabled = i === c.order.length - 1;
+      up.addEventListener('click', function() {
+        const t = c.order[i - 1];
+        c.order[i - 1] = c.order[i];
+        c.order[i] = t;
+        sync();
+      });
+      dn.addEventListener('click', function() {
+        const t = c.order[i + 1];
+        c.order[i + 1] = c.order[i];
+        c.order[i] = t;
+        sync();
+      });
+      btns.appendChild(up);
+      btns.appendChild(dn);
+      row.appendChild(nm);
+      row.appendChild(btns);
+      panel.appendChild(row);
+    });
 
-      refreshCard(
-        c.id
-      );
-    };
+    panel.appendChild(npSecLabel('Card feel'));
+    panel.appendChild(npField('Style for this card', npSelect([['ep', 'Everyday green'], ['cp', 'Clearance black'], ['pp', 'Promo red']], c.type, function(v) {
+      c.type = v;
+      c.colors = Object.assign({}, FEEL_COLORS[v] || FEEL_COLORS.ep);
+      sync();
+    })));
+    COLOR_FIELDS.forEach(function(f) {
+      panel.appendChild(npColorRow(f[1], (c.colors || {})[f[0]] || '#000000', function(v) { c.colors[f[0]] = v; live(c); }));
+    });
+    const resetCol = document.createElement('button');
+    resetCol.type = 'button';
+    resetCol.className = 'np-linkbtn';
+    resetCol.textContent = 'Reset colours to feel';
+    resetCol.addEventListener('click', function() {
+      c.colors = Object.assign({}, FEEL_COLORS[c.type] || FEEL_COLORS.ep);
+      sync();
+    });
+    panel.appendChild(resetCol);
+    panel.appendChild(npCheck('Shelf fold tab', c.tab !== false, function(v) { c.tab = v; sync(); }));
 
-    const copy =
-      document.createElement(
-        'button'
-      );
-
-    copy.type =
-      'button';
-
-    copy.className =
-      'et-edit-button';
-
-    copy.textContent =
-      'Copy';
-
-    copy.onclick = () => {
-
-      const data =
-        clone(c);
-
-      delete data.id;
-
-      const n =
-        add(data);
-
+    const footer = document.createElement('div');
+    footer.className = 'et-edit-panel-footer';
+    footer.appendChild(npFooterBtn('Duplicate', '', function() {
+      const n = add(Object.assign(clone(c), { id: undefined, title: (c.title || 'Product') + ' (copy)' }));
       openEdit(n);
-    };
-
-    const save =
-      document.createElement(
-        'button'
-      );
-
-    save.type =
-      'button';
-
-    save.className =
-      'et-edit-button primary';
-
-    save.textContent =
-      'Save';
-
-    save.onclick = () => {
-
-      renderList();
-
-      hideEdit();
-    };
-
-    footer.append(
-      reset,
-      copy,
-      save
-    );
-
-    panel.appendChild(
-      footer
-    );
-
+    }));
+    footer.appendChild(npFooterBtn('Delete', '', function() { del(c.id); }));
+    footer.appendChild(npFooterBtn('Done', 'primary', function() { hideEdit(); }));
+    panel.appendChild(footer);
     return panel;
   }
 
@@ -3722,6 +1419,65 @@ visibility:hidden!important
     );
   }
 
+  function injectNewStyles() {
+    if (document.getElementById('et-pricing-new')) return;
+    const style = document.createElement('style');
+    style.id = 'et-pricing-new';
+    style.textContent = [
+      '.np-grid-cards{width:100%;height:100%;display:grid;gap:6px;box-sizing:border-box}',
+      '.np-card{position:relative;min-height:0;min-width:0;display:flex;overflow:hidden}',
+      '.np-cut{position:relative;flex:1;min-height:0;min-width:0;display:flex;flex-direction:column;overflow:hidden;background:#0da50d;border:1.5px dashed #4b5563;box-sizing:border-box}',
+      '.np-card[data-type="cp"] .np-cut{background:#1c1c1e}',
+      '.np-card[data-type="pp"] .np-cut{background:#c1121f}',
+      '.np-cut::before,.np-cut::after{content:"";position:absolute;width:13px;height:13px;border:2px solid rgba(255,255,255,.85);pointer-events:none;z-index:3}',
+      '.np-cut::before{top:3px;left:3px;border-right:0;border-bottom:0}',
+      '.np-cut::after{bottom:3px;right:3px;border-left:0;border-top:0}',
+      '.np-tab{height:28px;flex:0 0 auto;background:#9aa0a6;border-bottom:2px dashed #fff;box-shadow:inset 0 -3px 5px rgba(0,0,0,.18)}',
+      '.np-head{margin:10px 14px 0;color:#202020;font-weight:900;text-align:center;font-size:21px;line-height:1.1}',
+      '.np-card[data-type="cp"] .np-head,.np-card[data-type="pp"] .np-head{color:#fff}',
+      '.np-body{margin:10px 14px 14px;background:#fff;padding:10px 12px;flex:1;display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden}',
+      '.np-title{margin:0;font-weight:900;text-transform:uppercase;overflow-wrap:anywhere;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}',
+      '.np-descboxes{min-width:0;overflow:hidden}',
+      '.np-descboxes.cols-2{column-count:2;column-gap:10px}',
+      '.np-descboxes.cols-3{column-count:3;column-gap:8px}',
+      '.np-descbox{border:1px solid #e5e7eb;border-radius:6px;background:#fafafa;padding:6px 8px;margin:0 0 6px;break-inside:avoid}',
+      '.np-descbox p{margin:0;white-space:pre-line}',
+      '.np-price-row{margin-top:auto;padding-top:8px;display:flex;align-items:baseline;gap:8px}',
+      '.np-price{font-weight:900;line-height:1}',
+      '.np-foot{margin-top:6px;border-top:1px solid #e5e7eb;padding-top:5px}',
+      '.np-part{font-size:11px}',
+      '.np-botrow{display:flex;justify-content:space-between;gap:8px;margin-top:3px}',
+      '.np-gst{font-size:10px}',
+      '.np-old{font-size:10px;text-decoration:line-through}',
+      '.np-overlay{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);opacity:0;transition:opacity .18s ease;cursor:pointer}',
+      '.np-card:hover .np-overlay,.np-card:focus-within .np-overlay{opacity:1}',
+      '.np-overlay-btn{border:2px solid #fff;color:#fff;border-radius:999px;padding:8px 22px;font-size:13px;font-weight:800;pointer-events:none}',
+      '.np-sec-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin:14px 0 8px;opacity:.75}',
+      '.np-f{margin-bottom:10px}',
+      '.np-f>label{display:block;font-size:11px;font-weight:600;margin-bottom:4px}',
+      '.np-f input,.np-f textarea,.np-f select{width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:5px;font:inherit;font-size:12px;background:#fff;color:#111}',
+      '.np-f textarea{min-height:52px;resize:vertical}',
+      '.np-check{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;font-size:12px;font-weight:600}',
+      '.np-check input{width:17px;height:17px}',
+      '.np-stepper{display:flex;align-items:center;gap:8px;margin-bottom:8px}',
+      '.np-stepper-name{flex:1;font-size:12px}',
+      '.np-stepper button{width:28px;height:28px;border-radius:6px;border:1px solid #ccc;background:#fff;font-size:15px;cursor:pointer;color:#111}',
+      '.np-stepper-val{min-width:44px;text-align:center;font-size:12px}',
+      '.np-order-row{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #ccc;border-radius:6px;padding:5px 8px;font-size:12px;margin-bottom:6px}',
+      '.np-mini{border:1px solid #ccc;background:#fff;border-radius:5px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;color:#111}',
+      '.np-mini.go{background:#111;color:#fff;border-color:#111}',
+      '.np-mini:disabled{opacity:.35;cursor:not-allowed}',
+      '.np-linkbtn{background:none;border:0;text-decoration:underline;cursor:pointer;font-size:11px;padding:0;opacity:.8;color:inherit;margin-bottom:8px}',
+      '.np-color-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;padding:4px 0}',
+      '.np-color-row input[type=color]{width:38px;height:26px;border:1px solid #ccc;border-radius:5px;padding:1px;cursor:pointer}',
+      '.np-descbox-edit{border:1px solid #ccc;border-radius:6px;padding:6px;margin-bottom:6px}',
+      '.np-descbox-edit textarea{width:100%;box-sizing:border-box;border:1px solid #ccc;border-radius:5px;padding:6px 8px;font:inherit;font-size:12px;min-height:44px;resize:vertical;background:#fff;color:#111}',
+      '.np-descbox-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;margin-bottom:4px}',
+      '@media print{.np-overlay{display:none !important}}'
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
   function makeScrollable(el) {
 
     if (!el) return;
@@ -3792,6 +1548,8 @@ visibility:hidden!important
 
     injectStyles();
 
+    injectNewStyles();
+
     if (els.scrollBtnLeft) {
       els.scrollBtnLeft.onclick = e => {
         e.preventDefault();
@@ -3821,8 +1579,6 @@ visibility:hidden!important
         'change',
         e => {
           state.type = e.target.value;
-          state.cards = [];
-          add();
         }
       );
     }
@@ -3865,12 +1621,6 @@ visibility:hidden!important
       );
     }
 
-    window.addEventListener(
-      'resize',
-      () => {
-        requestAnimationFrame(fitAll);
-      }
-    );
 
     window.addEventListener(
       'beforeprint',
