@@ -29,6 +29,11 @@ const { $, $$ } = window.MTW;
     oneup: [1, 1]
   };
 
+  /* ============================================================
+     DEFAULTS — edit these tables to change what new cards start with.
+     frame = card colour, head = banner text, title/desc/price/foot = text.
+     Per-card tweaks in the edit panel override these (stored on the card).
+     ============================================================ */
   const FEEL_COLORS = {
     ep: { frame: '#0da50d', head: '#202020', title: '#111111', desc: '#333333', price: '#0a7a3d', foot: '#333333' },
     cp: { frame: '#1c1c1e', head: '#ffffff', title: '#111111', desc: '#333333', price: '#111111', foot: '#333333' },
@@ -1452,18 +1457,18 @@ visibility:hidden!important
       '.np-overlay{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);opacity:0;transition:opacity .18s ease;cursor:pointer}',
       '.np-card:hover .np-overlay,.np-card:focus-within .np-overlay{opacity:1}',
       '.np-overlay-btn{border:2px solid #fff;color:#fff;border-radius:999px;padding:8px 22px;font-size:13px;font-weight:800;pointer-events:none}',
-      '.np-sec-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin:14px 0 8px;opacity:.75}',
+      '.np-sec-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin:14px 0 8px;opacity:.75;color:#f2f2f2}',
       '.np-f{margin-bottom:10px}',
-      '.np-f>label{display:block;font-size:11px;font-weight:600;margin-bottom:4px}',
+      '.np-f>label{display:block;font-size:11px;font-weight:600;margin-bottom:4px;color:#e8e8e8}',
       '.np-f input,.np-f textarea,.np-f select{width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:5px;font:inherit;font-size:12px;background:#fff;color:#111}',
       '.np-f textarea{min-height:52px;resize:vertical}',
-      '.np-check{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;font-size:12px;font-weight:600}',
+      '.np-check{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;font-size:12px;font-weight:600;color:#f2f2f2}',
       '.np-check input{width:17px;height:17px}',
       '.np-stepper{display:flex;align-items:center;gap:8px;margin-bottom:8px}',
-      '.np-stepper-name{flex:1;font-size:12px}',
+      '.np-stepper-name{flex:1;font-size:12px;color:#f2f2f2}',
       '.np-stepper button{width:28px;height:28px;border-radius:6px;border:1px solid #ccc;background:#fff;font-size:15px;cursor:pointer;color:#111}',
-      '.np-stepper-val{min-width:44px;text-align:center;font-size:12px}',
-      '.np-order-row{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #ccc;border-radius:6px;padding:5px 8px;font-size:12px;margin-bottom:6px}',
+      '.np-stepper-val{min-width:44px;text-align:center;font-size:12px;color:#fff}',
+      '.np-order-row{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #555;border-radius:6px;padding:5px 8px;font-size:12px;margin-bottom:6px;color:#f2f2f2}',
       '.np-mini{border:1px solid #ccc;background:#fff;border-radius:5px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;color:#111}',
       '.np-mini.go{background:#111;color:#fff;border-color:#111}',
       '.np-mini:disabled{opacity:.35;cursor:not-allowed}',
@@ -1473,7 +1478,7 @@ visibility:hidden!important
       '.np-descbox-edit{border:1px solid #ccc;border-radius:6px;padding:6px;margin-bottom:6px}',
       '.np-descbox-edit textarea{width:100%;box-sizing:border-box;border:1px solid #ccc;border-radius:5px;padding:6px 8px;font:inherit;font-size:12px;min-height:44px;resize:vertical;background:#fff;color:#111}',
       '.np-descbox-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;margin-bottom:4px}',
-      '@media print{.np-overlay{display:none !important}}'
+      '@media print{.np-overlay{display:none !important}.np-grid-cards{width:100% !important;height:100% !important}.np-card{width:100% !important;height:100% !important}}'
     ].join('\n');
     document.head.appendChild(style);
   }
@@ -1579,6 +1584,9 @@ visibility:hidden!important
         'change',
         e => {
           state.type = e.target.value;
+          hideEdit();
+          state.cards = [];
+          openEdit(add());
         }
       );
     }
