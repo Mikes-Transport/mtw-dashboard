@@ -466,12 +466,23 @@ const { $, $$ } = window.MTW;
         'div'
       );
     root.id = 'np-print-root';
+    root.style.setProperty('display', 'block', 'important');
+    root.style.setProperty('visibility', 'visible', 'important');
+    root.style.setProperty('opacity', '1', 'important');
     pages.forEach(function(page) {
       const clone = page.cloneNode(true);
+      clone.style.setProperty('display', 'block', 'important');
+      clone.style.setProperty('visibility', 'visible', 'important');
+      clone.style.setProperty('opacity', '1', 'important');
       clone.querySelectorAll(
         '.np-overlay'
       ).forEach(function(el) {
         el.remove();
+      });
+      clone.querySelectorAll(
+        '[id]'
+      ).forEach(function(el) {
+        el.removeAttribute('id');
       });
       root.appendChild(clone);
     });
@@ -1373,25 +1384,8 @@ print-color-adjust:exact!important;
 color-adjust:exact!important
 }
 
-body *{
-visibility:hidden!important
-}
-
-.et-card-body-wrapper,
-.et-card-body-wrapper *{
-visibility:visible!important
-}
-
 .et-card-body-wrapper{
-position:absolute!important;
-top:0!important;
-left:0!important;
-width:auto!important;
-height:auto!important;
-padding:0!important;
-overflow:visible!important;
-display:block!important;
-background:transparent!important
+display:none!important
 }
 
 .et-card-overlay,
