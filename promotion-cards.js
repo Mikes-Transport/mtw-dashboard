@@ -1619,7 +1619,13 @@ visibility:hidden!important
         'change',
         e => {
           state.layout = e.target.value;
+          state.cards.forEach(function(c) { c.sizes = {}; });
           render();
+          if (editing) {
+            const c = get(editing);
+            if (c) openEdit(c);
+            else hideEdit();
+          }
         }
       );
     }
