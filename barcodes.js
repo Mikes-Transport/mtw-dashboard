@@ -939,8 +939,6 @@ color: #fff;
 border-color: #111;
 }
 
-/* BARCODE HISTORY */
-
 .barcode-history-panel {
 display: none;
 width: 100%;
@@ -1077,8 +1075,6 @@ color: #666;
 margin-bottom: 10px;
 }
 
-/* CLEAR ALL CONFIRM POPUP */
-
 .barcode-clear-confirm-modal {
 position: fixed;
 inset: 0;
@@ -1192,8 +1188,6 @@ border-color: #111;
 .barcode-clear-confirm-button.danger:hover {
 background: #333;
 }
-
-/* QUICK IMPORT */
 
 .barcode-quickimp-modal {
 position: fixed;
@@ -1433,8 +1427,6 @@ border-color: #111;
 background: #333;
 }
 
-/* CSV IMPORT POPUP */
-
 .barcode-csv-modal {
 position: fixed;
 inset: 0;
@@ -1613,8 +1605,6 @@ border-color: #111;
 .barcode-csv-button.primary:hover {
 background: #333;
 }
-
-/* CSV SUCCESS POPUP */
 
 .barcode-csv-success-message {
 padding: 24px 22px;
@@ -2345,6 +2335,22 @@ return String(value || '')
 
 }
 
+/* ADDED: used only for CSV / Quick Import */
+function importedPartNumber(value) {
+
+const clean =
+cleanPartNumber(
+value
+);
+
+if (!clean) {
+return '';
+}
+
+return '#' + clean;
+
+}
+
 function barcodeValue(value) {
 
 const clean =
@@ -2820,8 +2826,18 @@ function (e) {
 e.preventDefault();
 e.stopPropagation();
 
+/*
+Resolve the card from state again using its ID.
+This makes imported cards use the live state object
+just like manually added cards.
+*/
+const liveCard =
+get(
+data.id
+);
+
 openEdit(
-data
+liveCard || data
 );
 
 }
@@ -5704,8 +5720,9 @@ lines[i],
 delimiter
 );
 
+/* CHANGED: imported part number now gets # */
 const partNumber =
-cleanPartNumber(
+importedPartNumber(
 cells[stockCodeIndex] || ''
 );
 
@@ -7338,8 +7355,9 @@ rows
 .map(
 row => {
 
+/* CHANGED: imported part number now gets # */
 const partNumber =
-cleanPartNumber(
+importedPartNumber(
 row[stockCodeKey]
 );
 
