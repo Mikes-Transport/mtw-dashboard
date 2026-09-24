@@ -11,7 +11,8 @@ const { $, $$ } = window.MTW;
     'csv-config': '.csv-tool-panel',
     'mte-config': '.master-list-config',
     'promotion-label': '.et-body-wrapper',
-    'barcodes': '.barcode-label-panels'
+    'barcodes': '.barcode-label-panels',
+    'labels': '.label-panels'
   };
 
   const NAMES = {
@@ -21,7 +22,8 @@ const { $, $$ } = window.MTW;
     'csv-config': 'CSV Config',
     'mte-config': 'MTE Config',
     'promotion-label': 'Promotional Labels',
-    'barcodes': 'Barcode Labels'
+    'barcodes': 'Barcode Labels',
+    'labels': 'Labels'
   };
 
   function hideAll() {
