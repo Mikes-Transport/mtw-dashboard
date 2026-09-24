@@ -35,9 +35,9 @@ const { $, $$ } = window.MTW;
      Per-card tweaks in the edit panel override these (stored on the card).
      ============================================================ */
   const FEEL_COLORS = {
-    ep: { frame: '#0da50d', head: '#202020', title: '#111111', desc: '#333333', price: '#0a7a3d', foot: '#333333' },
-    cp: { frame: '#1c1c1e', head: '#ffffff', title: '#111111', desc: '#333333', price: '#111111', foot: '#333333' },
-    pp: { frame: '#c1121f', head: '#ffffff', title: '#111111', desc: '#333333', price: '#c1121f', foot: '#333333' }
+    ep: { frame: '#00a800', head: '#ffffff', title: '#111111', desc: '#333333', price: '#00a800', foot: '#333333' },
+    cp: { frame: '#f0e800', head: '#000000', title: '#111111', desc: '#333333', price: '#000000', foot: '#333333' },
+    pp: { frame: '#f00', head: '#ffffff', title: '#111111', desc: '#333333', price: '#f00', foot: '#333333' }
   };
 
   const COLOR_FIELDS = [
@@ -50,18 +50,18 @@ const { $, $$ } = window.MTW;
   ];
 
   const SIZE_DEFAULTS = {
-    nineup: { head: 21, title: 15, desc: 11, price: 26, old: 10 },
-    sixup: { head: 24, title: 17, desc: 12, price: 32, old: 11 },
-    fourup: { head: 28, title: 20, desc: 13, price: 40, old: 13 },
-    twoup: { head: 32, title: 24, desc: 14, price: 54, old: 15 },
-    oneup: { head: 44, title: 34, desc: 18, price: 84, old: 20 }
+    nineup: { head: 25, title: 15, desc: 11, price: 40, old: 11},
+    sixup: { head: 25, title: 18, desc: 12, price: 48, old: 12 },
+    fourup: { head: 25, title: 22, desc: 14, price: 64, old: 12 },
+    twoup: { head: 56, title: 24, desc: 14, price: 70, old: 15 },
+    oneup: { head: 56, title: 25, desc: 15, price: 84, old: 15 }
   };
 
   const SIZE_FIELDS = [
     ['head', 'Banner text', 12, 72],
     ['title', 'Product name', 10, 40],
     ['desc', 'Description', 8, 24],
-    ['price', 'Main price', 14, 64],
+    ['price', 'Main price', 14, 150],
     ['old', 'Old price', 8, 24]
   ];
 
