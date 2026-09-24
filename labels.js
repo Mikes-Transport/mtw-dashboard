@@ -25,35 +25,35 @@ const TEMPLATES = {
 standard: {
 name: 'x2 Label Template',
 panel: '#label-standard',
-grid: '.label-standard-grid',
+grid: '.barcode-standard-grid',
 capacity: 2
 },
 
 medium: {
 name: 'x8 Label Template',
 panel: '#label-medium',
-grid: '.label-medium-grid',
+grid: '.barcode-medium-grid',
 capacity: 8
 },
 
 large: {
 name: 'x10 Label Template',
 panel: '#label-large',
-grid: '.label-large-grid',
+grid: '.barcode-large-grid',
 capacity: 10
 },
 
 xlarge: {
 name: 'x30 Label Template',
 panel: '#label-xlarge',
-grid: '.label-xlarge-grid',
+grid: '.barcode-xlarge-grid',
 capacity: 30
 }
 
 };
 
 const DROPDOWN_OPEN_CLASS =
-'label-dropdown-open';
+'barcode-dropdown-open';
 
 const DEFAULTS = {
 
@@ -91,6 +91,9 @@ let quickImportModal =
 null;
 
 let clearConfirmModal =
+null;
+
+let saveTemplateModal =
 null;
 
 const els = {};
@@ -137,10 +140,10 @@ return null;
 
 const page =
 panel.querySelector(
-'.label-page:not([data-generated])'
+'.barcode-page:not([data-generated])'
 ) ||
 panel.querySelector(
-'.barcode-page:not([data-generated])'
+'.label-page:not([data-generated])'
 );
 
 if (!page) {
@@ -151,7 +154,7 @@ return null;
 
 const label =
 page.querySelector(
-LABEL + ':not(.label-card):not(.barcode-card)'
+LABEL + ':not(.barcode-card):not(.label-card)'
 );
 
 if (!label) {
@@ -284,75 +287,43 @@ null
 function cache() {
 
 els.panel =
-$('.label-panels');
+$('.barcode-label-panels');
 
 if (!els.panel) {
 
 els.panel =
-$('.barcode-label-panels');
+$('.label-panels');
 
 }
-
-els.add =
-$('.label-add-card-button');
-
-if (!els.add) {
 
 els.add =
 $('.barcode-add-card-button');
 
-}
-
-els.print =
-$('.label-print-card-button');
-
-if (!els.print) {
-
 els.print =
 $('.barcode-print-card-button');
-
-}
-
-els.quickImport =
-$('.label-quickimp-card-button');
-
-if (!els.quickImport) {
 
 els.quickImport =
 $('.barcode-quickimp-card-button');
 
-}
-
-els.clear =
-$('.label-clear-card-button');
-
-if (!els.clear) {
-
 els.clear =
 $('.barcode-clear-card-button');
-
-}
-
-els.clearWrapper =
-$('.label-clear-card-wrapper');
-
-if (!els.clearWrapper) {
 
 els.clearWrapper =
 $('.barcode-clear-card-wrapper');
 
-}
+els.saveTemplate =
+$('.barcode-save-template-button');
 
 els.dropdown =
 findDropdown();
 
 els.pages =
-$('.label-page-wrapper');
+$('.barcode-page-wrapper');
 
 if (!els.pages) {
 
 els.pages =
-$('.barcode-page-wrapper');
+$('.label-page-wrapper');
 
 }
 
@@ -428,7 +399,7 @@ els.panel.style.removeProperty(
 function injectStyles() {
 
 if (
-$('#label-tool-styles')
+$('#barcode-tool-styles')
 ) {
 
 return;
@@ -441,43 +412,43 @@ document.createElement(
 );
 
 style.id =
-'label-tool-styles';
+'barcode-tool-styles';
 
 style.textContent = `
 
 .db-list-dropdown-wrapper-labels:not(.${DROPDOWN_OPEN_CLASS})
-.db-list-dropdown-card[data-label-template] {
+.db-list-dropdown-card[data-barcode-template] {
 display: none !important;
 }
 
-.db-list-dropdown-card[data-label-template] {
+.db-list-dropdown-card[data-barcode-template] {
 cursor: pointer;
 }
 
-.label-clear-card-wrapper {
+.barcode-clear-card-wrapper {
 transition: opacity .2s ease;
 }
 
-.label-clear-card-wrapper.label-clearing {
+.barcode-clear-card-wrapper.barcode-clearing {
 opacity: .65;
 }
 
-.label-clear-card-button {
+.barcode-clear-card-button {
 cursor: pointer;
 }
 
-.label-card {
+.barcode-card {
 position: relative;
 }
 
-.label-card-overlay {
+.barcode-card-overlay {
 position: absolute;
 inset: 0;
 z-index: 20;
 cursor: pointer;
 }
 
-.label-populate {
+.barcode-populate {
 display: block !important;
 width: 100% !important;
 box-sizing: border-box !important;
@@ -487,7 +458,7 @@ overflow-wrap: anywhere;
 word-break: break-word;
 }
 
-.label-heading {
+.barcode-heading {
 display: block;
 width: 100%;
 box-sizing: border-box;
@@ -495,7 +466,7 @@ text-align: center;
 font-weight: 700;
 }
 
-.label-subtext {
+.barcode-subtext {
 display: block;
 width: 100%;
 box-sizing: border-box;
@@ -514,7 +485,7 @@ flex-direction: column !important;
 overscroll-behavior: contain !important;
 }
 
-.db-left-content.editing .label-edit-panel {
+.db-left-content.editing .barcode-edit-panel {
 flex: 1 1 auto !important;
 width: 100% !important;
 height: 50% !important;
@@ -530,24 +501,24 @@ scrollbar-width: thin;
 touch-action: pan-y;
 }
 
-.label-edit-panel::-webkit-scrollbar {
+.barcode-edit-panel::-webkit-scrollbar {
 width: 6px;
 }
 
-.label-edit-panel::-webkit-scrollbar-track {
+.barcode-edit-panel::-webkit-scrollbar-track {
 background: transparent;
 }
 
-.label-edit-panel::-webkit-scrollbar-thumb {
+.barcode-edit-panel::-webkit-scrollbar-thumb {
 background: #ccc;
 border-radius: 10px;
 }
 
-.label-edit-panel::-webkit-scrollbar-thumb:hover {
+.barcode-edit-panel::-webkit-scrollbar-thumb:hover {
 background: #aaa;
 }
 
-.label-edit-panel-header {
+.barcode-edit-panel-header {
 display: flex;
 justify-content: space-between;
 align-items: center;
@@ -557,12 +528,12 @@ padding-bottom: 12px;
 border-bottom: 1px solid #eee;
 }
 
-.label-edit-panel-title {
+.barcode-edit-panel-title {
 font-weight: 700;
 font-size: 18px;
 }
 
-.label-edit-panel-close {
+.barcode-edit-panel-close {
 border: 0;
 background: none;
 font-size: 24px;
@@ -570,25 +541,25 @@ cursor: pointer;
 line-height: 1;
 }
 
-.label-edit-section {
+.barcode-edit-section {
 border-top: 1px solid #eee;
 padding-top: 16px;
 margin-top: 16px;
 }
 
-.label-edit-section-title {
+.barcode-edit-section-title {
 font-size: 11px;
 font-weight: 700;
 text-transform: uppercase;
 margin-bottom: 12px;
 }
 
-.label-field-group {
+.barcode-field-group {
 margin-bottom: 12px;
 }
 
-.label-field-label,
-.label-control-label {
+.barcode-field-label,
+.barcode-control-label {
 display: block;
 font-size: 11px;
 font-weight: 600;
@@ -596,7 +567,7 @@ color: #444;
 margin-bottom: 5px;
 }
 
-.label-field-input {
+.barcode-field-input {
 width: 100%;
 box-sizing: border-box;
 padding: 8px;
@@ -606,7 +577,7 @@ font: inherit;
 font-size: 12px;
 }
 
-.label-control-row {
+.barcode-control-row {
 display: flex;
 align-items: center;
 justify-content: space-between;
@@ -614,7 +585,7 @@ gap: 10px;
 margin-bottom: 8px;
 }
 
-.label-control {
+.barcode-control {
 min-width: 100px;
 padding: 6px;
 border: 1px solid #ccc;
@@ -624,12 +595,12 @@ font: inherit;
 font-size: 11px;
 }
 
-.label-number {
+.barcode-number {
 width: 80px;
 min-width: 80px;
 }
 
-.label-edit-panel-footer {
+.barcode-edit-panel-footer {
 display: flex;
 justify-content: flex-end;
 align-items: center;
@@ -639,7 +610,7 @@ padding-top: 14px;
 border-top: 1px solid #eee;
 }
 
-.label-edit-button {
+.barcode-edit-button {
 border: 1px solid #ccc;
 background: #fff;
 border-radius: 5px;
@@ -649,13 +620,13 @@ font-size: 11px;
 font-weight: 600;
 }
 
-.label-edit-button.primary {
+.barcode-edit-button.primary {
 background: #111;
 color: #fff;
 border-color: #111;
 }
 
-.label-clear-confirm-modal {
+.barcode-clear-confirm-modal {
 position: fixed;
 inset: 0;
 z-index: 100000;
@@ -669,11 +640,11 @@ opacity: 0;
 transition: opacity .18s ease;
 }
 
-.label-clear-confirm-modal.is-visible {
+.barcode-clear-confirm-modal.is-visible {
 opacity: 1;
 }
 
-.label-clear-confirm-box {
+.barcode-clear-confirm-box {
 width: min(420px, 100%);
 background: #fff;
 border-radius: 10px;
@@ -686,12 +657,12 @@ transform: translateY(8px) scale(.98);
 transition: transform .18s ease;
 }
 
-.label-clear-confirm-modal.is-visible
-.label-clear-confirm-box {
+.barcode-clear-confirm-modal.is-visible
+.barcode-clear-confirm-box {
 transform: translateY(0) scale(1);
 }
 
-.label-clear-confirm-header {
+.barcode-clear-confirm-header {
 display: flex;
 align-items: center;
 justify-content: space-between;
@@ -699,13 +670,13 @@ padding: 18px 22px;
 border-bottom: 1px solid #eee;
 }
 
-.label-clear-confirm-title {
+.barcode-clear-confirm-title {
 font-size: 18px;
 font-weight: 700;
 margin: 0;
 }
 
-.label-clear-confirm-close {
+.barcode-clear-confirm-close {
 width: 32px;
 height: 32px;
 border: 0;
@@ -716,27 +687,27 @@ cursor: pointer;
 border-radius: 5px;
 }
 
-.label-clear-confirm-close:hover {
+.barcode-clear-confirm-close:hover {
 background: #f2f2f2;
 }
 
-.label-clear-confirm-body {
+.barcode-clear-confirm-body {
 padding: 22px;
 }
 
-.label-clear-confirm-message {
+.barcode-clear-confirm-message {
 margin: 0;
 font-size: 13px;
 line-height: 1.5;
 color: #555;
 }
 
-.label-clear-confirm-count {
+.barcode-clear-confirm-count {
 font-weight: 700;
 color: #222;
 }
 
-.label-clear-confirm-footer {
+.barcode-clear-confirm-footer {
 display: flex;
 align-items: center;
 justify-content: flex-end;
@@ -745,7 +716,7 @@ padding: 14px 22px;
 border-top: 1px solid #eee;
 }
 
-.label-clear-confirm-button {
+.barcode-clear-confirm-button {
 border: 1px solid #ccc;
 background: #fff;
 border-radius: 5px;
@@ -755,21 +726,21 @@ font-size: 12px;
 font-weight: 600;
 }
 
-.label-clear-confirm-button:hover {
+.barcode-clear-confirm-button:hover {
 background: #f5f5f5;
 }
 
-.label-clear-confirm-button.danger {
+.barcode-clear-confirm-button.danger {
 background: #111;
 color: #fff;
 border-color: #111;
 }
 
-.label-clear-confirm-button.danger:hover {
+.barcode-clear-confirm-button.danger:hover {
 background: #333;
 }
 
-.label-quickimp-modal {
+.barcode-quickimp-modal {
 position: fixed;
 inset: 0;
 z-index: 99999;
@@ -781,7 +752,7 @@ box-sizing: border-box;
 background: rgba(0,0,0,.45);
 }
 
-.label-quickimp-modal-box {
+.barcode-quickimp-modal-box {
 width: min(950px, 100%);
 max-height: min(850px, 92vh);
 background: #fff;
@@ -793,7 +764,7 @@ overflow: hidden;
 font-family: inherit;
 }
 
-.label-quickimp-modal-header {
+.barcode-quickimp-modal-header {
 display: flex;
 align-items: center;
 justify-content: space-between;
@@ -802,13 +773,13 @@ border-bottom: 1px solid #eee;
 flex: 0 0 auto;
 }
 
-.label-quickimp-modal-title {
+.barcode-quickimp-modal-title {
 font-size: 18px;
 font-weight: 700;
 margin: 0;
 }
 
-.label-quickimp-modal-close {
+.barcode-quickimp-modal-close {
 width: 32px;
 height: 32px;
 border: 0;
@@ -819,24 +790,24 @@ cursor: pointer;
 border-radius: 5px;
 }
 
-.label-quickimp-modal-close:hover {
+.barcode-quickimp-modal-close:hover {
 background: #f2f2f2;
 }
 
-.label-quickimp-modal-body {
+.barcode-quickimp-modal-body {
 padding: 20px 22px;
 overflow-y: auto;
 min-height: 0;
 }
 
-.label-quickimp-description {
+.barcode-quickimp-description {
 margin: 0 0 12px;
 font-size: 12px;
 line-height: 1.5;
 color: #666;
 }
 
-.label-quickimp-textarea {
+.barcode-quickimp-textarea {
 display: block;
 width: 100%;
 min-height: 240px;
@@ -853,11 +824,11 @@ line-height: 1.5;
 outline: none;
 }
 
-.label-quickimp-textarea:focus {
+.barcode-quickimp-textarea:focus {
 border-color: #111;
 }
 
-.label-quickimp-options {
+.barcode-quickimp-options {
 display: flex;
 align-items: center;
 justify-content: space-between;
@@ -869,7 +840,7 @@ border-radius: 6px;
 background: #fafafa;
 }
 
-.label-quickimp-checkbox-label {
+.barcode-quickimp-checkbox-label {
 display: flex;
 align-items: center;
 gap: 8px;
@@ -878,38 +849,38 @@ font-weight: 600;
 cursor: pointer;
 }
 
-.label-quickimp-checkbox {
+.barcode-quickimp-checkbox {
 width: 16px;
 height: 16px;
 margin: 0;
 cursor: pointer;
 }
 
-.label-quickimp-summary {
+.barcode-quickimp-summary {
 font-size: 12px;
 color: #666;
 }
 
-.label-quickimp-preview-title {
+.barcode-quickimp-preview-title {
 margin: 18px 0 8px;
 font-size: 12px;
 font-weight: 700;
 }
 
-.label-quickimp-preview-wrap {
+.barcode-quickimp-preview-wrap {
 border: 1px solid #eee;
 border-radius: 6px;
 overflow: auto;
 max-height: 280px;
 }
 
-.label-quickimp-preview {
+.barcode-quickimp-preview {
 width: 100%;
 border-collapse: collapse;
 font-size: 12px;
 }
 
-.label-quickimp-preview th {
+.barcode-quickimp-preview th {
 position: sticky;
 top: 0;
 z-index: 2;
@@ -921,31 +892,31 @@ font-weight: 700;
 white-space: nowrap;
 }
 
-.label-quickimp-preview td {
+.barcode-quickimp-preview td {
 padding: 7px 10px;
 border-bottom: 1px solid #eee;
 vertical-align: middle;
 }
 
-.label-quickimp-preview tr:last-child td {
+.barcode-quickimp-preview tr:last-child td {
 border-bottom: 0;
 }
 
-.label-quickimp-preview tr:hover td {
+.barcode-quickimp-preview tr:hover td {
 background: #fafafa;
 }
 
-.label-quickimp-preview-part {
+.barcode-quickimp-preview-part {
 font-weight: 700;
 white-space: nowrap;
 }
 
-.label-quickimp-preview-description {
+.barcode-quickimp-preview-description {
 color: #555;
 min-width: 300px;
 }
 
-.label-quickimp-preview-qty {
+.barcode-quickimp-preview-qty {
 width: 65px;
 padding: 6px 7px;
 border: 1px solid #ccc;
@@ -955,25 +926,25 @@ box-sizing: border-box;
 text-align: center;
 }
 
-.label-quickimp-preview-qty:focus {
+.barcode-quickimp-preview-qty:focus {
 outline: none;
 border-color: #111;
 }
 
-.label-quickimp-empty {
+.barcode-quickimp-empty {
 padding: 24px 12px;
 text-align: center;
 font-size: 12px;
 color: #888;
 }
 
-.label-quickimp-error {
+.barcode-quickimp-error {
 margin-top: 10px;
 font-size: 12px;
 color: #b00020;
 }
 
-.label-quickimp-modal-footer {
+.barcode-quickimp-modal-footer {
 display: flex;
 align-items: center;
 justify-content: flex-end;
@@ -983,7 +954,7 @@ border-top: 1px solid #eee;
 flex: 0 0 auto;
 }
 
-.label-quickimp-button {
+.barcode-quickimp-button {
 border: 1px solid #ccc;
 background: #fff;
 border-radius: 5px;
@@ -993,18 +964,43 @@ font-size: 12px;
 font-weight: 600;
 }
 
-.label-quickimp-button:hover {
+.barcode-quickimp-button:hover {
 background: #f5f5f5;
 }
 
-.label-quickimp-button.primary {
+.barcode-quickimp-button.primary {
 background: #111;
 color: #fff;
 border-color: #111;
 }
 
-.label-quickimp-button.primary:hover {
+.barcode-quickimp-button.primary:hover {
 background: #333;
+}
+
+.barcode-template-name-input {
+display: block;
+width: 100%;
+box-sizing: border-box;
+padding: 10px 12px;
+border: 1px solid #ccc;
+border-radius: 6px;
+background: #fff;
+color: #222;
+font: inherit;
+font-size: 13px;
+outline: none;
+}
+
+.barcode-template-name-input:focus {
+border-color: #111;
+}
+
+.barcode-template-name-error {
+margin-top: 8px;
+font-size: 12px;
+color: #b00020;
+min-height: 16px;
 }
 
 #label-print-root {
@@ -1013,36 +1009,36 @@ display: none;
 
 @media (max-width: 700px) {
 
-.label-quickimp-modal {
+.barcode-quickimp-modal {
 padding: 10px;
 }
 
-.label-quickimp-modal-box {
+.barcode-quickimp-modal-box {
 max-height: 94vh;
 }
 
-.label-quickimp-modal-body {
+.barcode-quickimp-modal-body {
 padding: 16px;
 }
 
-.label-quickimp-textarea {
+.barcode-quickimp-textarea {
 min-height: 220px;
 }
 
-.label-quickimp-options {
+.barcode-quickimp-options {
 align-items: flex-start;
 flex-direction: column;
 }
 
-.label-quickimp-summary {
+.barcode-quickimp-summary {
 width: 100%;
 }
 
-.label-quickimp-preview-description {
+.barcode-quickimp-preview-description {
 min-width: 200px;
 }
 
-.label-clear-confirm-modal {
+.barcode-clear-confirm-modal {
 padding: 10px;
 }
 
@@ -1072,8 +1068,8 @@ padding: 0 !important;
 overflow: visible !important;
 }
 
-#label-print-root .label-page,
-#label-print-root .barcode-page {
+#label-print-root .barcode-page,
+#label-print-root .label-page {
 display: block !important;
 position: relative !important;
 width: 210mm !important;
@@ -1086,8 +1082,8 @@ page-break-after: always;
 box-sizing: border-box !important;
 }
 
-#label-print-root .label-page:last-child,
-#label-print-root .barcode-page:last-child {
+#label-print-root .barcode-page:last-child,
+#label-print-root .label-page:last-child {
 break-after: auto;
 page-break-after: auto;
 }
@@ -1096,10 +1092,10 @@ page-break-after: auto;
 visibility: visible !important;
 }
 
-#label-print-root .label-card-overlay,
 #label-print-root .barcode-card-overlay,
-#label-print-root .label-edit-panel,
-#label-print-root .barcode-edit-panel {
+#label-print-root .label-card-overlay,
+#label-print-root .barcode-edit-panel,
+#label-print-root .label-edit-panel {
 display: none !important;
 }
 
@@ -1128,7 +1124,7 @@ return {
 
 id:
 data.id ||
-'label-' +
+'barcode-' +
 counter,
 
 template:
@@ -1142,7 +1138,15 @@ DEFAULTS.heading,
 
 subtext:
 data.subtext ??
-DEFAULTS.subtext
+DEFAULTS.subtext,
+
+headingSize:
+data.headingSize ||
+30,
+
+subtextSize:
+data.subtextSize ||
+18
 
 };
 
@@ -1298,7 +1302,7 @@ const cards =
 els.panel
 ?
 els.panel.querySelectorAll(
-'.label-card, .barcode-card'
+'.barcode-card, .label-card'
 )
 :
 [];
@@ -1308,7 +1312,7 @@ els.clearWrapper
 ) {
 
 els.clearWrapper.classList.add(
-'label-clearing'
+'barcode-clearing'
 );
 
 }
@@ -1349,7 +1353,7 @@ els.clearWrapper
 ) {
 
 els.clearWrapper.classList.remove(
-'label-clearing'
+'barcode-clearing'
 );
 
 }
@@ -1416,7 +1420,7 @@ document.createElement(
 );
 
 modal.className =
-'label-clear-confirm-modal';
+'barcode-clear-confirm-modal';
 
 modal.setAttribute(
 'role',
@@ -1434,7 +1438,7 @@ document.createElement(
 );
 
 box.className =
-'label-clear-confirm-box';
+'barcode-clear-confirm-box';
 
 const header =
 document.createElement(
@@ -1442,7 +1446,7 @@ document.createElement(
 );
 
 header.className =
-'label-clear-confirm-header';
+'barcode-clear-confirm-header';
 
 const title =
 document.createElement(
@@ -1450,7 +1454,7 @@ document.createElement(
 );
 
 title.className =
-'label-clear-confirm-title';
+'barcode-clear-confirm-title';
 
 title.textContent =
 'Clear All Labels';
@@ -1464,7 +1468,7 @@ closeButton.type =
 'button';
 
 closeButton.className =
-'label-clear-confirm-close';
+'barcode-clear-confirm-close';
 
 closeButton.textContent =
 '×';
@@ -1490,7 +1494,7 @@ document.createElement(
 );
 
 body.className =
-'label-clear-confirm-body';
+'barcode-clear-confirm-body';
 
 const message =
 document.createElement(
@@ -1498,11 +1502,11 @@ document.createElement(
 );
 
 message.className =
-'label-clear-confirm-message';
+'barcode-clear-confirm-message';
 
 message.innerHTML =
 'Are you sure you want to remove all ' +
-'<span class="label-clear-confirm-count">' +
+'<span class="barcode-clear-confirm-count">' +
 state.cards.length +
 '</span> label' +
 (
@@ -1522,7 +1526,7 @@ document.createElement(
 );
 
 footer.className =
-'label-clear-confirm-footer';
+'barcode-clear-confirm-footer';
 
 const cancel =
 document.createElement(
@@ -1533,7 +1537,7 @@ cancel.type =
 'button';
 
 cancel.className =
-'label-clear-confirm-button';
+'barcode-clear-confirm-button';
 
 cancel.textContent =
 'Cancel';
@@ -1552,7 +1556,7 @@ confirm.type =
 'button';
 
 confirm.className =
-'label-clear-confirm-button danger';
+'barcode-clear-confirm-button danger';
 
 confirm.textContent =
 'Clear All';
@@ -1755,6 +1759,13 @@ header.textContent =
 data.heading ||
 '';
 
+header.style.fontSize =
+(
+data.headingSize ||
+30
+) +
+'px';
+
 }
 
 if (subtext) {
@@ -1763,11 +1774,14 @@ subtext.textContent =
 data.subtext ||
 '';
 
+subtext.style.fontSize =
+(
+data.subtextSize ||
+18
+) +
+'px';
+
 }
-
-
-/* Remove any barcode element from
-   the cloned source label. */
 
 card.querySelectorAll(
 '.barcode-populate'
@@ -1775,10 +1789,6 @@ card.querySelectorAll(
 el =>
 el.remove()
 );
-
-
-/* Remove any old optional barcode
-   layout from the cloned source. */
 
 card.querySelectorAll(
 '.barcode-label-layout'
@@ -1843,13 +1853,13 @@ true
 );
 
 card.classList.add(
-'label-card'
+'barcode-card'
 );
 
 card.dataset.cardId =
 data.id;
 
-card.dataset.labelTemplate =
+card.dataset.barcodeTemplate =
 data.template;
 
 populateCard(
@@ -1863,7 +1873,7 @@ document.createElement(
 );
 
 overlay.className =
-'label-card-overlay';
+'barcode-card-overlay';
 
 overlay.addEventListener(
 'click',
@@ -1957,10 +1967,10 @@ return;
 
 const wrapper =
 panel.querySelector(
-'.label-page-wrapper'
+'.barcode-page-wrapper'
 ) ||
 panel.querySelector(
-'.barcode-page-wrapper'
+'.label-page-wrapper'
 ) ||
 panel;
 
@@ -1971,7 +1981,7 @@ state.current
 
 wrapper
 .querySelectorAll(
-'.label-page[data-generated], .barcode-page[data-generated]'
+'.barcode-page[data-generated], .label-page[data-generated]'
 )
 .forEach(
 page =>
@@ -2037,10 +2047,10 @@ page.querySelector(
 config.grid
 ) ||
 page.querySelector(
-'[class*="label"][class*="grid"]'
+'[class*="barcode"][class*="grid"]'
 ) ||
 page.querySelector(
-'[class*="barcode"][class*="grid"]'
+'[class*="label"][class*="grid"]'
 ) ||
 page.querySelector(
 '[class*="-grid"]'
@@ -2100,7 +2110,7 @@ grid,
 
 grid
 .querySelectorAll(
-'.label-card'
+'.barcode-card'
 )
 .forEach(
 card =>
@@ -2236,7 +2246,7 @@ document.createElement(
 );
 
 wrap.className =
-'label-field-group';
+'barcode-field-group';
 
 const l =
 document.createElement(
@@ -2244,7 +2254,7 @@ document.createElement(
 );
 
 l.className =
-'label-field-label';
+'barcode-field-label';
 
 l.textContent =
 label;
@@ -2255,7 +2265,7 @@ document.createElement(
 );
 
 input.className =
-'label-field-input';
+'barcode-field-input';
 
 input.type =
 'text';
@@ -2293,7 +2303,7 @@ document.createElement(
 );
 
 wrap.className =
-'label-control-row';
+'barcode-control-row';
 
 const l =
 document.createElement(
@@ -2301,7 +2311,7 @@ document.createElement(
 );
 
 l.className =
-'label-control-label';
+'barcode-control-label';
 
 l.textContent =
 label;
@@ -2312,7 +2322,7 @@ document.createElement(
 );
 
 input.className =
-'label-control label-number';
+'barcode-control barcode-number';
 
 input.type =
 'number';
@@ -2352,7 +2362,7 @@ document.createElement(
 );
 
 s.className =
-'label-edit-section';
+'barcode-edit-section';
 
 const h =
 document.createElement(
@@ -2360,7 +2370,7 @@ document.createElement(
 );
 
 h.className =
-'label-edit-section-title';
+'barcode-edit-section-title';
 
 h.textContent =
 title;
@@ -2422,7 +2432,7 @@ document.createElement(
 );
 
 panel.className =
-'label-edit-panel';
+'barcode-edit-panel';
 
 panel.dataset.cardId =
 card.id;
@@ -2433,7 +2443,7 @@ document.createElement(
 );
 
 header.className =
-'label-edit-panel-header';
+'barcode-edit-panel-header';
 
 const title =
 document.createElement(
@@ -2441,7 +2451,7 @@ document.createElement(
 );
 
 title.className =
-'label-edit-panel-title';
+'barcode-edit-panel-title';
 
 title.textContent =
 'Edit Label';
@@ -2450,7 +2460,7 @@ header.append(
 title,
 button(
 '×',
-'label-edit-panel-close',
+'barcode-edit-panel-close',
 hideEdit
 )
 );
@@ -2515,34 +2525,8 @@ value
 ) ||
 30;
 
-const rendered =
-els.panel
-?.querySelectorAll(
-'[data-card-id="' +
-card.id +
-'"]'
-);
-
-rendered?.forEach(
-element => {
-
-const header =
-element.querySelector(
-'.text-input-header > *'
-) ||
-element.querySelector(
-'.text-input-header'
-);
-
-if (header) {
-
-header.style.fontSize =
-card.headingSize +
-'px';
-
-}
-
-}
+live(
+card
 );
 
 }
@@ -2560,34 +2544,8 @@ value
 ) ||
 18;
 
-const rendered =
-els.panel
-?.querySelectorAll(
-'[data-card-id="' +
-card.id +
-'"]'
-);
-
-rendered?.forEach(
-element => {
-
-const subtext =
-element.querySelector(
-'.text-input-subtext > *'
-) ||
-element.querySelector(
-'.text-input-subtext'
-);
-
-if (subtext) {
-
-subtext.style.fontSize =
-card.subtextSize +
-'px';
-
-}
-
-}
+live(
+card
 );
 
 }
@@ -2603,13 +2561,13 @@ document.createElement(
 );
 
 footer.className =
-'label-edit-panel-footer';
+'barcode-edit-panel-footer';
 
 footer.append(
 
 button(
 'Reset',
-'label-edit-button',
+'barcode-edit-button',
 () => {
 
 card.heading =
@@ -2635,7 +2593,7 @@ card
 
 button(
 'Copy',
-'label-edit-button',
+'barcode-edit-button',
 () => {
 
 const duplicate =
@@ -2667,7 +2625,7 @@ duplicate
 
 button(
 'Delete',
-'label-edit-button',
+'barcode-edit-button',
 () => {
 
 remove(
@@ -2679,7 +2637,7 @@ card.id
 
 button(
 'Save',
-'label-edit-button primary',
+'barcode-edit-button primary',
 () => {
 
 render();
@@ -2723,7 +2681,7 @@ openLabelPanel();
 
 const old =
 host.querySelector(
-'.label-edit-panel'
+'.barcode-edit-panel'
 );
 
 if (old) {
@@ -2789,7 +2747,7 @@ return;
 
 const panel =
 host.querySelector(
-'.label-edit-panel'
+'.barcode-edit-panel'
 );
 
 if (panel) {
@@ -2879,7 +2837,7 @@ DROPDOWN_OPEN_CLASS
 
 const cards =
 els.dropdown.querySelectorAll(
-'.db-list-dropdown-card[data-label-template]'
+'.db-list-dropdown-card[data-barcode-template]'
 );
 
 cards.forEach(
@@ -2926,7 +2884,7 @@ document.createElement(
 item.className =
 'db-list-dropdown-card';
 
-item.dataset.labelTemplate =
+item.dataset.barcodeTemplate =
 id;
 
 const heading =
@@ -2957,7 +2915,7 @@ function (e) {
 
 const item =
 e.target.closest(
-'.db-list-dropdown-card[data-label-template]'
+'.db-list-dropdown-card[data-barcode-template]'
 );
 
 if (!item) {
@@ -2971,7 +2929,7 @@ e.stopPropagation();
 e.stopImmediatePropagation();
 
 const selectedTemplate =
-item.dataset.labelTemplate;
+item.dataset.barcodeTemplate;
 
 console.log(
 '[labels] template picked:',
@@ -3039,6 +2997,661 @@ closeDropdown();
 keepDropdownOpen();
 
 }
+
+}
+
+
+/* ----------------------------------------
+   SAVE TEMPLATE
+---------------------------------------- */
+
+function closeSaveTemplateModal() {
+
+if (!saveTemplateModal) {
+
+return;
+
+}
+
+saveTemplateModal.remove();
+
+saveTemplateModal =
+null;
+
+}
+
+async function saveTemplate(
+name
+) {
+
+const template =
+state.current ||
+DEFAULTS.template;
+
+const templateCards =
+state.cards.filter(
+card =>
+card.template === template
+);
+
+if (!templateCards.length) {
+
+return {
+
+success:
+false,
+
+error:
+'Add at least one label before saving a template.'
+
+};
+
+}
+
+const cleanName =
+String(
+name ||
+''
+)
+.trim();
+
+if (!cleanName) {
+
+return {
+
+success:
+false,
+
+error:
+'Please enter a template name.'
+
+};
+
+}
+
+const payload = {
+
+templateName:
+cleanName,
+
+labelType:
+template,
+
+cardData:
+templateCards.map(
+card => ({
+
+heading:
+card.heading,
+
+subtext:
+card.subtext,
+
+headingSize:
+card.headingSize ||
+30,
+
+subtextSize:
+card.subtextSize ||
+18
+
+})
+)
+
+};
+
+try {
+
+await addDoc(
+collection(
+db,
+'label-templates'
+),
+payload
+);
+
+return {
+
+success:
+true
+
+};
+
+} catch (
+error
+) {
+
+console.error(
+'[labels] Failed to save template:',
+error
+);
+
+return {
+
+success:
+false,
+
+error:
+'The template could not be saved. Please try again.'
+
+};
+
+}
+
+}
+
+function openSaveTemplateModal() {
+
+closeSaveTemplateModal();
+
+const modal =
+document.createElement(
+'div'
+);
+
+modal.className =
+'barcode-quickimp-modal';
+
+modal.setAttribute(
+'role',
+'dialog'
+);
+
+modal.setAttribute(
+'aria-modal',
+'true'
+);
+
+const box =
+document.createElement(
+'div'
+);
+
+box.className =
+'barcode-quickimp-modal-box';
+
+box.style.maxWidth =
+'500px';
+
+const header =
+document.createElement(
+'div'
+);
+
+header.className =
+'barcode-quickimp-modal-header';
+
+const title =
+document.createElement(
+'h2'
+);
+
+title.className =
+'barcode-quickimp-modal-title';
+
+title.textContent =
+'Save Template';
+
+const closeButton =
+document.createElement(
+'button'
+);
+
+closeButton.type =
+'button';
+
+closeButton.className =
+'barcode-quickimp-modal-close';
+
+closeButton.textContent =
+'×';
+
+closeButton.setAttribute(
+'aria-label',
+'Close'
+);
+
+closeButton.addEventListener(
+'click',
+closeSaveTemplateModal
+);
+
+header.append(
+title,
+closeButton
+);
+
+const body =
+document.createElement(
+'div'
+);
+
+body.className =
+'barcode-quickimp-modal-body';
+
+const description =
+document.createElement(
+'p'
+);
+
+description.className =
+'barcode-quickimp-description';
+
+description.textContent =
+'Give this label template a name before saving it.';
+
+const input =
+document.createElement(
+'input'
+);
+
+input.type =
+'text';
+
+input.className =
+'barcode-template-name-input';
+
+input.placeholder =
+'Template name';
+
+input.autocomplete =
+'off';
+
+const error =
+document.createElement(
+'div'
+);
+
+error.className =
+'barcode-template-name-error';
+
+const footer =
+document.createElement(
+'div'
+);
+
+footer.className =
+'barcode-quickimp-modal-footer';
+
+const cancel =
+document.createElement(
+'button'
+);
+
+cancel.type =
+'button';
+
+cancel.className =
+'barcode-quickimp-button';
+
+cancel.textContent =
+'Cancel';
+
+cancel.addEventListener(
+'click',
+closeSaveTemplateModal
+);
+
+const saveButton =
+document.createElement(
+'button'
+);
+
+saveButton.type =
+'button';
+
+saveButton.className =
+'barcode-quickimp-button primary';
+
+saveButton.textContent =
+'Save Template';
+
+async function handleSave() {
+
+const name =
+input.value.trim();
+
+if (!name) {
+
+error.textContent =
+'Please enter a template name.';
+
+input.focus();
+
+return;
+
+}
+
+saveButton.disabled =
+true;
+
+saveButton.textContent =
+'Saving...';
+
+error.textContent =
+'';
+
+const result =
+await saveTemplate(
+name
+);
+
+if (!result.success) {
+
+saveButton.disabled =
+false;
+
+saveButton.textContent =
+'Save Template';
+
+error.textContent =
+result.error ||
+'Unable to save template.';
+
+return;
+
+}
+
+closeSaveTemplateModal();
+
+showTemplateSaved(
+name
+);
+
+}
+
+saveButton.addEventListener(
+'click',
+handleSave
+);
+
+input.addEventListener(
+'keydown',
+function (e) {
+
+if (
+e.key === 'Enter'
+) {
+
+e.preventDefault();
+
+handleSave();
+
+}
+
+if (
+e.key === 'Escape'
+) {
+
+e.preventDefault();
+
+closeSaveTemplateModal();
+
+}
+
+}
+);
+
+body.append(
+description,
+input,
+error
+);
+
+footer.append(
+cancel,
+saveButton
+);
+
+box.append(
+header,
+body,
+footer
+);
+
+modal.appendChild(
+box
+);
+
+modal.addEventListener(
+'click',
+function (e) {
+
+if (
+e.target === modal
+) {
+
+closeSaveTemplateModal();
+
+}
+
+}
+);
+
+document.body.appendChild(
+modal
+);
+
+saveTemplateModal =
+modal;
+
+setTimeout(
+() =>
+input.focus(),
+50
+);
+
+}
+
+
+/* ----------------------------------------
+   TEMPLATE SAVED
+---------------------------------------- */
+
+function showTemplateSaved(
+name
+) {
+
+const modal =
+document.createElement(
+'div'
+);
+
+modal.className =
+'barcode-quickimp-modal';
+
+modal.setAttribute(
+'role',
+'dialog'
+);
+
+modal.setAttribute(
+'aria-modal',
+'true'
+);
+
+const box =
+document.createElement(
+'div'
+);
+
+box.className =
+'barcode-quickimp-modal-box';
+
+box.style.maxWidth =
+'420px';
+
+const header =
+document.createElement(
+'div'
+);
+
+header.className =
+'barcode-quickimp-modal-header';
+
+const title =
+document.createElement(
+'h2'
+);
+
+title.className =
+'barcode-quickimp-modal-title';
+
+title.textContent =
+'Template Saved';
+
+const closeButton =
+document.createElement(
+'button'
+);
+
+closeButton.type =
+'button';
+
+closeButton.className =
+'barcode-quickimp-modal-close';
+
+closeButton.textContent =
+'×';
+
+closeButton.setAttribute(
+'aria-label',
+'Close'
+);
+
+const message =
+document.createElement(
+'div'
+);
+
+message.style.padding =
+'24px 22px';
+
+message.style.fontSize =
+'13px';
+
+message.style.lineHeight =
+'1.5';
+
+message.innerHTML =
+'Template <strong>' +
+escapeHtml(
+name
+) +
+'</strong> was saved successfully.';
+
+const footer =
+document.createElement(
+'div'
+);
+
+footer.className =
+'barcode-quickimp-modal-footer';
+
+const done =
+document.createElement(
+'button'
+);
+
+done.type =
+'button';
+
+done.className =
+'barcode-quickimp-button primary';
+
+done.textContent =
+'Done';
+
+function closeSuccess() {
+
+modal.remove();
+
+}
+
+closeButton.addEventListener(
+'click',
+closeSuccess
+);
+
+done.addEventListener(
+'click',
+closeSuccess
+);
+
+header.append(
+title,
+closeButton
+);
+
+footer.appendChild(
+done
+);
+
+box.append(
+header,
+message,
+footer
+);
+
+modal.appendChild(
+box
+);
+
+modal.addEventListener(
+'click',
+function (e) {
+
+if (
+e.target === modal
+) {
+
+closeSuccess();
+
+}
+
+}
+);
+
+document.body.appendChild(
+modal
+);
+
+setTimeout(
+() =>
+done.focus(),
+50
+);
+
+}
+
+function escapeHtml(
+value
+) {
+
+return String(
+value ||
+''
+)
+.replace(
+/&/g,
+'&amp;'
+)
+.replace(
+/</g,
+'&lt;'
+)
+.replace(
+/>/g,
+'&gt;'
+)
+.replace(
+/"/g,
+'&quot;'
+)
+.replace(
+/'/g,
+'&#039;'
+);
 
 }
 
@@ -3432,7 +4045,7 @@ document.createElement(
 );
 
 partCell.className =
-'label-quickimp-preview-part';
+'barcode-quickimp-preview-part';
 
 partCell.textContent =
 row.partNumber;
@@ -3443,7 +4056,7 @@ document.createElement(
 );
 
 descriptionCell.className =
-'label-quickimp-preview-description';
+'barcode-quickimp-preview-description';
 
 descriptionCell.textContent =
 row.description ||
@@ -3469,7 +4082,7 @@ qty.step =
 '1';
 
 qty.className =
-'label-quickimp-preview-qty';
+'barcode-quickimp-preview-qty';
 
 qty.value =
 String(
@@ -3633,7 +4246,7 @@ document.createElement(
 );
 
 modal.className =
-'label-quickimp-modal';
+'barcode-quickimp-modal';
 
 modal.setAttribute(
 'role',
@@ -3651,7 +4264,7 @@ document.createElement(
 );
 
 box.className =
-'label-quickimp-modal-box';
+'barcode-quickimp-modal-box';
 
 const header =
 document.createElement(
@@ -3659,7 +4272,7 @@ document.createElement(
 );
 
 header.className =
-'label-quickimp-modal-header';
+'barcode-quickimp-modal-header';
 
 const title =
 document.createElement(
@@ -3667,7 +4280,7 @@ document.createElement(
 );
 
 title.className =
-'label-quickimp-modal-title';
+'barcode-quickimp-modal-title';
 
 title.textContent =
 'Quick Import';
@@ -3681,7 +4294,7 @@ closeButton.type =
 'button';
 
 closeButton.className =
-'label-quickimp-modal-close';
+'barcode-quickimp-modal-close';
 
 closeButton.textContent =
 '×';
@@ -3707,7 +4320,7 @@ document.createElement(
 );
 
 body.className =
-'label-quickimp-modal-body';
+'barcode-quickimp-modal-body';
 
 const description =
 document.createElement(
@@ -3715,7 +4328,7 @@ document.createElement(
 );
 
 description.className =
-'label-quickimp-description';
+'barcode-quickimp-description';
 
 description.textContent =
 'Paste your order data below. Quick Import only uses Stock Code, Description and Qty.';
@@ -3726,7 +4339,7 @@ document.createElement(
 );
 
 textarea.className =
-'label-quickimp-textarea';
+'barcode-quickimp-textarea';
 
 textarea.placeholder =
 'Paste order data here...';
@@ -3740,7 +4353,7 @@ document.createElement(
 );
 
 options.className =
-'label-quickimp-options';
+'barcode-quickimp-options';
 
 const label =
 document.createElement(
@@ -3748,7 +4361,7 @@ document.createElement(
 );
 
 label.className =
-'label-quickimp-checkbox-label';
+'barcode-quickimp-checkbox-label';
 
 const checkbox =
 document.createElement(
@@ -3759,7 +4372,7 @@ checkbox.type =
 'checkbox';
 
 checkbox.className =
-'label-quickimp-checkbox';
+'barcode-quickimp-checkbox';
 
 checkbox.checked =
 true;
@@ -3783,7 +4396,7 @@ document.createElement(
 );
 
 summary.className =
-'label-quickimp-summary';
+'barcode-quickimp-summary';
 
 summary.textContent =
 'No data pasted';
@@ -3799,7 +4412,7 @@ document.createElement(
 );
 
 previewTitle.className =
-'label-quickimp-preview-title';
+'barcode-quickimp-preview-title';
 
 previewTitle.textContent =
 'Preview';
@@ -3810,7 +4423,7 @@ document.createElement(
 );
 
 previewWrap.className =
-'label-quickimp-preview-wrap';
+'barcode-quickimp-preview-wrap';
 
 const table =
 document.createElement(
@@ -3818,7 +4431,7 @@ document.createElement(
 );
 
 table.className =
-'label-quickimp-preview';
+'barcode-quickimp-preview';
 
 const thead =
 document.createElement(
@@ -3876,7 +4489,7 @@ document.createElement(
 );
 
 empty.className =
-'label-quickimp-empty';
+'barcode-quickimp-empty';
 
 empty.textContent =
 'Paste order data above to preview the labels.';
@@ -3887,7 +4500,7 @@ document.createElement(
 );
 
 error.className =
-'label-quickimp-error';
+'barcode-quickimp-error';
 
 const previewContainer =
 document.createElement(
@@ -3987,7 +4600,7 @@ document.createElement(
 );
 
 footer.className =
-'label-quickimp-modal-footer';
+'barcode-quickimp-modal-footer';
 
 const cancel =
 document.createElement(
@@ -3998,7 +4611,7 @@ cancel.type =
 'button';
 
 cancel.className =
-'label-quickimp-button';
+'barcode-quickimp-button';
 
 cancel.textContent =
 'Cancel';
@@ -4017,7 +4630,7 @@ importButton.type =
 'button';
 
 importButton.className =
-'label-quickimp-button primary';
+'barcode-quickimp-button primary';
 
 importButton.textContent =
 'Import Labels';
@@ -4183,7 +4796,7 @@ document.createElement(
 );
 
 modal.className =
-'label-quickimp-modal';
+'barcode-quickimp-modal';
 
 modal.setAttribute(
 'role',
@@ -4201,7 +4814,7 @@ document.createElement(
 );
 
 box.className =
-'label-quickimp-modal-box';
+'barcode-quickimp-modal-box';
 
 box.style.maxWidth =
 '420px';
@@ -4212,7 +4825,7 @@ document.createElement(
 );
 
 header.className =
-'label-quickimp-modal-header';
+'barcode-quickimp-modal-header';
 
 const title =
 document.createElement(
@@ -4220,7 +4833,7 @@ document.createElement(
 );
 
 title.className =
-'label-quickimp-modal-title';
+'barcode-quickimp-modal-title';
 
 title.textContent =
 'Import Complete';
@@ -4234,7 +4847,7 @@ closeButton.type =
 'button';
 
 closeButton.className =
-'label-quickimp-modal-close';
+'barcode-quickimp-modal-close';
 
 closeButton.textContent =
 '×';
@@ -4277,7 +4890,7 @@ document.createElement(
 );
 
 footer.className =
-'label-quickimp-modal-footer';
+'barcode-quickimp-modal-footer';
 
 const done =
 document.createElement(
@@ -4288,7 +4901,7 @@ done.type =
 'button';
 
 done.className =
-'label-quickimp-button primary';
+'barcode-quickimp-button primary';
 
 done.textContent =
 'Done';
@@ -4406,7 +5019,7 @@ return null;
 
 const pages =
 panel.querySelectorAll(
-'.label-page'
+'.barcode-page'
 );
 
 if (!pages.length) {
@@ -4437,7 +5050,7 @@ true
 
 clone
 .querySelectorAll(
-'.label-card-overlay, .label-edit-panel, .barcode-card-overlay, .barcode-edit-panel'
+'.barcode-card-overlay, .barcode-edit-panel'
 )
 .forEach(
 el =>
@@ -4480,7 +5093,7 @@ return;
 }
 
 if (
-button.dataset.labelQuickImportReady ===
+button.dataset.barcodeQuickImportReady ===
 'true'
 ) {
 
@@ -4488,7 +5101,7 @@ return;
 
 }
 
-button.dataset.labelQuickImportReady =
+button.dataset.barcodeQuickImportReady =
 'true';
 
 button.addEventListener(
@@ -4521,7 +5134,7 @@ return;
 }
 
 if (
-button.dataset.labelClearReady ===
+button.dataset.barcodeClearReady ===
 'true'
 ) {
 
@@ -4529,7 +5142,7 @@ return;
 
 }
 
-button.dataset.labelClearReady =
+button.dataset.barcodeClearReady =
 'true';
 
 button.addEventListener(
@@ -4540,6 +5153,47 @@ e.preventDefault();
 e.stopPropagation();
 
 clearAllCards();
+
+}
+);
+
+}
+
+function setupSaveTemplate() {
+
+const button =
+els.saveTemplate;
+
+if (!button) {
+
+console.warn(
+'[labels] Save Template button not found.'
+);
+
+return;
+
+}
+
+if (
+button.dataset.barcodeSaveTemplateReady ===
+'true'
+) {
+
+return;
+
+}
+
+button.dataset.barcodeSaveTemplateReady =
+'true';
+
+button.addEventListener(
+'click',
+function (e) {
+
+e.preventDefault();
+e.stopPropagation();
+
+openSaveTemplateModal();
 
 }
 );
@@ -4609,6 +5263,8 @@ setupQuickImport();
 
 setupClearAll();
 
+setupSaveTemplate();
+
 if (els.print) {
 
 els.print.addEventListener(
@@ -4664,7 +5320,7 @@ function (e) {
 
 if (
 e.target.closest(
-'.db-list-dropdown-card[data-label-template]'
+'.db-list-dropdown-card[data-barcode-template]'
 )
 ) {
 
@@ -4789,6 +5445,11 @@ selectTemplate,
 openQuickImport:
 openQuickImportModal,
 
+openSaveTemplate:
+openSaveTemplateModal,
+
+saveTemplate,
+
 diagnose:
 function () {
 
@@ -4827,6 +5488,9 @@ quickImport:
 
 clear:
 !!els.clear,
+
+saveTemplate:
+!!els.saveTemplate,
 
 dropdown:
 !!els.dropdown
