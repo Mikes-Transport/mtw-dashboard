@@ -12,9 +12,7 @@
       'barcodes'
     ],
     KeyAccounts: [
-      'promotion-label',
-      'barcodes',
-      'secondhand-tool'
+      'barcodes'
     ],
     Admin: [
       'promotion-label',
