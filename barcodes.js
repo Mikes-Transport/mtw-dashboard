@@ -114,8 +114,236 @@ let clearConfirmModal = null;
 let barcodeHistory = [];
 let selectedHistoryId = null;
 
+let labelTemplates = [];
+let saveTemplateModal = null;
+
 const els = {};
 const sources = {};
+
+function getUserRole() {
+
+try {
+
+return String(
+sessionStorage.getItem(
+'mtw_admin_name'
+) || ''
+).trim();
+
+} catch (error) {
+
+return '';
+
+}
+
+}
+
+function isKeyAccounts() {
+
+return getUserRole() === 'KeyAccounts';
+
+}
+
+const ROLE_HIDE = {
+
+Stores: [
+'.barcode-import-card-wrapper',
+'.label-save-template-wrapper',
+'.label-select-template-wrapper'
+],
+
+Counter: [
+'.barcode-import-card-wrapper',
+'.label-save-template-wrapper',
+'.label-select-template-wrapper'
+],
+
+Admin: [
+'.label-save-template-wrapper',
+'.label-select-template-wrapper'
+],
+
+KeyAccounts: [
+'.barcode-import-card-wrapper'
+],
+
+Developer: []
+
+};
+
+function applyRoleVisibility() {
+
+const role =
+getUserRole();
+
+const toHide =
+ROLE_HIDE[role] ||
+[
+'.label-save-template-wrapper',
+'.label-select-template-wrapper'
+];
+
+const allWrappers = [
+'.barcode-import-card-wrapper',
+'.label-save-template-wrapper',
+'.label-select-template-wrapper'
+];
+
+allWrappers.forEach(
+selector => {
+
+document
+.querySelectorAll(
+selector
+)
+.forEach(
+el => {
+
+if (
+toHide.includes(
+selector
+)
+) {
+
+el.style.display =
+'none';
+
+} else {
+
+el.style.removeProperty(
+'display'
+);
+
+}
+
+}
+);
+
+}
+);
+
+const hideImport =
+toHide.includes(
+'.barcode-import-card-wrapper'
+);
+
+[
+els.importCSV,
+els.quickImport
+].forEach(
+btn => {
+
+if (!btn) {
+return;
+}
+
+if (hideImport) {
+
+btn.style.display =
+'none';
+
+} else {
+
+btn.style.removeProperty(
+'display'
+);
+
+}
+
+}
+);
+
+}
+
+function normalizeParts(data) {
+
+const rawParts =
+Array.isArray(
+data.parts
+) &&
+data.parts.length
+? data.parts
+: [
+{
+partNumber:
+data.partNumber ??
+DEFAULTS.partNumber,
+subtext:
+data.subtext ??
+DEFAULTS.subtext,
+showBarcode:
+typeof data.showBarcode === 'boolean'
+? data.showBarcode
+: !isKeyAccounts()
+}
+];
+
+return rawParts.map(
+part => ({
+partNumber:
+part.partNumber ??
+'',
+subtext:
+part.subtext ??
+'',
+showBarcode:
+typeof part.showBarcode === 'boolean'
+? part.showBarcode
+: !isKeyAccounts()
+})
+);
+
+}
+
+function syncTopLevelFromParts(card) {
+
+const first =
+(card.parts &&
+card.parts[0]) ||
+null;
+
+card.partNumber =
+first
+? (first.partNumber ?? '')
+: (card.partNumber ?? '');
+
+card.subtext =
+first
+? (first.subtext ?? '')
+: (card.subtext ?? '');
+
+}
+
+function getCardParts(card) {
+
+if (
+card &&
+Array.isArray(
+card.parts
+) &&
+card.parts.length
+) {
+
+return card.parts;
+
+}
+
+return [
+{
+partNumber:
+(card &&
+card.partNumber) ||
+'',
+subtext:
+(card &&
+card.subtext) ||
+'',
+showBarcode:
+true
+}
+];
+
+}
 
 function getTemplateDefaults(template) {
 
@@ -523,6 +751,51 @@ $('.db-left-content');
 els.menu =
 $('.db-menu-list');
 
+els.importWrapper =
+$('.barcode-import-card-wrapper');
+
+els.saveWrapper =
+$('.label-save-template-wrapper');
+
+els.saveButton =
+$('.label-save-template-button') ||
+(
+els.saveWrapper
+? els.saveWrapper.querySelector(
+'button'
+)
+: null
+) ||
+els.saveWrapper;
+
+els.templateWrapper =
+$('.label-select-template-wrapper');
+
+els.templateSelect =
+$('.label-template-selector') ||
+(
+els.templateWrapper
+? (
+els.templateWrapper.querySelector(
+'select'
+) ||
+els.templateWrapper.querySelector(
+'[data-label-template-list]'
+) ||
+(
+els.templateWrapper.matches &&
+els.templateWrapper.matches(
+'.label-template-selector'
+)
+? els.templateWrapper
+: null
+)
+)
+: null
+);
+
+applyRoleVisibility();
+
 }
 
 function openBarcodePanel() {
@@ -689,6 +962,115 @@ background: transparent;
 
 .barcode-card-overlay:hover {
 background: rgba(0,0,0,.08);
+}
+
+.barcode-multi-parts {
+width: 100%;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 8px;
+box-sizing: border-box;
+}
+
+.barcode-multi-part {
+width: 100%;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+text-align: center;
+min-width: 0;
+box-sizing: border-box;
+}
+
+.barcode-multi-part-number {
+font-weight: 700;
+line-height: 1.1;
+white-space: normal;
+overflow-wrap: anywhere;
+}
+
+.barcode-multi-part-description {
+font-weight: 400;
+line-height: 1.2;
+white-space: normal;
+overflow-wrap: anywhere;
+margin-top: 2px;
+}
+
+.barcode-multi-barcodes {
+width: 100%;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 6px;
+box-sizing: border-box;
+}
+
+.barcode-part-editor {
+border: 1px solid #eee;
+border-radius: 6px;
+padding: 10px;
+margin-bottom: 10px;
+background: #fafafa;
+}
+
+.barcode-part-editor-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 8px;
+margin-bottom: 8px;
+}
+
+.barcode-part-editor-title {
+font-size: 11px;
+font-weight: 700;
+text-transform: uppercase;
+}
+
+.barcode-part-remove {
+border: 1px solid #ccc;
+background: #fff;
+border-radius: 5px;
+padding: 4px 8px;
+cursor: pointer;
+font-size: 11px;
+font-weight: 600;
+}
+
+.label-template-selector {
+min-width: 160px;
+padding: 6px;
+border: 1px solid #ccc;
+border-radius: 5px;
+background: #fff;
+font: inherit;
+font-size: 12px;
+}
+
+.barcode-template-name-input {
+width: 100%;
+box-sizing: border-box;
+padding: 9px 10px;
+border: 1px solid #ccc;
+border-radius: 5px;
+font: inherit;
+font-size: 13px;
+}
+
+.barcode-template-name-input:focus {
+outline: none;
+border-color: #111;
+}
+
+.barcode-template-error {
+margin-top: 10px;
+font-size: 12px;
+color: #b00020;
 }
 
 .barcode-output-row {
@@ -1862,6 +2244,12 @@ manualQtyValue
 )
 : 0;
 
+const parts =
+normalizeParts(data);
+
+const firstPart =
+parts[0] || {};
+
 return {
 
 id:
@@ -1871,12 +2259,16 @@ data.id ||
 template,
 
 partNumber:
+firstPart.partNumber ??
 data.partNumber ??
 DEFAULTS.partNumber,
 
 subtext:
+firstPart.subtext ??
 data.subtext ??
 DEFAULTS.subtext,
+
+parts,
 
 showDate:
 Boolean(
@@ -2708,6 +3100,202 @@ return outputRow;
 
 }
 
+function renderMultiParts(
+card,
+data
+) {
+
+let container =
+card.querySelector(
+'.barcode-multi-parts'
+);
+
+const outputRow =
+card.querySelector(
+'.barcode-output-row'
+);
+
+if (!container) {
+
+container =
+document.createElement(
+'div'
+);
+
+container.className =
+'barcode-multi-parts';
+
+if (
+outputRow &&
+outputRow.parentElement === card
+) {
+
+card.insertBefore(
+container,
+outputRow
+);
+
+} else {
+
+card.appendChild(
+container
+);
+
+}
+
+}
+
+container.innerHTML = '';
+
+const parts =
+getCardParts(data);
+
+parts.forEach(
+part => {
+
+const partWrap =
+document.createElement(
+'div'
+);
+
+partWrap.className =
+'barcode-multi-part';
+
+const number =
+document.createElement(
+'div'
+);
+
+number.className =
+'barcode-multi-part-number';
+
+number.textContent =
+part.partNumber || '';
+
+number.style.fontSize =
+data.partNumberSize +
+'px';
+
+number.style.lineHeight =
+data.partNumberSize +
+'px';
+
+const description =
+document.createElement(
+'div'
+);
+
+description.className =
+'barcode-multi-part-description';
+
+description.textContent =
+part.subtext || '';
+
+description.style.fontSize =
+data.subtextSize +
+'px';
+
+description.style.lineHeight =
+data.subtextSize +
+'px';
+
+partWrap.append(
+number,
+description
+);
+
+container.appendChild(
+partWrap
+);
+
+}
+);
+
+let barcodesWrap =
+container.querySelector(
+'.barcode-multi-barcodes'
+);
+
+if (!barcodesWrap) {
+
+barcodesWrap =
+document.createElement(
+'div'
+);
+
+barcodesWrap.className =
+'barcode-multi-barcodes';
+
+container.appendChild(
+barcodesWrap
+);
+
+}
+
+barcodesWrap.innerHTML = '';
+
+const barcodeSize =
+Number(
+data.barcodeSize
+) ||
+getTemplateDefaults(
+data.template
+).barcodeSize;
+
+const barcodeParts =
+parts
+.filter(
+part =>
+part.showBarcode &&
+cleanPartNumber(
+part.partNumber
+)
+)
+.slice(0, 2);
+
+barcodeParts.forEach(
+part => {
+
+const code =
+document.createElement(
+'div'
+);
+
+code.className =
+'barcode-populate';
+
+code.textContent =
+barcodeValue(
+part.partNumber
+);
+
+code.dataset.barcodeSize =
+barcodeSize;
+
+code.style.fontSize =
+barcodeSize +
+'px';
+
+code.style.lineHeight =
+'normal';
+
+barcodesWrap.appendChild(
+code
+);
+
+}
+);
+
+barcodesWrap.style.display =
+barcodeParts.length
+? 'flex'
+: 'none';
+
+container.style.display =
+'flex';
+
+}
+
 function populateCard(
 card,
 data
@@ -2720,24 +3308,33 @@ getSystemDate();
 
 }
 
-const header =
-card.querySelector(
-'.text-input-header > *'
+if (
+!Array.isArray(
+data.parts
 ) ||
-card.querySelector(
-'.text-input-header'
+!data.parts.length
+) {
+
+data.parts =
+normalizeParts(data);
+
+}
+
+syncTopLevelFromParts(
+data
 );
 
-const subtext =
+let outputRow =
 card.querySelector(
-'.text-input-subtext > *'
-) ||
-card.querySelector(
-'.text-input-subtext'
+'.barcode-output-row'
 );
 
 let barcode =
-card.querySelector(
+outputRow
+? outputRow.querySelector(
+'.barcode-populate'
+)
+: card.querySelector(
 '.barcode-populate'
 );
 
@@ -2757,13 +3354,86 @@ barcode
 
 }
 
-const outputRow =
+outputRow =
 ensureBarcodeOutputRow(
 card,
 barcode
 );
 
+const header =
+card.querySelector(
+'.text-input-header > *'
+) ||
+card.querySelector(
+'.text-input-header'
+);
+
+const subtext =
+card.querySelector(
+'.text-input-subtext > *'
+) ||
+card.querySelector(
+'.text-input-subtext'
+);
+
+if (
+isKeyAccounts()
+) {
+
 if (header) {
+
+header.style.display =
+'none';
+
+}
+
+if (subtext) {
+
+subtext.style.display =
+'none';
+
+}
+
+if (barcode) {
+
+barcode.textContent =
+'';
+
+barcode.style.display =
+'none';
+
+}
+
+renderMultiParts(
+card,
+data
+);
+
+renderBarcodeExtraFields(
+data,
+outputRow
+);
+
+return;
+
+}
+
+const multi =
+card.querySelector(
+'.barcode-multi-parts'
+);
+
+if (multi) {
+
+multi.style.display =
+'none';
+
+}
+
+if (header) {
+
+header.style.display =
+'';
 
 header.textContent =
 data.partNumber || '';
@@ -2780,6 +3450,9 @@ data.partNumberSize +
 
 if (subtext) {
 
+subtext.style.display =
+'';
+
 subtext.textContent =
 data.subtext || '';
 
@@ -2794,6 +3467,9 @@ data.subtextSize +
 }
 
 if (barcode) {
+
+barcode.style.display =
+'';
 
 const barcodeSize =
 Number(
@@ -3418,6 +4094,151 @@ return b;
 
 }
 
+function buildPartEditor(
+card,
+part,
+index
+) {
+
+const wrap =
+document.createElement(
+'div'
+);
+
+wrap.className =
+'barcode-part-editor';
+
+const head =
+document.createElement(
+'div'
+);
+
+head.className =
+'barcode-part-editor-header';
+
+const title =
+document.createElement(
+'div'
+);
+
+title.className =
+'barcode-part-editor-title';
+
+title.textContent =
+'Part ' +
+(index + 1);
+
+head.appendChild(
+title
+);
+
+if (
+card.parts.length > 1
+) {
+
+const remove =
+button(
+'Remove',
+'barcode-part-remove',
+() => {
+
+card.parts.splice(
+index,
+1
+);
+
+if (!card.parts.length) {
+
+card.parts.push({
+partNumber: '',
+subtext: '',
+showBarcode: false
+});
+
+}
+
+syncTopLevelFromParts(
+card
+);
+
+render();
+
+openEdit(
+card
+);
+
+}
+);
+
+head.appendChild(
+remove
+);
+
+}
+
+wrap.appendChild(
+head
+);
+
+wrap.appendChild(
+textField(
+'Part Number',
+part.partNumber,
+value => {
+
+part.partNumber =
+value;
+
+syncTopLevelFromParts(
+card
+);
+
+live(card);
+
+}
+)
+);
+
+wrap.appendChild(
+textField(
+'Description',
+part.subtext,
+value => {
+
+part.subtext =
+value;
+
+syncTopLevelFromParts(
+card
+);
+
+live(card);
+
+}
+)
+);
+
+wrap.appendChild(
+checkboxField(
+'Barcode',
+Boolean(
+part.showBarcode
+),
+checked => {
+
+part.showBarcode =
+checked;
+
+live(card);
+
+}
+)
+);
+
+return wrap;
+
+}
+
 function buildEditPanel(
 card
 ) {
@@ -3465,6 +4286,77 @@ panel.appendChild(
 header
 );
 
+if (
+isKeyAccounts()
+) {
+
+if (
+!Array.isArray(
+card.parts
+) ||
+!card.parts.length
+) {
+
+card.parts =
+normalizeParts(
+card
+);
+
+}
+
+const partEditors =
+card.parts.map(
+(part, index) =>
+buildPartEditor(
+card,
+part,
+index
+)
+);
+
+const addPart =
+button(
+'Add Part Number & Description',
+'barcode-edit-button',
+() => {
+
+if (!Array.isArray(card.parts)) {
+
+card.parts = [];
+
+}
+
+card.parts.push({
+partNumber: '',
+subtext: '',
+showBarcode: false
+});
+
+syncTopLevelFromParts(
+card
+);
+
+render();
+
+openEdit(
+card
+);
+
+}
+);
+
+panel.appendChild(
+section(
+'Content',
+[
+...partEditors,
+addPart
+]
+)
+);
+
+} else {
+
 panel.appendChild(
 section(
 'Content',
@@ -3477,6 +4369,18 @@ value => {
 
 card.partNumber =
 value;
+
+if (
+Array.isArray(
+card.parts
+) &&
+card.parts[0]
+) {
+
+card.parts[0].partNumber =
+value;
+
+}
 
 live(card);
 
@@ -3491,6 +4395,18 @@ value => {
 card.subtext =
 value;
 
+if (
+Array.isArray(
+card.parts
+) &&
+card.parts[0]
+) {
+
+card.parts[0].subtext =
+value;
+
+}
+
 live(card);
 
 }
@@ -3499,6 +4415,8 @@ live(card);
 ]
 )
 );
+
+}
 
 const dateToggle =
 checkboxField(
@@ -3748,6 +4666,18 @@ DEFAULTS.partNumber;
 card.subtext =
 DEFAULTS.subtext;
 
+card.parts =
+[
+{
+partNumber:
+DEFAULTS.partNumber,
+subtext:
+DEFAULTS.subtext,
+showBarcode:
+!isKeyAccounts()
+}
+];
+
 card.showDate =
 DEFAULTS.showDate;
 
@@ -3810,6 +4740,22 @@ card.partNumber,
 
 subtext:
 card.subtext,
+
+parts:
+getCardParts(
+card
+).map(
+part => ({
+partNumber:
+part.partNumber || '',
+subtext:
+part.subtext || '',
+showBarcode:
+Boolean(
+part.showBarcode
+)
+})
+),
 
 showDate:
 card.showDate,
@@ -4019,6 +4965,8 @@ hideEdit();
 render();
 
 openBarcodePanel();
+
+refreshTemplateSelector();
 
 }
 
@@ -4302,6 +5250,22 @@ card.partNumber || '',
 
 subtext:
 card.subtext || '',
+
+parts:
+getCardParts(
+card
+).map(
+part => ({
+partNumber:
+part.partNumber || '',
+subtext:
+part.subtext || '',
+showBarcode:
+Boolean(
+part.showBarcode
+)
+})
+),
 
 showDate:
 Boolean(
@@ -5221,6 +6185,34 @@ card.partNumber || '',
 subtext:
 card.subtext || '',
 
+parts:
+Array.isArray(
+card.parts
+) &&
+card.parts.length
+? card.parts.map(
+part => ({
+partNumber:
+part.partNumber || '',
+subtext:
+part.subtext || '',
+showBarcode:
+typeof part.showBarcode === 'boolean'
+? part.showBarcode
+: true
+})
+)
+: [
+{
+partNumber:
+card.partNumber || '',
+subtext:
+card.subtext || '',
+showBarcode:
+true
+}
+],
+
 showDate:
 card.showDate,
 
@@ -5273,6 +6265,1177 @@ console.log(
 '[barcode] Loaded barcode commit:',
 commit.commitHash
 );
+
+}
+
+/* ----------------------------------------
+   LABEL TEMPLATES (KeyAccounts saved layouts)
+---------------------------------------- */
+
+function getLabelTemplateSnapshot() {
+
+const snapshot =
+getHistorySnapshot();
+
+return {
+template:
+snapshot.template,
+cards:
+snapshot.cards
+};
+
+}
+
+function closeSaveTemplateModal() {
+
+if (!saveTemplateModal) {
+return;
+}
+
+saveTemplateModal.remove();
+
+saveTemplateModal = null;
+
+}
+
+function openSaveTemplateModal() {
+
+const role =
+getUserRole();
+
+if (
+role !== 'KeyAccounts' &&
+role !== 'Developer'
+) {
+
+return;
+
+}
+
+if (
+!state.current
+) {
+
+alert(
+'Select a label template first.'
+);
+
+return;
+
+}
+
+const currentCards =
+state.cards.filter(
+card =>
+card.template ===
+state.current
+);
+
+if (!currentCards.length) {
+
+alert(
+'Add at least one label before saving a template.'
+);
+
+return;
+
+}
+
+closeSaveTemplateModal();
+
+const modal =
+document.createElement(
+'div'
+);
+
+modal.className =
+'barcode-quickimp-modal';
+
+modal.setAttribute(
+'role',
+'dialog'
+);
+
+modal.setAttribute(
+'aria-modal',
+'true'
+);
+
+const box =
+document.createElement(
+'div'
+);
+
+box.className =
+'barcode-quickimp-modal-box';
+
+box.style.maxWidth =
+'480px';
+
+const header =
+document.createElement(
+'div'
+);
+
+header.className =
+'barcode-quickimp-modal-header';
+
+const title =
+document.createElement(
+'h2'
+);
+
+title.className =
+'barcode-quickimp-modal-title';
+
+title.textContent =
+'Save Label Template';
+
+const closeButton =
+document.createElement(
+'button'
+);
+
+closeButton.type =
+'button';
+
+closeButton.className =
+'barcode-quickimp-modal-close';
+
+closeButton.textContent =
+'×';
+
+closeButton.setAttribute(
+'aria-label',
+'Close'
+);
+
+closeButton.addEventListener(
+'click',
+closeSaveTemplateModal
+);
+
+header.append(
+title,
+closeButton
+);
+
+const body =
+document.createElement(
+'div'
+);
+
+body.className =
+'barcode-quickimp-modal-body';
+
+const description =
+document.createElement(
+'p'
+);
+
+description.className =
+'barcode-quickimp-description';
+
+description.textContent =
+'Name this layout. It will be saved for the current template type (' +
+(
+TEMPLATES[state.current]
+? TEMPLATES[state.current].name
+: state.current
+) +
+') with all card settings and text.';
+
+const input =
+document.createElement(
+'input'
+);
+
+input.className =
+'barcode-template-name-input';
+
+input.type =
+'text';
+
+input.placeholder =
+'Template name...';
+
+input.maxLength =
+80;
+
+const error =
+document.createElement(
+'div'
+);
+
+error.className =
+'barcode-template-error';
+
+body.append(
+description,
+input,
+error
+);
+
+const footer =
+document.createElement(
+'div'
+);
+
+footer.className =
+'barcode-quickimp-modal-footer';
+
+const cancel =
+document.createElement(
+'button'
+);
+
+cancel.type =
+'button';
+
+cancel.className =
+'barcode-quickimp-button';
+
+cancel.textContent =
+'Cancel';
+
+cancel.addEventListener(
+'click',
+closeSaveTemplateModal
+);
+
+const save =
+document.createElement(
+'button'
+);
+
+save.type =
+'button';
+
+save.className =
+'barcode-quickimp-button primary';
+
+save.textContent =
+'Save Template';
+
+save.addEventListener(
+'click',
+async function () {
+
+const name =
+String(
+input.value || ''
+).trim();
+
+if (!name) {
+
+error.textContent =
+'Enter a template name.';
+
+input.focus();
+
+return;
+
+}
+
+error.textContent =
+'';
+
+if (!db) {
+
+error.textContent =
+'Database unavailable.';
+
+return;
+
+}
+
+save.disabled =
+true;
+
+try {
+
+const snapshot =
+getLabelTemplateSnapshot();
+
+const docData = {
+
+name,
+
+template:
+snapshot.template,
+
+cards:
+snapshot.cards.filter(
+card =>
+card.template ===
+snapshot.template
+),
+
+date:
+Date.now()
+
+};
+
+if (!docData.cards.length) {
+
+error.textContent =
+'No labels for this template type to save.';
+
+save.disabled =
+false;
+
+return;
+
+}
+
+const ref =
+await addDoc(
+collection(
+db,
+'label-templates'
+),
+docData
+);
+
+console.log(
+'[barcode] label template saved:',
+name,
+ref.id
+);
+
+closeSaveTemplateModal();
+
+refreshTemplateSelector();
+
+} catch (err) {
+
+console.error(
+'[barcode] Failed to save label template:',
+err
+);
+
+error.textContent =
+'Could not save. Try again.';
+
+save.disabled =
+false;
+
+}
+
+}
+);
+
+footer.append(
+cancel,
+save
+);
+
+box.append(
+header,
+body,
+footer
+);
+
+modal.appendChild(
+box
+);
+
+modal.addEventListener(
+'click',
+function (e) {
+
+if (
+e.target === modal
+) {
+
+closeSaveTemplateModal();
+
+}
+
+}
+);
+
+document.body.appendChild(
+modal
+);
+
+saveTemplateModal =
+modal;
+
+setTimeout(
+() => input.focus(),
+50
+);
+
+}
+
+async function refreshTemplateSelector() {
+
+const list =
+els.templateSelect ||
+$('.label-template-selector') ||
+(
+els.templateWrapper
+? (
+els.templateWrapper.querySelector(
+'select'
+) ||
+els.templateWrapper.querySelector(
+'[data-label-template-list]'
+)
+)
+: null
+) ||
+els.templateWrapper;
+
+if (
+els.templateWrapper &&
+!els.templateSelect &&
+list
+) {
+
+els.templateSelect =
+list;
+
+}
+
+if (!list) {
+return;
+}
+
+const isNativeSelect =
+list.tagName === 'SELECT';
+
+const templateType =
+state.current;
+
+if (isNativeSelect) {
+
+list.innerHTML =
+'<option value="">Select a saved template...</option>';
+
+list.disabled =
+false;
+
+}
+
+if (!templateType) {
+
+if (isNativeSelect) {
+
+list.innerHTML =
+'<option value="">Select a label template first</option>';
+
+list.disabled =
+true;
+
+} else {
+
+list.innerHTML =
+'<div class="label-template-empty">' +
+'Select a label template first.' +
+'</div>';
+
+}
+
+return;
+
+}
+
+if (!db) {
+
+if (isNativeSelect) {
+
+list.innerHTML =
+'<option value="">Database unavailable</option>';
+
+list.disabled =
+true;
+
+} else {
+
+list.innerHTML =
+'<div class="label-template-empty">' +
+'Database unavailable.' +
+'</div>';
+
+}
+
+return;
+
+}
+
+try {
+
+const snapshot =
+await getDocs(
+collection(
+db,
+'label-templates'
+)
+);
+
+labelTemplates =
+snapshot.docs
+.map(
+doc => ({
+
+id:
+doc.id,
+
+...doc.data()
+
+})
+)
+.filter(
+item =>
+item.template ===
+templateType
+)
+.sort(
+(a, b) =>
+Number(
+b.date || 0
+) -
+Number(
+a.date || 0
+)
+);
+
+if (isNativeSelect) {
+
+if (!labelTemplates.length) {
+
+list.innerHTML =
+'<option value="">No saved templates for this label type</option>';
+
+list.disabled =
+true;
+
+return;
+
+}
+
+list.disabled =
+false;
+
+labelTemplates.forEach(
+item => {
+
+const option =
+document.createElement(
+'option'
+);
+
+option.value =
+item.id;
+
+option.textContent =
+String(
+item.name ||
+'Untitled'
+);
+
+list.appendChild(
+option
+);
+
+}
+);
+
+return;
+
+}
+
+list.innerHTML = '';
+
+if (!labelTemplates.length) {
+
+list.innerHTML =
+'<div class="label-template-empty">' +
+'No saved templates for this label type yet.' +
+'</div>';
+
+return;
+
+}
+
+labelTemplates.forEach(
+item => {
+
+const entry =
+document.createElement(
+'div'
+);
+
+entry.className =
+'db-list-dropdown-card';
+
+entry.dataset.labelTemplate =
+item.id;
+
+const heading =
+document.createElement(
+'div'
+);
+
+heading.className =
+'db-headingd-list';
+
+heading.textContent =
+String(
+item.name ||
+'Untitled'
+);
+
+entry.appendChild(
+heading
+);
+
+list.appendChild(
+entry
+);
+
+}
+);
+
+} catch (error) {
+
+console.error(
+'[barcode] Failed to load label templates:',
+error
+);
+
+if (!isNativeSelect) {
+
+list.innerHTML =
+'<div class="label-template-empty">' +
+'Could not load templates.' +
+'</div>';
+
+}
+
+}
+
+}
+
+function applyLabelTemplateById(
+templateId
+) {
+
+const item =
+labelTemplates.find(
+entry =>
+entry.id ===
+templateId
+);
+
+if (!item) {
+return;
+}
+
+if (
+!TEMPLATES[
+item.template
+]
+) {
+
+console.warn(
+'[barcode] Saved template type no longer exists:',
+item.template
+);
+
+return;
+
+}
+
+const existingCount =
+state.cards.filter(
+card =>
+card.template ===
+item.template
+).length;
+
+const doApply = () => {
+
+state.cards =
+state.cards.filter(
+card =>
+card.template !==
+item.template
+);
+
+(item.cards || []).forEach(
+saved => {
+
+const fresh =
+cardData({
+...saved,
+template:
+saved.template ||
+item.template
+});
+
+state.cards.push(
+fresh
+);
+
+}
+);
+
+state.current =
+item.template;
+
+if (
+els.templateSelect &&
+els.templateSelect.tagName === 'SELECT'
+) {
+
+els.templateSelect.value =
+'';
+
+}
+
+hideEdit();
+
+render();
+
+openBarcodePanel();
+
+refreshTemplateSelector();
+
+console.log(
+'[barcode] Applied label template:',
+item.name
+);
+
+};
+
+if (existingCount > 0) {
+
+openTemplateOverwriteConfirm(
+item,
+existingCount,
+doApply
+);
+
+return;
+
+}
+
+doApply();
+
+}
+
+function openTemplateOverwriteConfirm(
+item,
+existingCount,
+onConfirm
+) {
+
+const modal =
+document.createElement(
+'div'
+);
+
+modal.className =
+'barcode-clear-confirm-modal';
+
+modal.setAttribute(
+'role',
+'dialog'
+);
+
+modal.setAttribute(
+'aria-modal',
+'true'
+);
+
+const box =
+document.createElement(
+'div'
+);
+
+box.className =
+'barcode-clear-confirm-box';
+
+const header =
+document.createElement(
+'div'
+);
+
+header.className =
+'barcode-clear-confirm-header';
+
+const title =
+document.createElement(
+'h2'
+);
+
+title.className =
+'barcode-clear-confirm-title';
+
+title.textContent =
+'Load Template';
+
+const closeButton =
+document.createElement(
+'button'
+);
+
+closeButton.type =
+'button';
+
+closeButton.className =
+'barcode-clear-confirm-close';
+
+closeButton.textContent =
+'×';
+
+closeButton.setAttribute(
+'aria-label',
+'Close'
+);
+
+const close = () => {
+
+modal.classList.remove(
+'is-visible'
+);
+
+setTimeout(
+() => modal.remove(),
+180
+);
+
+};
+
+closeButton.addEventListener(
+'click',
+close
+);
+
+header.append(
+title,
+closeButton
+);
+
+const body =
+document.createElement(
+'div'
+);
+
+body.className =
+'barcode-clear-confirm-body';
+
+const message =
+document.createElement(
+'p'
+);
+
+message.className =
+'barcode-clear-confirm-message';
+
+message.innerHTML =
+'Load template "' +
+String(
+item.name ||
+''
+).replace(
+/</g,
+'&lt;'
+) +
+'"? This will replace ' +
+'<span class="barcode-clear-confirm-count">' +
+existingCount +
+'</span> current label' +
+(
+existingCount === 1
+? ''
+: 's'
+) +
+' for this template type.';
+
+body.appendChild(
+message
+);
+
+const footer =
+document.createElement(
+'div'
+);
+
+footer.className =
+'barcode-clear-confirm-footer';
+
+const cancel =
+document.createElement(
+'button'
+);
+
+cancel.type =
+'button';
+
+cancel.className =
+'barcode-clear-confirm-button';
+
+cancel.textContent =
+'Cancel';
+
+cancel.addEventListener(
+'click',
+close
+);
+
+const confirm =
+document.createElement(
+'button'
+);
+
+confirm.type =
+'button';
+
+confirm.className =
+'barcode-clear-confirm-button danger';
+
+confirm.textContent =
+'Load Template';
+
+confirm.addEventListener(
+'click',
+function () {
+
+close();
+
+onConfirm();
+
+}
+);
+
+footer.append(
+cancel,
+confirm
+);
+
+box.append(
+header,
+body,
+footer
+);
+
+modal.appendChild(
+box
+);
+
+modal.addEventListener(
+'click',
+function (e) {
+
+if (
+e.target === modal
+) {
+
+close();
+
+}
+
+}
+);
+
+document.body.appendChild(
+modal
+);
+
+requestAnimationFrame(
+() => {
+
+modal.classList.add(
+'is-visible'
+);
+
+}
+);
+
+setTimeout(
+() => confirm.focus(),
+50
+);
+
+}
+
+function setupSaveTemplate() {
+
+const target =
+els.saveButton ||
+$('.label-save-template-button') ||
+(
+els.saveWrapper
+? els.saveWrapper.querySelector(
+'button'
+)
+: null
+) ||
+els.saveWrapper;
+
+if (
+els.saveWrapper &&
+!els.saveButton &&
+target
+) {
+
+els.saveButton =
+target;
+
+}
+
+if (!target) {
+return;
+}
+
+if (
+target.dataset.templateReady ===
+'true'
+) {
+
+return;
+
+}
+
+target.dataset.templateReady =
+'true';
+
+target.addEventListener(
+'click',
+function (e) {
+
+e.preventDefault();
+e.stopPropagation();
+
+openSaveTemplateModal();
+
+}
+);
+
+}
+
+function setupTemplateSelector() {
+
+let list =
+els.templateSelect ||
+$('.label-template-selector') ||
+(
+els.templateWrapper
+? (
+els.templateWrapper.querySelector(
+'select'
+) ||
+els.templateWrapper.querySelector(
+'[data-label-template-list]'
+)
+)
+: null
+) ||
+els.templateWrapper;
+
+if (
+!list &&
+els.templateWrapper
+) {
+
+list =
+document.createElement(
+'select'
+);
+
+list.className =
+'label-template-selector';
+
+els.templateWrapper.appendChild(
+list
+);
+
+}
+
+if (!list) {
+return;
+}
+
+els.templateSelect =
+list;
+
+if (
+list.dataset.templateReady ===
+'true'
+) {
+
+refreshTemplateSelector();
+
+return;
+
+}
+
+list.dataset.templateReady =
+'true';
+
+if (
+list.tagName === 'SELECT'
+) {
+
+list.addEventListener(
+'change',
+function () {
+
+const value =
+list.value ||
+'';
+
+if (!value) {
+return;
+}
+
+applyLabelTemplateById(
+value
+);
+
+}
+);
+
+} else {
+
+list.addEventListener(
+'click',
+function (e) {
+
+const entry =
+e.target.closest(
+'[data-label-template]'
+);
+
+if (!entry) {
+return;
+}
+
+e.preventDefault();
+e.stopPropagation();
+
+const value =
+entry.dataset.labelTemplate ||
+'';
+
+if (!value) {
+return;
+}
+
+applyLabelTemplateById(
+value
+);
+
+}
+);
+
+}
+
+refreshTemplateSelector();
 
 }
 
@@ -6737,6 +8900,19 @@ partNumber:
 row.partNumber,
 subtext:
 description,
+parts:
+isKeyAccounts()
+? [
+{
+partNumber:
+row.partNumber,
+subtext:
+description,
+showBarcode:
+false
+}
+]
+: undefined,
 showDate:
 useDate,
 date:
@@ -7653,6 +9829,19 @@ partNumber:
 row.partNumber,
 subtext:
 description,
+parts:
+isKeyAccounts()
+? [
+{
+partNumber:
+row.partNumber,
+subtext:
+description,
+showBarcode:
+false
+}
+]
+: undefined,
 showDate:
 useDate,
 date:
@@ -8167,6 +10356,10 @@ setupQuickImport();
 
 setupClearAll();
 
+setupSaveTemplate();
+
+setupTemplateSelector();
+
 if (els.print) {
 
 els.print.addEventListener(
@@ -8264,7 +10457,15 @@ createDropdown(
 els.dropdown
 );
 
+applyRoleVisibility();
+
+setupSaveTemplate();
+
+setupTemplateSelector();
+
 render();
+
+refreshTemplateSelector();
 
 }
 
