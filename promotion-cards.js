@@ -90,7 +90,7 @@ const { $, $$ } = window.MTW;
     const type = x.type || state.type || 'ep';
     return {
       id: x.id || 'card-' + (++id),
-      type: HEADS[type] ? type : 'ep',
+      type: HEAD[type] ? type : 'ep',
       title: x.title != null ? x.title : 'PRODUCT TITLE',
       descLines: Array.isArray(x.descLines) && x.descLines.length ? x.descLines.slice(0, 4) : ['Product description goes here.'],
       price: x.price != null ? x.price : '999.99',
@@ -197,7 +197,7 @@ const { $, $$ } = window.MTW;
   function blockHtml(c, key) {
     const col = c.colors || {};
     if (key === 'header') {
-      return '<div class="np-head" style="' + (col.head ? 'color:' + esc(col.head) + ';' : '') + 'font-size:' + effSize(c, 'head') + 'px;">' + esc(HEADS[c.type] || '') + '</div>';
+      return '<div class="np-head" style="' + (col.head ? 'color:' + esc(col.head) + ';' : '') + 'font-size:' + effSize(c, 'head') + 'px;">' + esc(HEAD[c.type] || '') + '</div>';
     }
     if (key === 'title') {
       return '<h3 class="np-title" style="' + (col.title ? 'color:' + esc(col.title) + ';' : '') + 'font-size:' + effSize(c, 'title') + 'px;">' + esc(c.title || '') + '</h3>';
