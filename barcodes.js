@@ -1012,11 +1012,11 @@ box-sizing: border-box;
 }
 
 .barcode-part-editor {
-border: 1px solid #eee;
-border-radius: 6px;
+border: 1px solid #d5d5d5;
+border-radius: 10px;
 padding: 10px;
 margin-bottom: 10px;
-background: #fafafa;
+background: rgba(127,127,127,.08);
 }
 
 .barcode-part-editor-header {
@@ -1029,18 +1029,25 @@ margin-bottom: 8px;
 
 .barcode-part-editor-title {
 font-size: 11px;
-font-weight: 700;
+font-weight: 800;
 text-transform: uppercase;
+letter-spacing: .06em;
+opacity: .75;
 }
 
 .barcode-part-remove {
 border: 1px solid #ccc;
 background: #fff;
-border-radius: 5px;
-padding: 4px 8px;
+color: #111;
+border-radius: 999px;
+padding: 5px 12px;
 cursor: pointer;
 font-size: 11px;
-font-weight: 600;
+font-weight: 700;
+}
+
+.barcode-part-remove:hover {
+background: #f5f5f5;
 }
 
 .label-template-selector {
@@ -1201,39 +1208,50 @@ display: flex;
 justify-content: space-between;
 align-items: center;
 flex: 0 0 auto;
-margin-bottom: 16px;
+margin-bottom: 14px;
 padding-bottom: 12px;
-border-bottom: 1px solid #eee;
+border-bottom: 1px solid #e2e2e2;
 }
 
 .barcode-edit-panel-title {
-font-weight: 700;
+font-weight: 800;
 font-size: 18px;
+letter-spacing: .01em;
 }
 
 .barcode-edit-panel-close {
 border: 0;
-background: none;
+background: transparent;
 font-size: 24px;
 cursor: pointer;
 line-height: 1;
+width: 32px;
+height: 32px;
+border-radius: 8px;
+color: inherit;
+}
+
+.barcode-edit-panel-close:hover {
+background: rgba(127,127,127,.18);
 }
 
 .barcode-edit-section {
-border-top: 1px solid #eee;
-padding-top: 16px;
-margin-top: 16px;
+border-top: 1px solid #e2e2e2;
+padding-top: 14px;
+margin-top: 14px;
 }
 
 .barcode-edit-section-title {
 font-size: 11px;
 font-weight: 700;
 text-transform: uppercase;
-margin-bottom: 12px;
+letter-spacing: .06em;
+margin-bottom: 10px;
+opacity: .7;
 }
 
 .barcode-field-group {
-margin-bottom: 12px;
+margin-bottom: 10px;
 }
 
 .barcode-field-label,
@@ -1241,18 +1259,25 @@ margin-bottom: 12px;
 display: block;
 font-size: 11px;
 font-weight: 600;
-color: #444;
 margin-bottom: 5px;
+opacity: .85;
 }
 
 .barcode-field-input {
 width: 100%;
 box-sizing: border-box;
-padding: 8px;
+padding: 8px 10px;
 border: 1px solid #ccc;
-border-radius: 5px;
+border-radius: 8px;
 font: inherit;
 font-size: 12px;
+background: #fff;
+color: #111;
+}
+
+.barcode-field-input:focus {
+outline: none;
+border-color: #111;
 }
 
 .barcode-control-row {
@@ -1265,12 +1290,18 @@ margin-bottom: 8px;
 
 .barcode-control {
 min-width: 120px;
-padding: 6px;
+padding: 7px 8px;
 border: 1px solid #ccc;
-border-radius: 5px;
+border-radius: 8px;
 background: #fff;
+color: #111;
 font: inherit;
-font-size: 11px;
+font-size: 12px;
+}
+
+.barcode-control:focus {
+outline: none;
+border-color: #111;
 }
 
 .barcode-control:disabled {
@@ -1289,24 +1320,25 @@ display: flex;
 align-items: center;
 justify-content: space-between;
 gap: 10px;
-margin-bottom: 10px;
+margin-bottom: 8px;
+padding: 5px 0;
 }
 
 .barcode-checkbox-label {
 display: flex;
 align-items: center;
 gap: 8px;
-font-size: 12px;
+font-size: 13px;
 font-weight: 600;
 cursor: pointer;
-color: white;
 }
 
 .barcode-checkbox {
-width: 16px;
-height: 16px;
+width: 18px;
+height: 18px;
 margin: 0;
 cursor: pointer;
+accent-color: #111;
 }
 
 .barcode-edit-panel-footer {
@@ -1316,23 +1348,32 @@ align-items: center;
 gap: 8px;
 margin-top: 18px;
 padding-top: 14px;
-border-top: 1px solid #eee;
+border-top: 1px solid #e2e2e2;
 }
 
 .barcode-edit-button {
 border: 1px solid #ccc;
 background: #fff;
-border-radius: 5px;
-padding: 8px 12px;
+color: #111;
+border-radius: 8px;
+padding: 9px 14px;
 cursor: pointer;
-font-size: 11px;
-font-weight: 600;
+font-size: 12px;
+font-weight: 700;
+}
+
+.barcode-edit-button:hover {
+background: #f5f5f5;
 }
 
 .barcode-edit-button.primary {
 background: #111;
 color: #fff;
 border-color: #111;
+}
+
+.barcode-edit-button.primary:hover {
+background: #333;
 }
 
 .barcode-history-panel {
