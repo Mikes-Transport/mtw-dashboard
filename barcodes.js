@@ -969,10 +969,36 @@ background: rgba(0,0,0,.08);
 width: 100%;
 display: flex;
 flex-direction: column;
-align-items: center;
+align-items: stretch;
 justify-content: center;
 gap: 8px;
 box-sizing: border-box;
+}
+
+.barcode-multi-row {
+width: 100%;
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: space-between;
+gap: 12px;
+box-sizing: border-box;
+}
+
+.barcode-multi-text {
+flex: 1 1 auto;
+min-width: 0;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+justify-content: center;
+text-align: left;
+box-sizing: border-box;
+}
+
+.barcode-multi-row .barcode-populate {
+flex: 0 0 auto;
+margin-left: auto;
 }
 
 .barcode-multi-part {
@@ -3192,16 +3218,48 @@ container.innerHTML = '';
 const parts =
 getCardParts(data);
 
+const barcodeSize =
+Number(
+data.barcodeSize
+) ||
+getTemplateDefaults(
+data.template
+).barcodeSize;
+
+const barcodeIds = new Set();
+
+parts
+.filter(
+part =>
+part.showBarcode &&
+cleanPartNumber(
+part.partNumber
+)
+)
+.slice(0, 2)
+.forEach(
+part =>
+barcodeIds.add(part)
+);
+
 parts.forEach(
 part => {
 
-const partWrap =
+const row =
 document.createElement(
 'div'
 );
 
-partWrap.className =
-'barcode-multi-part';
+row.className =
+'barcode-multi-row';
+
+const text =
+document.createElement(
+'div'
+);
+
+text.className =
+'barcode-multi-text';
 
 const number =
 document.createElement(
@@ -3241,62 +3299,18 @@ description.style.lineHeight =
 data.subtextSize +
 'px';
 
-partWrap.append(
+text.append(
 number,
 description
 );
 
-container.appendChild(
-partWrap
+row.appendChild(
+text
 );
 
-}
-);
-
-let barcodesWrap =
-container.querySelector(
-'.barcode-multi-barcodes'
-);
-
-if (!barcodesWrap) {
-
-barcodesWrap =
-document.createElement(
-'div'
-);
-
-barcodesWrap.className =
-'barcode-multi-barcodes';
-
-container.appendChild(
-barcodesWrap
-);
-
-}
-
-barcodesWrap.innerHTML = '';
-
-const barcodeSize =
-Number(
-data.barcodeSize
-) ||
-getTemplateDefaults(
-data.template
-).barcodeSize;
-
-const barcodeParts =
-parts
-.filter(
-part =>
-part.showBarcode &&
-cleanPartNumber(
-part.partNumber
-)
-)
-.slice(0, 2);
-
-barcodeParts.forEach(
-part => {
+if (
+barcodeIds.has(part)
+) {
 
 const code =
 document.createElement(
@@ -3321,17 +3335,18 @@ barcodeSize +
 code.style.lineHeight =
 'normal';
 
-barcodesWrap.appendChild(
+row.appendChild(
 code
 );
 
 }
+
+container.appendChild(
+row
 );
 
-barcodesWrap.style.display =
-barcodeParts.length
-? 'flex'
-: 'none';
+}
+);
 
 container.style.display =
 'flex';
