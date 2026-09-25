@@ -1130,9 +1130,9 @@ overscroll-behavior-y:contain!important;
 .db-left-content.editing .et-edit-panel{
 flex:1 1 auto!important;
 width:100%!important;
-height: 30% !important;
+height: 45% !important;
 min-height:0!important;
-max-height: 30% !important;
+max-height: 45% !important;
 overflow-y:auto!important;
 overflow-x:hidden!important;
 box-sizing:border-box!important;
