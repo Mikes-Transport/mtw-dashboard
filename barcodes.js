@@ -971,7 +971,7 @@ display: flex;
 flex-direction: column;
 align-items: stretch;
 justify-content: center;
-gap: 8px;
+gap: 80px;
 box-sizing: border-box;
 }
 
