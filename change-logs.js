@@ -6,6 +6,7 @@ const {
   getDocs,
   doc,
   getDoc,
+  onSnapshot,
   addDoc,
   updateDoc,
   deleteDoc
@@ -145,19 +146,66 @@ const {
     box.appendChild(list);
   }
 
-  async function load() {
-    const box = $('.change-logs');
+  let unsub = null;
+  let pollTimer = null;
+
+  function paintFromSnap(snap) {
+    if (!snap || !snap.exists()) {
+      render([]);
+      return;
+    }
+    render(collectCommits(snap.data() || {}));
+  }
+
+  async function fetchOnce() {
+    if (!db) return;
     try {
-      if (!db) throw new Error('db unavailable');
-      const snap = await getDoc(doc(db, 'workstation', 'main'));
-      if (!snap || !snap.exists()) {
-        render([]);
-        return;
-      }
-      render(collectCommits(snap.data() || {}));
+      paintFromSnap(await getDoc(doc(db, 'workstation', 'main')));
     } catch (err) {
       console.error('[change-logs] load failed:', err);
-      if (box) box.innerHTML = '<div class="change-log-empty">Could not load change logs.</div>';
+      const box = $('.change-logs');
+      if (box && !box.querySelector('.change-log-card')) {
+        box.innerHTML = '<div class="change-log-empty">Could not load change logs.</div>';
+      }
+    }
+  }
+
+  function startPolling() {
+    if (pollTimer) return;
+    pollTimer = setInterval(function() {
+      if (!document.hidden) fetchOnce();
+    }, 15000);
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) fetchOnce();
+    });
+    window.addEventListener('focus', fetchOnce);
+  }
+
+  function subscribe() {
+    if (unsub) {
+      try { unsub(); } catch (e) {}
+      unsub = null;
+    }
+    let live = false;
+    if (db && typeof onSnapshot === 'function') {
+      try {
+        unsub = onSnapshot(
+          doc(db, 'workstation', 'main'),
+          function(snap) { paintFromSnap(snap); },
+          function(err) {
+            console.error('[change-logs] live failed, polling instead:', err);
+            startPolling();
+            fetchOnce();
+          }
+        );
+        live = true;
+      } catch (err) {
+        console.error('[change-logs] live failed, polling instead:', err);
+      }
+    }
+    if (!live) {
+      startPolling();
+      fetchOnce();
     }
   }
 
@@ -190,7 +238,7 @@ const {
     }
     injectStyles();
     watchTool();
-    load();
+    subscribe();
   }
 
   if (document.readyState === 'loading') {
