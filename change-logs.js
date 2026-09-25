@@ -82,31 +82,66 @@ const {
       .replace(/>/g, '&gt;');
   }
 
+  function injectStyles() {
+    if (document.getElementById('change-log-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'change-log-styles';
+    style.textContent = [
+      '.change-log-head{font-size:20px;font-weight:800;margin:0 0 4px;letter-spacing:.01em}',
+      '.change-log-sub{font-size:12px;opacity:.6;margin:0 0 14px}',
+      '.change-log-scroll{max-height:420px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column;gap:12px;padding-right:2px}',
+      '.change-log-scroll::-webkit-scrollbar{display:none;width:0;height:0}',
+      '.change-log-card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:14px 16px;box-shadow:0 2px 10px rgba(0,0,0,.05)}',
+      '.change-log-card-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}',
+      '.change-log-title{font-size:14px;font-weight:800}',
+      '.change-log-date{font-size:11px;opacity:.55;white-space:nowrap}',
+      '.change-log-message{font-size:13px;line-height:1.5;opacity:.85;white-space:pre-line}',
+      '.change-log-empty{padding:24px 12px;text-align:center;font-size:13px;opacity:.6}'
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
   function render(entries) {
     const box = $('.change-logs');
     if (!box) return;
-    if (!entries.length) {
-      box.innerHTML = '<div class="change-log-empty">No change logs yet.</div>';
-      return;
-    }
     box.innerHTML = '';
-    entries.forEach(function(e) {
-      const row = document.createElement('div');
-      row.className = 'change-log-row';
-      const title = document.createElement('div');
-      title.className = 'change-log-title';
-      title.textContent = e.title;
-      const msg = document.createElement('div');
-      msg.className = 'change-log-message';
-      msg.textContent = e.message;
-      const date = document.createElement('div');
-      date.className = 'change-log-date';
-      date.textContent = formatDate(e.date);
-      row.appendChild(title);
-      row.appendChild(msg);
-      row.appendChild(date);
-      box.appendChild(row);
-    });
+    const head = document.createElement('h2');
+    head.className = 'change-log-head';
+    head.textContent = 'Change Logs';
+    const sub = document.createElement('p');
+    sub.className = 'change-log-sub';
+    sub.textContent = entries.length
+      ? entries.length + (entries.length === 1 ? ' update' : ' updates') + ', newest first'
+      : '';
+    const list = document.createElement('div');
+    list.className = 'change-log-scroll';
+    if (!entries.length) {
+      list.innerHTML = '<div class="change-log-empty">No change logs yet.</div>';
+    } else {
+      entries.forEach(function(e) {
+        const card = document.createElement('div');
+        card.className = 'change-log-card';
+        const top = document.createElement('div');
+        top.className = 'change-log-card-top';
+        const title = document.createElement('div');
+        title.className = 'change-log-title';
+        title.textContent = e.title;
+        const date = document.createElement('div');
+        date.className = 'change-log-date';
+        date.textContent = formatDate(e.date);
+        top.appendChild(title);
+        top.appendChild(date);
+        const msg = document.createElement('div');
+        msg.className = 'change-log-message';
+        msg.textContent = e.message;
+        card.appendChild(top);
+        card.appendChild(msg);
+        list.appendChild(card);
+      });
+    }
+    box.appendChild(head);
+    box.appendChild(sub);
+    box.appendChild(list);
   }
 
   async function load() {
@@ -152,6 +187,7 @@ const {
       setTimeout(init, 200);
       return;
     }
+    injectStyles();
     watchTool();
     load();
   }
