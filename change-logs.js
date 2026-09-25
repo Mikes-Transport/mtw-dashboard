@@ -96,7 +96,7 @@ const {
       '.change-log-card{background:#e9e9e9;color:#f5f6f8;border:1px solid rgba(255,255,255,.08);border-left:5px solid #202327;border-radius:14px;padding:16px 18px;}',
       '.change-log-card-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}',
       '.change-log-title{font-size:15px;font-weight:500;letter-spacing:.02em; color: #000000;}',
-      '.change-log-date{font-size:11px;color:#9fb4d8;white-space:nowrap}',
+      '.change-log-date{font-size:11px;color:#4d4d4d;white-space:nowrap}',
       '.change-log-message{font-size:13px;line-height:1.55;color:#4d4d4d;white-space:pre-line}',
       '.change-log-empty{padding:24px 12px;text-align:center;font-size:13px;opacity:.6}'
     ].join('\n');
