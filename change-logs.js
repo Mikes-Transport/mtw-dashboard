@@ -87,15 +87,16 @@ const {
     const style = document.createElement('style');
     style.id = 'change-log-styles';
     style.textContent = [
-      '.change-log-head{font-size:20px;font-weight:800;margin:0 0 4px;letter-spacing:.01em}',
-      '.change-log-sub{font-size:12px;opacity:.6;margin:0 0 14px}',
-      '.change-log-scroll{max-height:420px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column;gap:12px;padding-right:2px}',
+      '.change-logs{max-width:760px;margin-left:auto;margin-right:auto}',
+      '.change-log-head{font-size:30px;font-weight:900;margin:0 0 4px;letter-spacing:.06em;text-transform:uppercase;text-align:center}',
+      '.change-log-sub{font-size:12px;opacity:.6;margin:0 0 16px;text-align:center}',
+      '.change-log-scroll{max-height:460px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column;gap:14px;padding:2px}',
       '.change-log-scroll::-webkit-scrollbar{display:none;width:0;height:0}',
-      '.change-log-card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:14px 16px;box-shadow:0 2px 10px rgba(0,0,0,.05)}',
+      '.change-log-card{background:#15171c;color:#f5f6f8;border:1px solid rgba(255,255,255,.08);border-left:5px solid #4da3ff;border-radius:14px;padding:16px 18px;box-shadow:0 6px 20px rgba(0,0,0,.12)}',
       '.change-log-card-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}',
-      '.change-log-title{font-size:14px;font-weight:800}',
-      '.change-log-date{font-size:11px;opacity:.55;white-space:nowrap}',
-      '.change-log-message{font-size:13px;line-height:1.5;opacity:.85;white-space:pre-line}',
+      '.change-log-title{font-size:15px;font-weight:800;letter-spacing:.02em}',
+      '.change-log-date{font-size:11px;color:#9fb4d8;white-space:nowrap}',
+      '.change-log-message{font-size:13px;line-height:1.55;color:#c9ced6;white-space:pre-line}',
       '.change-log-empty{padding:24px 12px;text-align:center;font-size:13px;opacity:.6}'
     ].join('\n');
     document.head.appendChild(style);
@@ -107,7 +108,7 @@ const {
     box.innerHTML = '';
     const head = document.createElement('h2');
     head.className = 'change-log-head';
-    head.textContent = 'Change Logs';
+    head.textContent = 'CHANGE LOGS';
     const sub = document.createElement('p');
     sub.className = 'change-log-sub';
     sub.textContent = entries.length
