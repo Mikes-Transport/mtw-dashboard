@@ -2232,7 +2232,7 @@ width: 100% !important;
 height: auto !important;
 }
 
-body > *:not(#barcode-print-root) {
+body:has(#barcode-print-root) > *:not(#barcode-print-root) {
 display: none !important;
 }
 
@@ -7383,6 +7383,15 @@ if (old) {
 old.remove();
 }
 
+const stray =
+document.getElementById(
+'np-print-root'
+);
+
+if (stray) {
+stray.remove();
+}
+
 const config =
 TEMPLATES[
 state.current
@@ -7438,12 +7447,48 @@ document.createElement(
 printRoot.id =
 'barcode-print-root';
 
+printRoot.style.setProperty(
+'display',
+'block',
+'important'
+);
+
+printRoot.style.setProperty(
+'visibility',
+'visible',
+'important'
+);
+
+printRoot.style.setProperty(
+'opacity',
+'1',
+'important'
+);
+
 pages.forEach(
 page => {
 
 const clone =
 page.cloneNode(
 true
+);
+
+clone.style.setProperty(
+'display',
+'block',
+'important'
+);
+
+clone.style.setProperty(
+'visibility',
+'visible',
+'important'
+);
+
+clone.style.setProperty(
+'opacity',
+'1',
+'important'
 );
 
 clone

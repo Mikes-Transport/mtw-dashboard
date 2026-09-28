@@ -449,12 +449,27 @@ const { $, $$ } = window.MTW;
   );
 }
 
+  function isPromoToolOpen() {
+    const panel =
+      document.querySelector(
+        '.et-body-wrapper'
+      );
+    const host = panel || els.pages;
+    if (!host || !host.isConnected) return false;
+    return !!host.getClientRects().length;
+  }
+
   function preparePrint() {
     const old =
       document.getElementById(
         'np-print-root'
       );
     if (old) old.remove();
+    const stray =
+      document.getElementById(
+        'barcode-print-root'
+      );
+    if (stray) stray.remove();
     if (!els.pages) return null;
     const pages =
       els.pages.querySelectorAll(
@@ -1501,7 +1516,7 @@ visibility:hidden!important
       '.np-descbox-edit{border:1px solid #ccc;border-radius:6px;padding:6px;margin-bottom:6px}',
       '.np-descbox-edit textarea{width:100%;box-sizing:border-box;border:1px solid #ccc;border-radius:5px;padding:6px 8px;font:inherit;font-size:12px;min-height:44px;resize:vertical;background:#fff;color:#111}',
       '.np-descbox-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;margin-bottom:4px;color:#f2f2f2}',
-      '@media print{.np-overlay{display:none !important}.np-grid-cards{width:100% !important;height:100% !important}.np-card{width:100% !important;height:100% !important}body>:not(#np-print-root){display:none !important}#np-print-root{display:block !important;position:static !important;width:100% !important;margin:0 !important;padding:0 !important}#np-print-root,#np-print-root *{visibility:visible !important;opacity:1 !important;transform:none !important;filter:none !important}.et-card-body-wrapper{display:none !important}#np-print-root .et-page{width:210mm !important;height:297mm !important;margin:0 !important;padding:0 !important;overflow:hidden !important;box-shadow:none !important;border:0 !important;break-after:page;page-break-after:always}#np-print-root .et-page:last-child{break-after:auto;page-break-after:auto}}'
+      '@media print{.np-overlay{display:none !important}.np-grid-cards{width:100% !important;height:100% !important}.np-card{width:100% !important;height:100% !important}body:has(#np-print-root)>:not(#np-print-root){display:none !important}#np-print-root{display:block !important;position:static !important;width:100% !important;margin:0 !important;padding:0 !important}#np-print-root,#np-print-root *{visibility:visible !important;opacity:1 !important;transform:none !important;filter:none !important}.et-card-body-wrapper{display:none !important}#np-print-root .et-page{width:210mm !important;height:297mm !important;margin:0 !important;padding:0 !important;overflow:hidden !important;box-shadow:none !important;border:0 !important;break-after:page;page-break-after:always}#np-print-root .et-page:last-child{break-after:auto;page-break-after:auto}}'
     ].join('\n');
     document.head.appendChild(style);
   }
@@ -1663,6 +1678,15 @@ visibility:hidden!important
     window.addEventListener(
       'beforeprint',
       () => {
+        if (!isPromoToolOpen()) {
+          const stale =
+            document.getElementById(
+              'np-print-root'
+            );
+          if (stale) stale.remove();
+          return;
+        }
+
         preparePrint();
 
         if (!els.pages) return;
