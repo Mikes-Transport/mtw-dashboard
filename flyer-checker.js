@@ -1,13 +1,13 @@
 'use strict';
 
-/* Destructure inside the IIFE rather than at the top level. The other files
-   in this folder declare `const { $, $$ } = window.MTW` globally, so a second
-   top-level declaration of the same names is a redeclaration error when both
-   load as classic scripts. Scoping it here is identical in style and safe
-   either way. */
+/* Local query helper instead of destructuring window.MTW at load. If this
+   file ever evaluates before the MTW bootstrap, `const { $ } = window.MTW`
+   throws and the whole tool (listener, panel, everything) silently dies,
+   leaving the nav opening an empty wrapper. A local querySelector can
+   never do that. Navigation still owns all showing/hiding. */
 (function () {
 
-  const { $, $$ } = window.MTW;
+  const $ = (s, r) => (r || document).querySelector(s);
 
   /* ==========================================================================
      FLYER PROOF
