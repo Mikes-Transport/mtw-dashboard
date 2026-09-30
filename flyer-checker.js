@@ -1,13 +1,8 @@
 'use strict';
 
-/* Local query helper instead of destructuring window.MTW at load. If this
-   file ever evaluates before the MTW bootstrap, `const { $ } = window.MTW`
-   throws and the whole tool (listener, panel, everything) silently dies,
-   leaving the nav opening an empty wrapper. A local querySelector can
-   never do that. Navigation still owns all showing/hiding. */
 (function () {
 
-  const $ = (s, r) => (r || document).querySelector(s);
+  const { $, $$ } = window.MTW;
 
   /* ==========================================================================
      FLYER PROOF
@@ -2321,19 +2316,15 @@
   }
 
   function buildPanel() {
-    if (panel()) return panel();
+    const p = panel();
 
-    const wrapper = $('.db-tool-wrapper');
+    if (!p) return null;
 
-    if (!wrapper) return null;
-
-    const p = document.createElement('div');
-
-    p.className = PANEL_CLASS;
-    p.style.display = 'none';
-    p.innerHTML = shell();
-
-    wrapper.appendChild(p);
+    // The panel shell lives in Webflow. If it is still empty, fill it
+    // with the tool markup once. Visibility stays with navigation.
+    if (!p.querySelector('#fpRun')) {
+      p.innerHTML = shell();
+    }
 
     return p;
   }
@@ -3795,12 +3786,7 @@
   function onOpen(e) {
     if (e.detail && e.detail.id !== TOOL_ID) return;
 
-    const p = buildPanel();
-
-    if (p) {
-      // openDBTool looks the panel up BEFORE it dispatches this event,
-      // so on first open nobody has set it visible yet. Show it here.
-      p.style.display = 'block';
+    if (buildPanel()) {
       injectStyles();
       wire();
       ensureLibraries().catch(() => {});
