@@ -285,7 +285,8 @@
         initPdf();
 
         return true;
-      });
+      })
+      .catch(() => false);
   }
 
   /* ======================================================================
@@ -3205,6 +3206,14 @@
   }
 
   async function loadPdf(file) {
+    if (!window.pdfjsLib) {
+      try {
+        await ensureLibraries();
+      } catch (e) {
+        /* fall through to the banner below */
+      }
+    }
+
     if (!window.pdfjsLib && !initPdf()) {
       banner('err', 'The PDF engine is not available yet.');
       return Promise.reject(new Error('no pdfjs'));
@@ -3786,9 +3795,15 @@
   function onOpen(e) {
     if (e.detail && e.detail.id !== TOOL_ID) return;
 
-    if (buildPanel()) {
+    const p = buildPanel();
+
+    if (p) {
+      // openDBTool looks the panel up BEFORE it dispatches this event,
+      // so on first open nobody has set it visible yet. Show it here.
+      p.style.display = 'block';
       injectStyles();
       wire();
+      ensureLibraries().catch(() => {});
     }
   }
 
