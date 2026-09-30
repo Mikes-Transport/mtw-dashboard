@@ -1117,13 +1117,14 @@ box-sizing: border-box;
 }
 
 .barcode-output-row.has-extras {
-display: grid;
-grid-template-columns: 1fr 1fr;
+display: flex;
 align-items: center;
+justify-content: center;
+gap: 12px;
 }
 
 .barcode-output-row.has-extras .barcode-populate {
-justify-self: center;
+flex-shrink: 0;
 }
 
 .barcode-extra-fields {
