@@ -970,7 +970,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
     #block_30 #mtw-spin-wheel {
 
       width: 100% !important;
-      max-width: 680px !important;
+      max-width: 480px !important;
 
       margin: 0 auto !important;
     }
