@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL CHANCE VERSION 9");
+console.log("MTW SPIN WHEEL CHANCE VERSION 19");
 
 'use strict';
 
@@ -16,14 +16,25 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
   ];
 
   const colours = [
-    "#111111",
-    "#65b746",
-    "#f4f4f4",
-    "#222222",
-    "#65b746",
-    "#f4f4f4",
-    "#111111",
-    "#65b746"
+    "#17171c",
+    "#ffd21f",
+    "#2563eb",
+    "#9333ea",
+    "#22c55e",
+    "#ef2b2b",
+    "#ff8a00",
+    "#f1f1f4"
+  ];
+
+  const TEXT_COLOURS = [
+    "#ffffff",
+    "#26262b",
+    "#ffffff",
+    "#ffffff",
+    "#ffffff",
+    "#ffffff",
+    "#ffffff",
+    "#26262b"
   ];
 
   let currentRotation = 0;
@@ -147,7 +158,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
             style="
               left:${x}%;
               top:${y}%;
-              --light:${i};
+              --mtw-spin-light:${i};
             "
           ></span>
         `;
@@ -171,21 +182,53 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
         return `
           <div
             class="mtw-label"
-            style="--angle:${centre}deg;"
+            style="--mtw-spin-angle:${centre}deg;"
           >
-            <span>${reward.label}</span>
+            <span${TEXT_COLOURS[i] === '#ffffff' ? '' : ' class="mtw-dk"'} style="color:${TEXT_COLOURS[i]};">${reward.label}</span>
           </div>
         `;
 
       }
     ).join("");
 
+  /*
+   * Thin gold dividers between slices,
+   * drawn as a conic overlay.
+   */
+
+  const dividerStops =
+    `rgba(255,255,255,.9) 0deg 1.5deg, ` +
+    `rgba(255,255,255,0) 1.5deg ${slice}deg`;
+
   root.innerHTML = `
     <div class="mtw-spin-wrap">
 
-      <div class="mtw-wheel-stage">
+      <div class="mtw-head">
+
+        <div class="mtw-eyebrow">★ MTW · Checkout game ★</div>
+
+        <h2 class="mtw-title">
+          <span class="mtw-title-top">MYSTERY</span>
+          <span class="mtw-title-grad">GIVEAWAY</span>
+        </h2>
+
+        <p class="mtw-sub">Spin the wheel · win prizes</p>
+
+      </div>
+
+      <div class="mtw-wheel-col">
+
+        <div class="mtw-floor"></div>
+
+        <div class="mtw-wheel-stage">
+
+        <div class="mtw-stage-glow"></div>
 
         <div class="mtw-wheel-shadow"></div>
+
+        <div class="mtw-rim"></div>
+
+        <div class="mtw-rim-sheen"></div>
 
         <div class="mtw-light-ring">
           ${lights}
@@ -199,7 +242,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
           class="mtw-wheel"
           id="mtw-wheel"
           style="
-            --wheel-gradient:
+            --mtw-wheel-gradient:
               conic-gradient(
                 from 0deg,
                 ${gradientStops}
@@ -207,11 +250,31 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
           "
         >
 
+          <div
+            class="mtw-slice-lines"
+            style="
+              background:
+                repeating-conic-gradient(
+                  from 0deg,
+                  ${dividerStops}
+                );
+            "
+          ></div>
+
+          <div class="mtw-depth"></div>
+
           <div class="mtw-labels">
             ${labels}
           </div>
 
-          <div class="mtw-wheel-centre">
+          <div class="mtw-sheen"></div>
+
+          <div
+            class="mtw-wheel-centre"
+            role="button"
+            tabindex="0"
+            title="Spin the wheel"
+          >
 
             <div class="mtw-centre-ring"></div>
 
@@ -219,28 +282,38 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
 
           </div>
 
+          <div class="mtw-hub-orbit"></div>
+
+        </div>
+
         </div>
 
       </div>
 
-      <button
-        type="button"
-        class="mtw-spin-button"
-        id="mtw-spin-button"
-      >
-        <span class="mtw-button-top">
-          SPIN THE WHEEL
-        </span>
+      <div class="mtw-panel">
 
-        <span class="mtw-button-bottom">
-          WIN SOMETHING!
-        </span>
-      </button>
+        <div
+          class="mtw-spin-status"
+          id="mtw-spin-status"
+        ></div>
 
-      <div
-        class="mtw-spin-status"
-        id="mtw-spin-status"
-      ></div>
+        <button
+          type="button"
+          class="mtw-spin-button"
+          id="mtw-spin-button"
+        >
+          <span class="mtw-button-top">
+            SPIN THE WHEEL
+          </span>
+
+          <span class="mtw-button-bottom">
+            WIN SOMETHING!
+          </span>
+        </button>
+
+        <p class="mtw-fine">Get what you get · no returns or substitutions</p>
+
+      </div>
 
     </div>
   `;
@@ -248,822 +321,742 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
   const style =
     document.createElement("style");
 
-  style.textContent = `
-
-    #mtw-spin-wheel {
-      width: 100%;
-      margin: 0 auto;
-      font-family: inherit;
-      box-sizing: border-box;
+  style.textContent = `#mtw-spin-wheel{
+    width: 100% !important;
+    margin: 0 auto !important;
+    font-family: inherit !important;
+    box-sizing: border-box !important;
+}
+#mtw-spin-wheel *,
+#mtw-spin-wheel *::before,
+#mtw-spin-wheel *::after{
+    box-sizing: border-box !important;
+}
+#mtw-spin-wheel .mtw-spin-wrap{
+    width: 100% !important;
+    max-width: 940px !important;
+    margin: 0 auto !important;
+    position: relative !important;
+    overflow: hidden !important;
+    display: grid !important;
+    grid-template-columns: 300px minmax(0, 1fr) !important;
+    grid-template-areas: "head wheel" "panel wheel" !important;
+    gap: 18px 40px !important;
+    align-items: center !important;
+    padding: 34px 38px !important;
+    background: radial-gradient(circle at 82% 16%, #123a22 0%, rgba(18,58,34,0) 55%), radial-gradient(circle at 8% 92%, #0d2318 0%, rgba(13,35,24,0) 60%), linear-gradient(160deg, #0a1510 0%, #05080a 100%) !important;
+    border: 1px solid rgba(255,255,255,.10) !important;
+    border-radius: 22px !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+#mtw-spin-wheel .mtw-spin-wrap::before{
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    pointer-events: none !important;
+    background-image: linear-gradient(rgba(110,231,160,.10) 1px, transparent 1px), linear-gradient(90deg, rgba(110,231,160,.10) 1px, transparent 1px) !important;
+    background-size: 44px 44px !important;
+    -webkit-mask-image: radial-gradient(circle at 70% 40%, rgba(0,0,0,.9) 0%, rgba(0,0,0,0) 75%) !important;
+    mask-image: radial-gradient(circle at 70% 40%, rgba(0,0,0,.9) 0%, rgba(0,0,0,0) 75%) !important;
+}
+#mtw-spin-wheel .mtw-head{
+    grid-area: head !important;
+    position: relative !important;
+    z-index: 2 !important;
+    text-align: left !important;
+}
+#mtw-spin-wheel .mtw-panel{
+    grid-area: panel !important;
+    position: relative !important;
+    z-index: 2 !important;
+    text-align: left !important;
+    min-width: 0 !important;
+}
+#mtw-spin-wheel .mtw-wheel-col{
+    grid-area: wheel !important;
+    position: relative !important;
+    z-index: 1 !important;
+    display: flex !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+}
+#mtw-spin-wheel .mtw-eyebrow{
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    letter-spacing: 3px !important;
+    text-transform: uppercase !important;
+    color: #8fe3ae !important;
+    margin: 0 0 12px !important;
+}
+#mtw-spin-wheel .mtw-title{
+    margin: 0 0 10px !important;
+    font-weight: 1000 !important;
+    line-height: .95 !important;
+    font-size: clamp(38px, 5vw, 58px) !important;
+    letter-spacing: .5px !important;
+}
+#mtw-spin-wheel .mtw-title-top{
+    display: block !important;
+    color: #ffffff !important;
+}
+#mtw-spin-wheel .mtw-title-grad{
+    display: block !important;
+    background: linear-gradient(90deg, #f6d365 0%, #fff3c4 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    color: transparent !important;
+}
+#mtw-spin-wheel .mtw-sub{
+    margin: 0 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    letter-spacing: 2.5px !important;
+    text-transform: uppercase !important;
+    color: rgba(255,255,255,.55) !important;
+}
+/* =========================================
+   WHEEL STAGE
+========================================= */
+#mtw-spin-wheel .mtw-floor{
+    position: absolute !important;
+    left: 50% !important;
+    bottom: 2% !important;
+    width: 86% !important;
+    height: 54px !important;
+    transform: translateX(-50%) !important;
+    border: 2px solid rgba(101,183,70,.45) !important;
+    border-top: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-radius: 50% !important;
+    box-shadow: 0 0 34px rgba(101,183,70,.35), inset 0 -14px 26px rgba(101,183,70,.22) !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+}
+#mtw-spin-wheel .mtw-wheel-stage{
+    position: relative !important;
+    width: min(80vw, 430px) !important;
+    height: min(80vw, 430px) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 1 !important;
+}
+#mtw-spin-wheel .mtw-stage-glow{
+    position: absolute !important;
+    inset: -10% !important;
+    border-radius: 50% !important;
+    background: radial-gradient(circle, rgba(101,183,70,.28) 0%, rgba(101,183,70,.10) 45%, rgba(0,0,0,0) 70%) !important;
+    filter: blur(10px) !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+}
+#mtw-spin-wheel .mtw-wheel-shadow{
+    position: absolute !important;
+    width: 82% !important;
+    height: 82% !important;
+    border-radius: 50% !important;
+    background: rgba(0,0,0,.55) !important;
+    filter: blur(18px) !important;
+    transform: translateY(18px) !important;
+    z-index: 0 !important;
+}
+/* =========================================
+   WHITE LED RIM
+========================================= */
+#mtw-spin-wheel .mtw-rim{
+    position: absolute !important;
+    width: 97% !important;
+    height: 97% !important;
+    border-radius: 50% !important;
+    z-index: 2 !important;
+    background: conic-gradient(from 200deg, #101318 0%, #3a4250 12%, #171b22 30%, #4a5468 45%, #101318 60%, #333b47 75%, #171b22 90%, #101318 100%) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,.55), 0 0 44px rgba(96,165,250,.25), inset 0 2px 6px rgba(255,255,255,.25), inset 0 -6px 12px rgba(0,0,0,.8) !important;
+}
+#mtw-spin-wheel .mtw-rim-sheen{
+    position: absolute !important;
+    width: 97% !important;
+    height: 97% !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    border-radius: 50% !important;
+    z-index: 2 !important;
+    pointer-events: none !important;
+    background: conic-gradient(from 0deg, rgba(255,255,255,0) 0deg, rgba(255,255,255,.45) 14deg, rgba(255,255,255,0) 34deg, rgba(255,255,255,0) 180deg, rgba(255,255,255,.28) 196deg, rgba(255,255,255,0) 218deg) !important;
+    animation: mtwRimSweep 7s linear infinite !important;
+}
+@keyframes mtwRimSweep{
+    from{
+        transform: translate(-50%, -50%) rotate(0deg) !important;
     }
-
+    to{
+        transform: translate(-50%, -50%) rotate(360deg) !important;
+    }
+}
+/* =========================================
+   OUTER LIGHTS
+========================================= */
+#mtw-spin-wheel .mtw-light-ring{
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 10 !important;
+    pointer-events: none !important;
+    border-radius: 50% !important;
+}
+#mtw-spin-wheel .mtw-light-ring span{
+    position: absolute !important;
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 50% !important;
+    background: #eaf6ff !important;
+    box-shadow: 0 0 5px #ffffff, 0 0 12px #7dd3fc, 0 0 24px rgba(56,189,248,.9) !important;
+    transform: translate(-50%, -50%) scale(.85) !important;
+    animation: mtwBulbIdle 1.1s infinite alternate !important;
+    animation-delay: calc(var(--mtw-spin-light) * -.035s) !important;
+}
+@keyframes mtwBulbIdle{
+    0%{
+        opacity: .45 !important;
+        transform: translate(-50%, -50%) scale(.78) !important;
+    }
+    100%{
+        opacity: 1 !important;
+        transform: translate(-50%, -50%) scale(1) !important;
+    }
+}
+#mtw-spin-wheel .mtw-wheel-stage.mtw-spinning .mtw-light-ring span{
+    animation: mtwBulbSpin .16s infinite alternate !important;
+}
+@keyframes mtwBulbSpin{
+    0%{
+        opacity: .3 !important;
+        background: #38bdf8 !important;
+        box-shadow: 0 0 4px #38bdf8, 0 0 10px #0369a1 !important;
+    }
+    100%{
+        opacity: 1 !important;
+        background: #ffffff !important;
+        box-shadow: 0 0 7px #ffffff, 0 0 18px #7dd3fc, 0 0 32px rgba(56,189,248,.95) !important;
+    }
+}
+/* =========================================
+   WHEEL
+========================================= */
+#mtw-spin-wheel .mtw-wheel{
+    position: relative !important;
+    width: 88% !important;
+    height: 88% !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+    z-index: 3 !important;
+    border: 6px solid #eef1f6 !important;
+    background: var(--mtw-wheel-gradient) !important;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.8), 0 14px 30px rgba(0,0,0,.5), inset 0 0 40px rgba(0,0,0,.35) !important;
+    transform: rotate(0deg) !important;
+    transition: transform 4.1s cubic-bezier(.08,.78,.12,1) !important;
+    will-change: transform !important;
+}
+#mtw-spin-wheel .mtw-slice-lines{
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 50% !important;
+    z-index: 5 !important;
+    pointer-events: none !important;
+}
+#mtw-spin-wheel .mtw-depth{
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 50% !important;
+    z-index: 6 !important;
+    pointer-events: none !important;
+    background: radial-gradient(circle, rgba(0,0,0,0) 58%, rgba(0,0,0,.28) 100%) !important;
+}
+#mtw-spin-wheel .mtw-wheel::after{
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 50% !important;
+    background: linear-gradient(125deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.07) 18%, rgba(255,255,255,0) 42%) !important;
+    pointer-events: none !important;
+    z-index: 8 !important;
+}
+#mtw-spin-wheel .mtw-sheen{
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 50% !important;
+    z-index: 7 !important;
+    pointer-events: none !important;
+    background: conic-gradient(from 0deg, rgba(255,255,255,0) 0deg, rgba(255,255,255,.10) 24deg, rgba(255,255,255,0) 70deg, rgba(255,255,255,0) 180deg, rgba(255,255,255,.07) 205deg, rgba(255,255,255,0) 250deg) !important;
+    animation: mtwSheenSpin 16s linear infinite !important;
+}
+@keyframes mtwSheenSpin{
+    from{
+        transform: rotate(0deg) !important;
+    }
+    to{
+        transform: rotate(360deg) !important;
+    }
+}
+/* =========================================
+   LABELS
+========================================= */
+#mtw-spin-wheel .mtw-labels{
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 6 !important;
+    pointer-events: none !important;
+}
+#mtw-spin-wheel .mtw-label{
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 100% !important;
+    height: 100% !important;
+    transform: translate(-50%, -50%) rotate(var(--mtw-spin-angle)) !important;
+    transform-origin: center center !important;
+    pointer-events: none !important;
+}
+#mtw-spin-wheel .mtw-label span{
+    position: absolute !important;
+    left: 50% !important;
+    top: 12% !important;
+    width: 28% !important;
+    transform: translateX(-50%) rotate(90deg) !important;
+    text-align: center !important;
+    font-size: clamp(13px, 2.6vw, 17px) !important;
+    font-weight: 1000 !important;
+    line-height: 1.05 !important;
+    letter-spacing: .5px !important;
+    color: #ffffff !important;
+    text-shadow: 0 2px 3px rgba(0,0,0,.55), 0 0 2px rgba(0,0,0,.6) !important;
+    white-space: normal !important;
+}
+#mtw-spin-wheel .mtw-label span.mtw-dk{
+    color: #23232a !important;
+    text-shadow: 0 1px 0 rgba(255,255,255,.55) !important;
+}
+/* =========================================
+   CENTRE HUB
+========================================= */
+#mtw-spin-wheel .mtw-wheel-centre{
+    position: absolute !important;
+    z-index: 12 !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 124px !important;
+    height: 124px !important;
+    transform: translate(-50%, -50%) !important;
+    border-radius: 50% !important;
+    background: radial-gradient(circle at 35% 30%, #3d4453 0%, #1a1e26 55%, #0b0d12 100%) !important;
+    border: 5px solid #f6d365 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,.5), 0 0 14px rgba(246,211,101,.35), inset 0 2px 5px rgba(255,255,255,.15) !important;
+    animation: mtwHubGlow 3s ease-in-out infinite !important;
+}
+@keyframes mtwHubGlow{
+    0%{
+        box-shadow: 0 4px 10px rgba(0,0,0,.5), 0 0 14px rgba(246,211,101,.35), inset 0 2px 5px rgba(255,255,255,.15) !important;
+    }
+    50%{
+        box-shadow: 0 4px 10px rgba(0,0,0,.5), 0 0 34px rgba(246,211,101,.65), inset 0 2px 5px rgba(255,255,255,.15) !important;
+    }
+    100%{
+        box-shadow: 0 4px 10px rgba(0,0,0,.5), 0 0 14px rgba(246,211,101,.35), inset 0 2px 5px rgba(255,255,255,.15) !important;
+    }
+}
+#mtw-spin-wheel .mtw-wheel-centre:hover{
+    filter: brightness(1.08) !important;
+}
+#mtw-spin-wheel .mtw-wheel-centre:focus-visible{
+    outline: 2px solid #ffffff !important;
+    outline-offset: 3px !important;
+}
+#mtw-spin-wheel .mtw-wheel-stage.mtw-spinning .mtw-wheel-centre{
+    animation: mtwCentrePulse .45s infinite alternate !important;
+}
+@keyframes mtwCentrePulse{
+    from{
+        transform: translate(-50%, -50%) scale(1) !important;
+    }
+    to{
+        transform: translate(-50%, -50%) scale(1.07) !important;
+    }
+}
+#mtw-spin-wheel .mtw-centre-ring{
+    position: absolute !important;
+    inset: 8px !important;
+    border-radius: 50% !important;
+    border: 2px solid rgba(246,211,101,.4) !important;
+}
+#mtw-spin-wheel .mtw-hub-orbit{
+    position: absolute !important;
+    width: 152px !important;
+    height: 152px !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    border-radius: 50% !important;
+    border: 2px dashed rgba(246,211,101,.65) !important;
+    z-index: 11 !important;
+    pointer-events: none !important;
+    animation: mtwOrbitSpin 14s linear infinite !important;
+}
+@keyframes mtwOrbitSpin{
+    from{
+        transform: translate(-50%, -50%) rotate(0deg) !important;
+    }
+    to{
+        transform: translate(-50%, -50%) rotate(360deg) !important;
+    }
+}
+#mtw-spin-wheel .mtw-wheel-centre span{
+    position: relative !important;
+    z-index: 2 !important;
+    font-size: 20px !important;
+    font-weight: 1000 !important;
+    letter-spacing: .8px !important;
+    color: #f6d365 !important;
+    text-shadow: 0 0 12px rgba(246,211,101,.7) !important;
+}
+/* =========================================
+   POINTER
+========================================= */
+#mtw-spin-wheel .mtw-pointer{
+    position: absolute !important;
+    z-index: 20 !important;
+    top: -3px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    transform-origin: 50% 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-left: 26px solid transparent !important;
+    border-right: 26px solid transparent !important;
+    border-top: 54px solid #f6d365 !important;
+    filter: drop-shadow(0 4px 3px rgba(0,0,0,.45)) drop-shadow(0 0 12px rgba(246,211,101,.65)) !important;
+}
+#mtw-spin-wheel .mtw-pointer::after{
+    content: "" !important;
+    position: absolute !important;
+    left: -15px !important;
+    top: -49px !important;
+    width: 30px !important;
+    height: 40px !important;
+    clip-path: polygon(50% 100%, 0 0, 100% 0) !important;
+    background: #fff3c4 !important;
+    filter: drop-shadow(0 0 7px rgba(255,243,196,.9)) !important;
+}
+#mtw-spin-wheel .mtw-wheel-stage.mtw-spinning .mtw-pointer{
+    animation: mtwPointerWiggle .18s ease-in-out infinite alternate !important;
+}
+@keyframes mtwPointerWiggle{
+    0%{
+        transform: translateX(-50%) rotate(-9deg) !important;
+    }
+    100%{
+        transform: translateX(-50%) rotate(9deg) !important;
+    }
+}
+#mtw-spin-wheel .mtw-pointer-glow{
+    position: absolute !important;
+    width: 70px !important;
+    height: 70px !important;
+    left: -35px !important;
+    top: -24px !important;
+    border-radius: 50% !important;
+    background: rgba(246,211,101,.25) !important;
+    filter: blur(15px) !important;
+}
+/* =========================================
+   RESULTS + BUTTON + FINE PRINT
+========================================= */
+#mtw-spin-wheel .mtw-spin-status{
+    min-height: 78px !important;
+    margin: 18px 0 !important;
+    padding: 14px 16px !important;
+    border: 1px dashed rgba(255,255,255,.28) !important;
+    border-radius: 12px !important;
+    background: rgba(255,255,255,.05) !important;
+    font-size: clamp(16px, 2.4vw, 22px) !important;
+    font-weight: 1000 !important;
+    letter-spacing: .3px !important;
+    color: #e8eaed !important;
+}
+#mtw-spin-wheel .mtw-spin-status:empty::before{
+    content: "Your prize will appear here..." !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: rgba(255,255,255,.45) !important;
+}
+#mtw-spin-wheel .mtw-spin-status.mtw-win{
+    color: #7cf29b !important;
+    border-style: solid !important;
+    border-color: rgba(124,242,155,.55) !important;
+    background: rgba(124,242,155,.08) !important;
+    text-shadow: 0 0 18px rgba(101,183,70,.5) !important;
+    animation: mtwWinReveal .6s ease both !important;
+}
+#mtw-spin-wheel .mtw-spin-status.mtw-try-again{
+    color: #e8eaed !important;
+    border-style: solid !important;
+    border-color: rgba(255,255,255,.35) !important;
+    animation: mtwResultReveal .5s ease both !important;
+}
+@keyframes mtwWinReveal{
+    0%{
+        opacity: 0 !important;
+        transform: scale(.5) !important;
+    }
+    60%{
+        opacity: 1 !important;
+        transform: scale(1.15) !important;
+    }
+    100%{
+        transform: scale(1) !important;
+    }
+}
+@keyframes mtwResultReveal{
+    0%{
+        opacity: 0 !important;
+        transform: translateY(10px) !important;
+    }
+    100%{
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+}
+#mtw-spin-wheel .mtw-spin-button{
+    appearance: none !important;
+    border: 0 !important;
+    position: relative !important;
+    width: 100% !important;
+    padding: 18px 20px !important;
+    border-radius: 14px !important;
+    background: linear-gradient(180deg, #78ca59 0%, #65b746 48%, #4b9b32 100%) !important;
+    color: #ffffff !important;
+    font-family: inherit !important;
+    cursor: pointer !important;
+    overflow: hidden !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+    box-shadow: 0 5px 0 #377c24, 0 8px 20px rgba(0,0,0,.35), 0 0 22px rgba(101,183,70,.35) !important;
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease !important;
+}
+#mtw-spin-wheel .mtw-spin-button:hover:not(:disabled){
+    transform: translateY(-2px) !important;
+    box-shadow: 0 7px 0 #377c24, 0 12px 25px rgba(0,0,0,.35), 0 0 30px rgba(101,183,70,.55) !important;
+    filter: brightness(1.08) !important;
+}
+#mtw-spin-wheel .mtw-spin-button:active:not(:disabled){
+    transform: translateY(3px) !important;
+    box-shadow: 0 2px 0 #377c24, 0 5px 12px rgba(0,0,0,.25) !important;
+}
+#mtw-spin-wheel .mtw-spin-button:disabled{
+    opacity: .65 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+#mtw-spin-wheel .mtw-spin-button::after{
+    content: "" !important;
+    position: absolute !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: -70% !important;
+    width: 45% !important;
+    background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.4) 50%, rgba(255,255,255,0) 100%) !important;
+    transform: skewX(-20deg) !important;
+    pointer-events: none !important;
+    animation: mtwButtonSheen 3.6s ease-in-out infinite !important;
+}
+@keyframes mtwButtonSheen{
+    0%{
+        left: -70% !important;
+    }
+    55%{
+        left: 135% !important;
+    }
+    100%{
+        left: 135% !important;
+    }
+}
+#mtw-spin-wheel .mtw-spin-button:disabled::after{
+    display: none !important;
+}
+#mtw-spin-wheel .mtw-button-top{
+    display: block !important;
+    font-size: 18px !important;
+    font-weight: 1000 !important;
+    letter-spacing: .4px !important;
+}
+#mtw-spin-wheel .mtw-button-bottom{
+    display: block !important;
+    margin-top: 2px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    opacity: .9 !important;
+    letter-spacing: 1px !important;
+}
+#mtw-spin-wheel .mtw-fine{
+    margin: 14px 0 0 !important;
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 1.5px !important;
+    text-transform: uppercase !important;
+    color: rgba(255,255,255,.45) !important;
+}
+/* =========================================
+   WINNER LIGHTS
+========================================= */
+#mtw-spin-wheel .mtw-wheel-stage.mtw-winner .mtw-light-ring span{
+    animation: mtwWinnerLights .22s infinite alternate !important;
+}
+#mtw-spin-wheel .mtw-wheel-stage.mtw-winner .mtw-wheel{
+    box-shadow: 0 0 0 4px rgba(255,255,255,.2), 0 0 0 9px rgba(101,183,70,.75), 0 0 35px rgba(101,183,70,.75), 0 0 70px rgba(101,183,70,.35), inset 0 0 30px rgba(0,0,0,.65) !important;
+}
+@keyframes mtwWinnerLights{
+    0%{
+        opacity: .3 !important;
+        background: #ff8a00 !important;
+        transform: translate(-50%, -50%) scale(.75) !important;
+    }
+    100%{
+        opacity: 1 !important;
+        background: #fff36a !important;
+        transform: translate(-50%, -50%) scale(1.25) !important;
+    }
+}
+/* =========================================
+   CONFETTI
+========================================= */
+#mtw-spin-wheel .mtw-confetti-layer{
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 40 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    border-radius: 12px !important;
+}
+#mtw-spin-wheel .mtw-confetti-piece{
+    position: absolute !important;
+    top: -14px !important;
+    border-radius: 2px !important;
+    opacity: 1 !important;
+    animation-name: mtwConfettiFall !important;
+    animation-timing-function: linear !important;
+    animation-fill-mode: forwards !important;
+}
+@keyframes mtwConfettiFall{
+    0%{
+        transform: translate3d(0, -5%, 0) rotate(0deg) !important;
+        opacity: 1 !important;
+    }
+    100%{
+        transform: translate3d(var(--mtw-drift, 0px), 560px, 0) rotate(720deg) !important;
+        opacity: 0 !important;
+    }
+}
+/* =========================================
+   WEBFLOW BLOCK
+========================================= */
+#block_30{
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+#block_30 #mtw-spin-wheel{
+    width: 100% !important;
+    max-width: 980px !important;
+    margin: 0 auto !important;
+}
+#block_30 .mtw-spin-wrap{
+    width: 100% !important;
+    max-width: 100% !important;
+}
+#block_30 .mtw-wheel-stage{
+    width: min(80vw, 560px) !important;
+    max-width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+/* =========================================
+   TABLET / MOBILE
+========================================= */
+@media (max-width: 800px){
+    #mtw-spin-wheel .mtw-spin-wrap{
+        grid-template-columns: minmax(0, 1fr) !important;
+        grid-template-areas: "head" "wheel" "panel" !important;
+        gap: 20px !important;
+        padding: 26px 18px !important;
+    }
+    #mtw-spin-wheel .mtw-head,
+    #mtw-spin-wheel .mtw-panel{
+        text-align: center !important;
+    }
+    #mtw-spin-wheel .mtw-spin-status{
+        text-align: center !important;
+    }
+}
+@media (max-width: 480px){
+    #mtw-spin-wheel .mtw-spin-wrap{
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
+    #mtw-spin-wheel .mtw-wheel-stage{
+        width: 94vw !important;
+        height: 94vw !important;
+    }
+    #mtw-spin-wheel .mtw-wheel{
+        border-width: 7px !important;
+    }
+    #mtw-spin-wheel .mtw-light-ring span{
+        width: 9px !important;
+        height: 9px !important;
+    }
+    #mtw-spin-wheel .mtw-wheel-centre{
+        width: 82px !important;
+        height: 82px !important;
+        border-width: 5px !important;
+    }
+    #mtw-spin-wheel .mtw-wheel-centre span{
+        font-size: 14px !important;
+    }
+    #mtw-spin-wheel .mtw-hub-orbit{
+        width: 114px !important;
+        height: 114px !important;
+    }
+    #mtw-spin-wheel .mtw-label span{
+        top: 13% !important;
+        width: 42% !important;
+        font-size: clamp(13px, 2.9vw, 18px) !important;
+    }
+    #mtw-spin-wheel .mtw-pointer{
+        border-left-width: 17px !important;
+        border-right-width: 17px !important;
+        border-top-width: 36px !important;
+    }
+    #mtw-spin-wheel .mtw-spin-button{
+        width: 100% !important;
+        max-width: 300px !important;
+    }
+}
+@media (prefers-reduced-motion: reduce){
     #mtw-spin-wheel *,
     #mtw-spin-wheel *::before,
-    #mtw-spin-wheel *::after {
-      box-sizing: border-box;
+    #mtw-spin-wheel *::after{
+        animation: none !important;
+        transition: none !important;
     }
-
-    .mtw-spin-wrap {
-      width: 100%;
-      text-align: center;
-      padding: 25px 10px 35px;
-    }
-
-    /* =========================================
-       WHEEL STAGE
-    ========================================= */
-
-    .mtw-wheel-stage {
-      position: relative;
-
-      width: min(88vw, 443.516px);
-      height: min(88vw, 443.516px);
-
-      margin: 0 auto 35px;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .mtw-wheel-shadow {
-      position: absolute;
-
-      width: 82%;
-      height: 82%;
-
-      border-radius: 50%;
-
-      background: rgba(0,0,0,.5);
-
-      filter: blur(18px);
-
-      transform: translateY(18px);
-
-      z-index: 0;
-    }
-
-    /* =========================================
-       OUTER LIGHTS
-    ========================================= */
-
-    .mtw-light-ring {
-      position: absolute;
-      inset: 0;
-
-      z-index: 10;
-
-      pointer-events: none;
-
-      border-radius: 50%;
-    }
-
-    .mtw-light-ring span {
-      position: absolute;
-
-      width: 13px;
-      height: 13px;
-
-      border-radius: 50%;
-
-      background: #ffd84a;
-
-      box-shadow:
-        0 0 5px #fff4a3,
-        0 0 12px #ffb300,
-        0 0 24px rgba(255,166,0,.9);
-
-      transform:
-        translate(-50%, -50%)
-        scale(.85);
-
-      animation:
-        mtwBulbIdle
-        1.1s
-        infinite
-        alternate;
-
-      animation-delay:
-        calc(var(--light) * -.035s);
-    }
-
-    @keyframes mtwBulbIdle {
-
-      0% {
-        opacity: .45;
-
-        transform:
-          translate(-50%, -50%)
-          scale(.78);
-      }
-
-      100% {
-        opacity: 1;
-
-        transform:
-          translate(-50%, -50%)
-          scale(1);
-      }
-
-    }
-
-    .mtw-wheel-stage.mtw-spinning
-    .mtw-light-ring span {
-
-      animation:
-        mtwBulbSpin
-        .16s
-        infinite
-        alternate;
-    }
-
-    @keyframes mtwBulbSpin {
-
-      0% {
-        opacity: .3;
-
-        background: #ff9d00;
-
-        box-shadow:
-          0 0 4px #ffb300,
-          0 0 10px #ff7b00;
-      }
-
-      100% {
-        opacity: 1;
-
-        background: #fff36a;
-
-        box-shadow:
-          0 0 7px #ffffff,
-          0 0 18px #ffb300,
-          0 0 32px rgba(255,128,0,.95);
-      }
-
-    }
-
-    /* =========================================
-       WHEEL
-    ========================================= */
-
-    .mtw-wheel {
-      position: relative;
-
-      width: 88%;
-      height: 88%;
-
-      border-radius: 50%;
-
-      overflow: hidden;
-
-      z-index: 3;
-
-      border: 10px solid #161616;
-
-      background:
-        var(--wheel-gradient);
-
-      box-shadow:
-        0 0 0 4px rgba(255,255,255,.12),
-        0 0 0 8px rgba(101,183,70,.45),
-        0 12px 28px rgba(0,0,0,.45),
-        inset 0 0 35px rgba(0,0,0,.55);
-
-      transform: rotate(0deg);
-
-      transition:
-        transform
-        4.1s
-        cubic-bezier(.08,.78,.12,1);
-
-      will-change: transform;
-    }
-
-    /* =========================================
-       FAKE GLOSS / SHINE
-    ========================================= */
-
-    .mtw-wheel::after {
-      content: "";
-
-      position: absolute;
-
-      inset: 0;
-
-      border-radius: 50%;
-
-      background:
-        linear-gradient(
-          125deg,
-          rgba(255,255,255,.26) 0%,
-          rgba(255,255,255,.10) 18%,
-          rgba(255,255,255,0) 42%
-        );
-
-      pointer-events: none;
-
-      z-index: 8;
-    }
-
-    /* =========================================
-       LABELS
-    ========================================= */
-
-    .mtw-labels {
-      position: absolute;
-
-      inset: 0;
-
-      z-index: 6;
-
-      pointer-events: none;
-    }
-
-    .mtw-label {
-
-      position: absolute;
-
-      left: 50%;
-      top: 50%;
-
-      width: 100%;
-      height: 100%;
-
-      transform:
-        translate(-50%, -50%)
-        rotate(var(--angle));
-
-      transform-origin:
-        center center;
-
-      pointer-events: none;
-    }
-
-    .mtw-label span {
-
-      position: absolute;
-
-      left: 50%;
-
-      top: 15%;
-
-      width: 30%;
-
-      transform:
-        translateX(-50%)
-        rotate(90deg);
-
-      text-align: center;
-
-      font-size:
-        clamp(13px, 2.9vw, 15px);
-
-      font-weight: 1000;
-
-      line-height: 1.05;
-
-      letter-spacing: .25px;
-
-      color: #ffffff;
-
-      text-shadow:
-        0 2px 4px rgba(0,0,0,.95),
-        0 0 4px rgba(0,0,0,.75);
-
-      white-space: normal;
-    }
-
-    .mtw-label:nth-child(3) span,
-    .mtw-label:nth-child(6) span {
-
-      color: #ffffff;
-
-      text-shadow:
-        0 2px 4px rgba(0,0,0,.95),
-        0 0 4px rgba(0,0,0,.75);
-    }
-
-    /* =========================================
-       CENTRE HUB
-    ========================================= */
-
-    .mtw-wheel-centre {
-
-      position: absolute;
-
-      z-index: 12;
-
-      top: 50%;
-      left: 50%;
-
-      width: 112px;
-      height: 112px;
-
-      transform:
-        translate(-50%, -50%);
-
-      border-radius: 50%;
-
-      background:
-        radial-gradient(
-          circle at 35% 30%,
-          #8bdd69,
-          #65b746 45%,
-          #3c8d27 100%
-        );
-
-      border: 7px solid #171717;
-
-      display: flex;
-
-      align-items: center;
-      justify-content: center;
-
-      box-shadow:
-        0 4px 8px rgba(0,0,0,.45),
-        0 0 20px rgba(101,183,70,.5),
-        inset 0 2px 4px rgba(255,255,255,.35);
-    }
-
-    .mtw-wheel-stage.mtw-spinning
-    .mtw-wheel-centre {
-
-      animation:
-        mtwCentrePulse
-        .45s
-        infinite
-        alternate;
-    }
-
-    @keyframes mtwCentrePulse {
-
-      from {
-        transform:
-          translate(-50%, -50%)
-          scale(1);
-      }
-
-      to {
-        transform:
-          translate(-50%, -50%)
-          scale(1.07);
-      }
-
-    }
-
-    .mtw-centre-ring {
-
-      position: absolute;
-
-      inset: 7px;
-
-      border-radius: 50%;
-
-      border:
-        2px solid
-        rgba(255,255,255,.3);
-    }
-
-    .mtw-wheel-centre span {
-
-      position: relative;
-
-      z-index: 2;
-
-      font-size: 19px;
-
-      font-weight: 1000;
-
-      letter-spacing: .8px;
-
-      color: #ffffff;
-
-      text-shadow:
-        0 2px 3px rgba(0,0,0,.45);
-    }
-
-    /* =========================================
-       POINTER
-    ========================================= */
-
-    .mtw-pointer {
-
-      position: absolute;
-
-      z-index: 20;
-
-      top: -3px;
-      left: 50%;
-
-      transform:
-        translateX(-50%);
-
-      width: 0;
-      height: 0;
-
-      border-left:
-        23px solid transparent;
-
-      border-right:
-        23px solid transparent;
-
-      border-top:
-        48px solid #171717;
-
-      filter:
-        drop-shadow(
-          0 4px 3px
-          rgba(0,0,0,.35)
-        );
-    }
-
-    .mtw-pointer::after {
-
-      content: "";
-
-      position: absolute;
-
-      left: -14px;
-      top: -44px;
-
-      width: 28px;
-      height: 36px;
-
-      clip-path:
-        polygon(
-          50% 100%,
-          0 0,
-          100% 0
-        );
-
-      background: #65b746;
-
-      filter:
-        drop-shadow(
-          0 0 7px
-          rgba(101,183,70,.8)
-        );
-    }
-
-    .mtw-pointer-glow {
-
-      position: absolute;
-
-      width: 60px;
-      height: 60px;
-
-      left: -30px;
-      top: -20px;
-
-      border-radius: 50%;
-
-      background:
-        rgba(101,183,70,.2);
-
-      filter: blur(15px);
-    }
-
-    /* =========================================
-       SPIN BUTTON
-    ========================================= */
-
-    .mtw-spin-button {
-
-      appearance: none;
-
-      border: 0;
-
-      position: relative;
-
-      min-width: 250px;
-
-      padding: 16px 34px;
-
-      border-radius: 12px;
-
-      background:
-        linear-gradient(
-          180deg,
-          #78ca59 0%,
-          #65b746 48%,
-          #4b9b32 100%
-        );
-
-      color: #ffffff;
-
-      font-family: inherit;
-
-      cursor: pointer;
-
-      box-shadow:
-        0 5px 0 #377c24,
-        0 8px 20px rgba(0,0,0,.2),
-        0 0 18px rgba(101,183,70,.35);
-
-      transition:
-        transform .15s ease,
-        box-shadow .15s ease,
-        filter .15s ease;
-    }
-
-    .mtw-spin-button:hover:not(:disabled) {
-
-      transform:
-        translateY(-2px);
-
-      box-shadow:
-        0 7px 0 #377c24,
-        0 12px 25px rgba(0,0,0,.25),
-        0 0 25px rgba(101,183,70,.55);
-
-      filter:
-        brightness(1.08);
-    }
-
-    .mtw-spin-button:active:not(:disabled) {
-
-      transform:
-        translateY(3px);
-
-      box-shadow:
-        0 2px 0 #377c24,
-        0 5px 12px rgba(0,0,0,.2);
-    }
-
-    .mtw-spin-button:disabled {
-
-      opacity: .65;
-
-      cursor: not-allowed;
-
-      transform: none;
-    }
-
-    .mtw-button-top {
-
-      display: block;
-
-      font-size: 17px;
-
-      font-weight: 1000;
-
-      letter-spacing: .4px;
-    }
-
-    .mtw-button-bottom {
-
-      display: block;
-
-      margin-top: 2px;
-
-      font-size: 11px;
-
-      font-weight: 700;
-
-      opacity: .9;
-
-      letter-spacing: 1px;
-    }
-
-    /* =========================================
-       RESULT
-    ========================================= */
-
-    .mtw-spin-status {
-
-      min-height: 40px;
-
-      margin-top: 22px;
-
-      font-size:
-        clamp(18px, 4vw, 25px);
-
-      font-weight: 1000;
-
-      letter-spacing: .3px;
-    }
-
-    .mtw-spin-status.win {
-
-      color: #65b746;
-
-      animation:
-        mtwWinReveal
-        .6s
-        ease both;
-    }
-
-    .mtw-spin-status.try-again {
-
-      color: #171717;
-
-      animation:
-        mtwResultReveal
-        .5s
-        ease both;
-    }
-
-    @keyframes mtwWinReveal {
-
-      0% {
-        opacity: 0;
-        transform: scale(.5);
-      }
-
-      60% {
-        opacity: 1;
-        transform: scale(1.15);
-      }
-
-      100% {
-        transform: scale(1);
-      }
-
-    }
-
-    @keyframes mtwResultReveal {
-
-      0% {
-        opacity: 0;
-
-        transform:
-          translateY(10px);
-      }
-
-      100% {
-        opacity: 1;
-
-        transform:
-          translateY(0);
-      }
-
-    }
-
-    /* =========================================
-       WINNER LIGHTS
-    ========================================= */
-
-    .mtw-wheel-stage.mtw-winner
-    .mtw-light-ring span {
-
-      animation:
-        mtwWinnerLights
-        .22s
-        infinite
-        alternate;
-    }
-
-    .mtw-wheel-stage.mtw-winner
-    .mtw-wheel {
-
-      box-shadow:
-        0 0 0 4px rgba(255,255,255,.15),
-        0 0 0 9px rgba(101,183,70,.75),
-        0 0 35px rgba(101,183,70,.75),
-        0 0 70px rgba(101,183,70,.35),
-        inset 0 0 30px rgba(0,0,0,.65);
-    }
-
-    @keyframes mtwWinnerLights {
-
-      0% {
-        opacity: .3;
-
-        background: #ff8a00;
-
-        transform:
-          translate(-50%, -50%)
-          scale(.75);
-      }
-
-      100% {
-        opacity: 1;
-
-        background: #fff36a;
-
-        transform:
-          translate(-50%, -50%)
-          scale(1.25);
-      }
-
-    }
-
-    /* =========================================
-       WEBFLOW BLOCK
-    ========================================= */
-
-    #block_30 {
-
-      width: 100% !important;
-      max-width: 100% !important;
-
-      height: auto !important;
-
-      min-height: 0 !important;
-      max-height: none !important;
-
-      overflow: visible !important;
-
-      box-sizing: border-box !important;
-    }
-
-    #block_30 #mtw-spin-wheel {
-
-      width: 100% !important;
-      max-width: 480px !important;
-
-      margin: 0 auto !important;
-    }
-
-    #block_30 .mtw-spin-wrap {
-
-      width: 100% !important;
-      max-width: 100% !important;
-    }
-
-    #block_30 .mtw-wheel-stage {
-
-      width: min(88vw, 560px) !important;
-
-      max-width: 100% !important;
-
-      height: auto !important;
-
-      aspect-ratio: 1 / 1 !important;
-
-      margin-left: auto !important;
-      margin-right: auto !important;
-    }
-
-    /* =========================================
-       MOBILE
-    ========================================= */
-
-    @media (max-width: 480px) {
-
-      .mtw-spin-wrap {
-
-        padding-left: 5px;
-        padding-right: 5px;
-      }
-
-      .mtw-wheel-stage {
-
-        width: 94vw;
-        height: 94vw;
-      }
-
-      .mtw-wheel {
-
-        border-width: 7px;
-      }
-
-      .mtw-light-ring span {
-
-        width: 9px;
-        height: 9px;
-      }
-
-      .mtw-wheel-centre {
-
-        width: 82px;
-        height: 82px;
-
-        border-width: 5px;
-      }
-
-      .mtw-wheel-centre span {
-
-        font-size: 14px;
-      }
-
-      .mtw-label span {
-
-        top: 15%;
-
-        width: 42%;
-
-        font-size:
-          clamp(13px, 2.9vw, 18px);
-
-        color: #ffffff;
-      }
-
-      .mtw-pointer {
-
-        border-left-width: 17px;
-        border-right-width: 17px;
-        border-top-width: 36px;
-      }
-
-      .mtw-spin-button {
-
-        width: 90%;
-        max-width: 300px;
-      }
-
-    }
-
+}
   `;
 
   document.head.appendChild(style);
@@ -1124,6 +1117,11 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
         bubbles: true
       })
     );
+
+    if (input.dataset.mtwPrizeGuard) return;
+
+    input.dataset.mtwPrizeGuard =
+      "true";
 
     input.addEventListener(
       "keydown",
@@ -1307,7 +1305,75 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
   
 
   function restorePreviousSpin() {
-    // Disabled during testing.
+
+    const prize = readPrize();
+
+    if (!prize) return;
+
+    button.querySelector(
+      ".mtw-button-top"
+    ).textContent =
+      "YOU WON!";
+
+    button.querySelector(
+      ".mtw-button-bottom"
+    ).textContent =
+      prize.label;
+
+    button.disabled = true;
+
+    status.textContent =
+      "🎉 YOU WON: " + prize.label;
+
+    status.classList.add(
+      "mtw-win"
+    );
+
+    const stage =
+      root.querySelector(
+        ".mtw-wheel-stage"
+      );
+
+    if (stage && prize.code) {
+
+      stage.classList.add(
+        "mtw-winner"
+      );
+
+    }
+
+    /*
+     * The checkout comments box can render
+     * after this script, so keep trying
+     * until it shows up (or give up).
+     */
+
+    let tries = 0;
+
+    const timer =
+      setInterval(
+        function () {
+
+          tries++;
+
+          if (getPrizeInput()) {
+
+            clearInterval(timer);
+
+            protectPrizeInTextarea(
+              prize
+            );
+
+          } else if (tries >= 30) {
+
+            clearInterval(timer);
+
+          }
+
+        },
+        500
+      );
+
   }
 
   // function restorePreviousSpin() {
@@ -1331,6 +1397,182 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
   //   status.textContent =
   //     "You have already spun the wheel.";
   // }
+
+  /* =========================================
+     WIN CONFETTI
+  ========================================= */
+
+  const CONFETTI_COLOURS = [
+    "#65b746",
+    "#ffd84a",
+    "#ffffff",
+    "#ff8a00",
+    "#4da3ff",
+    "#ff5d8f"
+  ];
+
+  function fireConfetti() {
+
+    const stage =
+      root.querySelector(
+        ".mtw-wheel-stage"
+      );
+
+    if (!stage) return;
+
+    if (
+      window.matchMedia &&
+      window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches
+    ) {
+      return;
+    }
+
+    const old =
+      stage.querySelector(
+        ".mtw-confetti-layer"
+      );
+
+    if (old) old.remove();
+
+    const layer =
+      document.createElement("div");
+
+    layer.className =
+      "mtw-confetti-layer";
+
+    for (
+      let i = 0;
+      i < 90;
+      i++
+    ) {
+
+      const piece =
+        document.createElement("span");
+
+      piece.className =
+        "mtw-confetti-piece";
+
+      const size =
+        6 + Math.random() * 7;
+
+      piece.style.left =
+        Math.random() * 100 + "%";
+
+      piece.style.width =
+        size + "px";
+
+      piece.style.height =
+        size * (0.5 + Math.random()) + "px";
+
+      piece.style.background =
+        CONFETTI_COLOURS[
+          Math.floor(
+            Math.random() *
+            CONFETTI_COLOURS.length
+          )
+        ];
+
+      piece.style.borderRadius =
+        Math.random() > 0.6 ? "50%" : "2px";
+
+      piece.style.setProperty(
+        "--mtw-drift",
+        Math.round(
+          (Math.random() - 0.5) * 220
+        ) + "px"
+      );
+
+      piece.style.animationDuration =
+        (2 + Math.random() * 1.4) +
+        "s";
+
+      piece.style.animationDelay =
+        (Math.random() * 0.5) +
+        "s";
+
+      layer.appendChild(piece);
+
+    }
+
+    stage.appendChild(layer);
+
+    setTimeout(
+      function () {
+        layer.remove();
+      },
+      4200
+    );
+
+  }
+
+  /* =========================================
+     PRIZE PERSISTENCE
+  ========================================= */
+
+  const STORAGE_KEY = "mtw-spin-wheel-prize-v1";
+
+  function savePrize(reward) {
+
+    try {
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          value: reward.value,
+          label: reward.label,
+          code: reward.code
+        })
+      );
+
+    } catch (e) {
+      /* storage unavailable — session-only */
+    }
+
+  }
+
+  function clearPrize() {
+
+    try {
+
+      localStorage.removeItem(
+        STORAGE_KEY
+      );
+
+    } catch (e) {
+      /* ignore */
+    }
+
+  }
+
+  function readPrize() {
+
+    try {
+
+      const raw =
+        localStorage.getItem(
+          STORAGE_KEY
+        );
+
+      if (!raw) return null;
+
+      const prize =
+        JSON.parse(raw);
+
+      if (!prize || !prize.value) {
+        return null;
+      }
+
+      return prize;
+
+    } catch (e) {
+
+      return null;
+
+    }
+
+  }
 
   /* =========================================
      SPIN
@@ -1368,8 +1610,8 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
     status.textContent = "";
 
     status.classList.remove(
-      "win",
-      "try-again"
+      "mtw-win",
+      "mtw-try-again"
     );
 
     stage.classList.remove(
@@ -1447,11 +1689,15 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
             "mtw-winner"
           );
 
+          fireConfetti();
+
         }
 
         protectPrizeInTextarea(
           reward
         );
+
+        savePrize(reward);
 
         if (reward.code) {
 
@@ -1459,11 +1705,11 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
             `🎉 YOU WON: ${reward.label}`;
 
           status.classList.remove(
-            "try-again"
+            "mtw-try-again"
           );
 
           status.classList.add(
-            "win"
+            "mtw-win"
           );
 
           button.querySelector(
@@ -1482,11 +1728,11 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
             "NO PRIZE — Better luck next time!";
 
           status.classList.remove(
-            "win"
+            "mtw-win"
           );
 
           status.classList.add(
-            "try-again"
+            "mtw-try-again"
           );
 
           button.querySelector(
@@ -1500,6 +1746,8 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
             "TEST MODE";
 
           button.disabled = false;
+
+          clearPrize();
 
         }
 
@@ -1528,6 +1776,42 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 9");
     "click",
     spin
   );
+
+  const hub =
+    root.querySelector(
+      ".mtw-wheel-centre"
+    );
+
+  if (hub) {
+
+    hub.addEventListener(
+      "click",
+      spin
+    );
+
+    hub.addEventListener(
+      "keydown",
+      function (event) {
+
+        if (
+          event.key === "Enter" ||
+          event.key === " "
+        ) {
+
+          event.preventDefault();
+
+          spin();
+
+        }
+
+      }
+    );
+
+  }
+
+  window.MTWSpinReset = function () {
+    clearPrize();
+  };
 
   restorePreviousSpin();
 
