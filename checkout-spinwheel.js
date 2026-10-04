@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL CHANCE VERSION 19");
+console.log("MTW SPIN WHEEL CHANCE VERSION 24");
 
 'use strict';
 
@@ -344,10 +344,10 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     gap: 18px 40px !important;
     align-items: center !important;
     padding: 34px 38px !important;
-    background: radial-gradient(circle at 82% 16%, #123a22 0%, rgba(18,58,34,0) 55%), radial-gradient(circle at 8% 92%, #0d2318 0%, rgba(13,35,24,0) 60%), linear-gradient(160deg, #0a1510 0%, #05080a 100%) !important;
+    background: radial-gradient(circle at 82% 16%, #123a22 0%, rgba(18,58,34,0) 55%), radial-gradient(circle at 8% 92%, #0d2318 0%, rgba(13,35,24,0) 60%), linear-gradient(160deg, #0a1510 0%, #05080a 100%) ;
     border: 1px solid rgba(255,255,255,.10) !important;
     border-radius: 22px !important;
-    box-shadow: 0 24px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08) !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08) ;
 }
 #mtw-spin-wheel .mtw-spin-wrap::before{
     content: "" !important;
@@ -392,7 +392,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     margin: 0 0 10px !important;
     font-weight: 1000 !important;
     line-height: .95 !important;
-    font-size: clamp(38px, 5vw, 58px) !important;
+    font-size: clamp(30px, 4vw, 44px) !important;
     letter-spacing: .5px !important;
 }
 #mtw-spin-wheel .mtw-title-top{
@@ -401,7 +401,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
 }
 #mtw-spin-wheel .mtw-title-grad{
     display: block !important;
-    background: linear-gradient(90deg, #f6d365 0%, #fff3c4 100%) !important;
+    background: linear-gradient(90deg, #f6d365 0%, #fff3c4 100%) ;
     -webkit-background-clip: text !important;
     background-clip: text !important;
     color: transparent !important;
@@ -423,13 +423,13 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     bottom: 2% !important;
     width: 86% !important;
     height: 54px !important;
-    transform: translateX(-50%) !important;
+    transform: translateX(-50%) ;
     border: 2px solid rgba(101,183,70,.45) !important;
     border-top: 0 !important;
     border-left: 0 !important;
     border-right: 0 !important;
     border-radius: 50% !important;
-    box-shadow: 0 0 34px rgba(101,183,70,.35), inset 0 -14px 26px rgba(101,183,70,.22) !important;
+    box-shadow: 0 0 34px rgba(101,183,70,.35), inset 0 -14px 26px rgba(101,183,70,.22) ;
     z-index: 0 !important;
     pointer-events: none !important;
 }
@@ -446,7 +446,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     position: absolute !important;
     inset: -10% !important;
     border-radius: 50% !important;
-    background: radial-gradient(circle, rgba(101,183,70,.28) 0%, rgba(101,183,70,.10) 45%, rgba(0,0,0,0) 70%) !important;
+    background: radial-gradient(circle, rgba(101,183,70,.28) 0%, rgba(101,183,70,.10) 45%, rgba(0,0,0,0) 70%) ;
     filter: blur(10px) !important;
     z-index: 0 !important;
     pointer-events: none !important;
@@ -456,9 +456,9 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     width: 82% !important;
     height: 82% !important;
     border-radius: 50% !important;
-    background: rgba(0,0,0,.55) !important;
+    background: rgba(0,0,0,.55) ;
     filter: blur(18px) !important;
-    transform: translateY(18px) !important;
+    transform: translateY(18px) ;
     z-index: 0 !important;
 }
 /* =========================================
@@ -470,8 +470,8 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     height: 97% !important;
     border-radius: 50% !important;
     z-index: 2 !important;
-    background: conic-gradient(from 200deg, #101318 0%, #3a4250 12%, #171b22 30%, #4a5468 45%, #101318 60%, #333b47 75%, #171b22 90%, #101318 100%) !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,.55), 0 0 44px rgba(96,165,250,.25), inset 0 2px 6px rgba(255,255,255,.25), inset 0 -6px 12px rgba(0,0,0,.8) !important;
+    background: conic-gradient(from 200deg, #1c222c 0%, #4a5568 12%, #232a36 30%, #5a6579 45%, #1c222c 60%, #414b5c 75%, #232a36 90%, #1c222c 100%) ;
+    box-shadow: 0 10px 30px rgba(0,0,0,.55), 0 0 44px rgba(96,165,250,.25), inset 0 2px 6px rgba(255,255,255,.35), inset 0 -6px 12px rgba(0,0,0,.7) ;
 }
 #mtw-spin-wheel .mtw-rim-sheen{
     position: absolute !important;
@@ -479,19 +479,19 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     height: 97% !important;
     left: 50% !important;
     top: 50% !important;
-    transform: translate(-50%, -50%) !important;
+    transform: translate(-50%, -50%) ;
     border-radius: 50% !important;
     z-index: 2 !important;
     pointer-events: none !important;
-    background: conic-gradient(from 0deg, rgba(255,255,255,0) 0deg, rgba(255,255,255,.45) 14deg, rgba(255,255,255,0) 34deg, rgba(255,255,255,0) 180deg, rgba(255,255,255,.28) 196deg, rgba(255,255,255,0) 218deg) !important;
+    background: conic-gradient(from 0deg, rgba(255,255,255,0) 0deg, rgba(255,255,255,.45) 14deg, rgba(255,255,255,0) 34deg, rgba(255,255,255,0) 180deg, rgba(255,255,255,.28) 196deg, rgba(255,255,255,0) 218deg) ;
     animation: mtwRimSweep 7s linear infinite !important;
 }
 @keyframes mtwRimSweep{
     from{
-        transform: translate(-50%, -50%) rotate(0deg) !important;
+        transform: translate(-50%, -50%) rotate(0deg) ;
     }
     to{
-        transform: translate(-50%, -50%) rotate(360deg) !important;
+        transform: translate(-50%, -50%) rotate(360deg) ;
     }
 }
 /* =========================================
@@ -509,20 +509,20 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     width: 12px !important;
     height: 12px !important;
     border-radius: 50% !important;
-    background: #eaf6ff !important;
-    box-shadow: 0 0 5px #ffffff, 0 0 12px #7dd3fc, 0 0 24px rgba(56,189,248,.9) !important;
-    transform: translate(-50%, -50%) scale(.85) !important;
+    background: #eaf6ff ;
+    box-shadow: 0 0 5px #ffffff, 0 0 12px #7dd3fc, 0 0 24px rgba(56,189,248,.9) ;
+    transform: translate(-50%, -50%) scale(.85) ;
     animation: mtwBulbIdle 1.1s infinite alternate !important;
     animation-delay: calc(var(--mtw-spin-light) * -.035s) !important;
 }
 @keyframes mtwBulbIdle{
     0%{
-        opacity: .45 !important;
-        transform: translate(-50%, -50%) scale(.78) !important;
+        opacity: .45 ;
+        transform: translate(-50%, -50%) scale(.78) ;
     }
     100%{
-        opacity: 1 !important;
-        transform: translate(-50%, -50%) scale(1) !important;
+        opacity: 1 ;
+        transform: translate(-50%, -50%) scale(1) ;
     }
 }
 #mtw-spin-wheel .mtw-wheel-stage.mtw-spinning .mtw-light-ring span{
@@ -530,14 +530,14 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
 }
 @keyframes mtwBulbSpin{
     0%{
-        opacity: .3 !important;
-        background: #38bdf8 !important;
-        box-shadow: 0 0 4px #38bdf8, 0 0 10px #0369a1 !important;
+        opacity: .3 ;
+        background: #38bdf8 ;
+        box-shadow: 0 0 4px #38bdf8, 0 0 10px #0369a1 ;
     }
     100%{
-        opacity: 1 !important;
-        background: #ffffff !important;
-        box-shadow: 0 0 7px #ffffff, 0 0 18px #7dd3fc, 0 0 32px rgba(56,189,248,.95) !important;
+        opacity: 1 ;
+        background: #ffffff ;
+        box-shadow: 0 0 7px #ffffff, 0 0 18px #7dd3fc, 0 0 32px rgba(56,189,248,.95) ;
     }
 }
 /* =========================================
@@ -551,9 +551,9 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     overflow: hidden !important;
     z-index: 3 !important;
     border: 6px solid #eef1f6 !important;
-    background: var(--mtw-wheel-gradient) !important;
-    box-shadow: 0 0 0 2px rgba(255,255,255,.8), 0 14px 30px rgba(0,0,0,.5), inset 0 0 40px rgba(0,0,0,.35) !important;
-    transform: rotate(0deg) !important;
+    background: var(--mtw-wheel-gradient) ;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.8), 0 14px 30px rgba(0,0,0,.5), inset 0 0 40px rgba(0,0,0,.35) ;
+    transform: rotate(0deg) ;
     transition: transform 4.1s cubic-bezier(.08,.78,.12,1) !important;
     will-change: transform !important;
 }
@@ -570,14 +570,14 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     border-radius: 50% !important;
     z-index: 6 !important;
     pointer-events: none !important;
-    background: radial-gradient(circle, rgba(0,0,0,0) 58%, rgba(0,0,0,.28) 100%) !important;
+    background: radial-gradient(circle, rgba(0,0,0,0) 58%, rgba(0,0,0,.28) 100%) ;
 }
 #mtw-spin-wheel .mtw-wheel::after{
     content: "" !important;
     position: absolute !important;
     inset: 0 !important;
     border-radius: 50% !important;
-    background: linear-gradient(125deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.07) 18%, rgba(255,255,255,0) 42%) !important;
+    background: linear-gradient(125deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.07) 18%, rgba(255,255,255,0) 42%) ;
     pointer-events: none !important;
     z-index: 8 !important;
 }
@@ -587,15 +587,15 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     border-radius: 50% !important;
     z-index: 7 !important;
     pointer-events: none !important;
-    background: conic-gradient(from 0deg, rgba(255,255,255,0) 0deg, rgba(255,255,255,.10) 24deg, rgba(255,255,255,0) 70deg, rgba(255,255,255,0) 180deg, rgba(255,255,255,.07) 205deg, rgba(255,255,255,0) 250deg) !important;
+    background: conic-gradient(from 0deg, rgba(255,255,255,0) 0deg, rgba(255,255,255,.10) 24deg, rgba(255,255,255,0) 70deg, rgba(255,255,255,0) 180deg, rgba(255,255,255,.07) 205deg, rgba(255,255,255,0) 250deg) ;
     animation: mtwSheenSpin 16s linear infinite !important;
 }
 @keyframes mtwSheenSpin{
     from{
-        transform: rotate(0deg) !important;
+        transform: rotate(0deg) ;
     }
     to{
-        transform: rotate(360deg) !important;
+        transform: rotate(360deg) ;
     }
 }
 /* =========================================
@@ -613,7 +613,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     top: 50% !important;
     width: 100% !important;
     height: 100% !important;
-    transform: translate(-50%, -50%) rotate(var(--mtw-spin-angle)) !important;
+    transform: translate(-50%, -50%) rotate(var(--mtw-spin-angle)) ;
     transform-origin: center center !important;
     pointer-events: none !important;
 }
@@ -622,7 +622,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     left: 50% !important;
     top: 12% !important;
     width: 28% !important;
-    transform: translateX(-50%) rotate(90deg) !important;
+    transform: translateX(-50%) rotate(90deg) ;
     text-align: center !important;
     font-size: clamp(13px, 2.6vw, 17px) !important;
     font-weight: 1000 !important;
@@ -646,26 +646,26 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     left: 50% !important;
     width: 124px !important;
     height: 124px !important;
-    transform: translate(-50%, -50%) !important;
+    transform: translate(-50%, -50%) ;
     border-radius: 50% !important;
-    background: radial-gradient(circle at 35% 30%, #3d4453 0%, #1a1e26 55%, #0b0d12 100%) !important;
+    background: radial-gradient(circle at 35% 30%, #3d4453 0%, #1a1e26 55%, #0b0d12 100%) ;
     border: 5px solid #f6d365 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,.5), 0 0 14px rgba(246,211,101,.35), inset 0 2px 5px rgba(255,255,255,.15) !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,.5), 0 0 14px rgba(246,211,101,.35), inset 0 2px 5px rgba(255,255,255,.15) ;
     animation: mtwHubGlow 3s ease-in-out infinite !important;
 }
 @keyframes mtwHubGlow{
     0%{
-        box-shadow: 0 4px 10px rgba(0,0,0,.5), 0 0 14px rgba(246,211,101,.35), inset 0 2px 5px rgba(255,255,255,.15) !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,.5), 0 0 14px rgba(246,211,101,.35), inset 0 2px 5px rgba(255,255,255,.15) ;
     }
     50%{
-        box-shadow: 0 4px 10px rgba(0,0,0,.5), 0 0 34px rgba(246,211,101,.65), inset 0 2px 5px rgba(255,255,255,.15) !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,.5), 0 0 34px rgba(246,211,101,.65), inset 0 2px 5px rgba(255,255,255,.15) ;
     }
     100%{
-        box-shadow: 0 4px 10px rgba(0,0,0,.5), 0 0 14px rgba(246,211,101,.35), inset 0 2px 5px rgba(255,255,255,.15) !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,.5), 0 0 14px rgba(246,211,101,.35), inset 0 2px 5px rgba(255,255,255,.15) ;
     }
 }
 #mtw-spin-wheel .mtw-wheel-centre:hover{
@@ -680,10 +680,10 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
 }
 @keyframes mtwCentrePulse{
     from{
-        transform: translate(-50%, -50%) scale(1) !important;
+        transform: translate(-50%, -50%) scale(1) ;
     }
     to{
-        transform: translate(-50%, -50%) scale(1.07) !important;
+        transform: translate(-50%, -50%) scale(1.07) ;
     }
 }
 #mtw-spin-wheel .mtw-centre-ring{
@@ -698,7 +698,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     height: 152px !important;
     left: 50% !important;
     top: 50% !important;
-    transform: translate(-50%, -50%) !important;
+    transform: translate(-50%, -50%) ;
     border-radius: 50% !important;
     border: 2px dashed rgba(246,211,101,.65) !important;
     z-index: 11 !important;
@@ -707,10 +707,10 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
 }
 @keyframes mtwOrbitSpin{
     from{
-        transform: translate(-50%, -50%) rotate(0deg) !important;
+        transform: translate(-50%, -50%) rotate(0deg) ;
     }
     to{
-        transform: translate(-50%, -50%) rotate(360deg) !important;
+        transform: translate(-50%, -50%) rotate(360deg) ;
     }
 }
 #mtw-spin-wheel .mtw-wheel-centre span{
@@ -730,7 +730,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     z-index: 20 !important;
     top: -3px !important;
     left: 50% !important;
-    transform: translateX(-50%) !important;
+    transform: translateX(-50%) ;
     transform-origin: 50% 0 !important;
     width: 0 !important;
     height: 0 !important;
@@ -747,19 +747,8 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     width: 30px !important;
     height: 40px !important;
     clip-path: polygon(50% 100%, 0 0, 100% 0) !important;
-    background: #fff3c4 !important;
+    background: #fff3c4 ;
     filter: drop-shadow(0 0 7px rgba(255,243,196,.9)) !important;
-}
-#mtw-spin-wheel .mtw-wheel-stage.mtw-spinning .mtw-pointer{
-    animation: mtwPointerWiggle .18s ease-in-out infinite alternate !important;
-}
-@keyframes mtwPointerWiggle{
-    0%{
-        transform: translateX(-50%) rotate(-9deg) !important;
-    }
-    100%{
-        transform: translateX(-50%) rotate(9deg) !important;
-    }
 }
 #mtw-spin-wheel .mtw-pointer-glow{
     position: absolute !important;
@@ -768,7 +757,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     left: -35px !important;
     top: -24px !important;
     border-radius: 50% !important;
-    background: rgba(246,211,101,.25) !important;
+    background: rgba(246,211,101,.25) ;
     filter: blur(15px) !important;
 }
 /* =========================================
@@ -780,7 +769,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     padding: 14px 16px !important;
     border: 1px dashed rgba(255,255,255,.28) !important;
     border-radius: 12px !important;
-    background: rgba(255,255,255,.05) !important;
+    background: rgba(255,255,255,.05) ;
     font-size: clamp(16px, 2.4vw, 22px) !important;
     font-weight: 1000 !important;
     letter-spacing: .3px !important;
@@ -796,7 +785,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     color: #7cf29b !important;
     border-style: solid !important;
     border-color: rgba(124,242,155,.55) !important;
-    background: rgba(124,242,155,.08) !important;
+    background: rgba(124,242,155,.08) ;
     text-shadow: 0 0 18px rgba(101,183,70,.5) !important;
     animation: mtwWinReveal .6s ease both !important;
 }
@@ -808,25 +797,25 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
 }
 @keyframes mtwWinReveal{
     0%{
-        opacity: 0 !important;
-        transform: scale(.5) !important;
+        opacity: 0 ;
+        transform: scale(.5) ;
     }
     60%{
-        opacity: 1 !important;
-        transform: scale(1.15) !important;
+        opacity: 1 ;
+        transform: scale(1.15) ;
     }
     100%{
-        transform: scale(1) !important;
+        transform: scale(1) ;
     }
 }
 @keyframes mtwResultReveal{
     0%{
-        opacity: 0 !important;
-        transform: translateY(10px) !important;
+        opacity: 0 ;
+        transform: translateY(10px) ;
     }
     100%{
-        opacity: 1 !important;
-        transform: translateY(0) !important;
+        opacity: 1 ;
+        transform: translateY(0) ;
     }
 }
 #mtw-spin-wheel .mtw-spin-button{
@@ -836,51 +825,51 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     width: 100% !important;
     padding: 18px 20px !important;
     border-radius: 14px !important;
-    background: linear-gradient(180deg, #78ca59 0%, #65b746 48%, #4b9b32 100%) !important;
+    background: linear-gradient(180deg, #78ca59 0%, #65b746 48%, #4b9b32 100%) ;
     color: #ffffff !important;
     font-family: inherit !important;
     cursor: pointer !important;
     overflow: hidden !important;
     touch-action: manipulation !important;
     -webkit-tap-highlight-color: transparent !important;
-    box-shadow: 0 5px 0 #377c24, 0 8px 20px rgba(0,0,0,.35), 0 0 22px rgba(101,183,70,.35) !important;
+    box-shadow: 0 5px 0 #377c24, 0 8px 20px rgba(0,0,0,.35), 0 0 22px rgba(101,183,70,.35) ;
     transition: transform .15s ease, box-shadow .15s ease, filter .15s ease !important;
 }
 #mtw-spin-wheel .mtw-spin-button:hover:not(:disabled){
-    transform: translateY(-2px) !important;
-    box-shadow: 0 7px 0 #377c24, 0 12px 25px rgba(0,0,0,.35), 0 0 30px rgba(101,183,70,.55) !important;
+    transform: translateY(-2px) ;
+    box-shadow: 0 7px 0 #377c24, 0 12px 25px rgba(0,0,0,.35), 0 0 30px rgba(101,183,70,.55) ;
     filter: brightness(1.08) !important;
 }
 #mtw-spin-wheel .mtw-spin-button:active:not(:disabled){
-    transform: translateY(3px) !important;
-    box-shadow: 0 2px 0 #377c24, 0 5px 12px rgba(0,0,0,.25) !important;
+    transform: translateY(3px) ;
+    box-shadow: 0 2px 0 #377c24, 0 5px 12px rgba(0,0,0,.25) ;
 }
 #mtw-spin-wheel .mtw-spin-button:disabled{
-    opacity: .65 !important;
+    opacity: .65 ;
     cursor: not-allowed !important;
-    transform: none !important;
+    transform: none ;
 }
 #mtw-spin-wheel .mtw-spin-button::after{
     content: "" !important;
     position: absolute !important;
     top: 0 !important;
     bottom: 0 !important;
-    left: -70% !important;
+    left: -70% ;
     width: 45% !important;
-    background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.4) 50%, rgba(255,255,255,0) 100%) !important;
-    transform: skewX(-20deg) !important;
+    background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.4) 50%, rgba(255,255,255,0) 100%) ;
+    transform: skewX(-20deg) ;
     pointer-events: none !important;
     animation: mtwButtonSheen 3.6s ease-in-out infinite !important;
 }
 @keyframes mtwButtonSheen{
     0%{
-        left: -70% !important;
+        left: -70% ;
     }
     55%{
-        left: 135% !important;
+        left: 135% ;
     }
     100%{
-        left: 135% !important;
+        left: 135% ;
     }
 }
 #mtw-spin-wheel .mtw-spin-button:disabled::after{
@@ -897,7 +886,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     margin-top: 2px !important;
     font-size: 11px !important;
     font-weight: 700 !important;
-    opacity: .9 !important;
+    opacity: .9 ;
     letter-spacing: 1px !important;
 }
 #mtw-spin-wheel .mtw-fine{
@@ -915,18 +904,20 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     animation: mtwWinnerLights .22s infinite alternate !important;
 }
 #mtw-spin-wheel .mtw-wheel-stage.mtw-winner .mtw-wheel{
-    box-shadow: 0 0 0 4px rgba(255,255,255,.2), 0 0 0 9px rgba(101,183,70,.75), 0 0 35px rgba(101,183,70,.75), 0 0 70px rgba(101,183,70,.35), inset 0 0 30px rgba(0,0,0,.65) !important;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.3), 0 0 20px rgba(101,183,70,.6), 0 0 55px rgba(101,183,70,.3), inset 0 0 30px rgba(0,0,0,.65) ;
 }
 @keyframes mtwWinnerLights{
     0%{
-        opacity: .3 !important;
-        background: #ff8a00 !important;
-        transform: translate(-50%, -50%) scale(.75) !important;
+        opacity: 1 ;
+        background: #ffffff ;
+        transform: translate(-50%, -50%) scale(1.15) ;
+        box-shadow: 0 0 10px #ffffff, 0 0 26px rgba(255,255,255,.9) ;
     }
     100%{
-        opacity: 1 !important;
-        background: #fff36a !important;
-        transform: translate(-50%, -50%) scale(1.25) !important;
+        opacity: 1 ;
+        background: #ffffff ;
+        transform: translate(-50%, -50%) scale(1.6) ;
+        box-shadow: 0 0 14px #ffffff, 0 0 42px rgba(255,255,255,.95) ;
     }
 }
 /* =========================================
@@ -943,20 +934,20 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
 #mtw-spin-wheel .mtw-confetti-piece{
     position: absolute !important;
     top: -14px !important;
-    border-radius: 2px !important;
-    opacity: 1 !important;
+    border-radius: 2px ;
+    opacity: 1 ;
     animation-name: mtwConfettiFall !important;
     animation-timing-function: linear !important;
     animation-fill-mode: forwards !important;
 }
 @keyframes mtwConfettiFall{
     0%{
-        transform: translate3d(0, -5%, 0) rotate(0deg) !important;
-        opacity: 1 !important;
+        transform: translate3d(0, -5%, 0) rotate(0deg) ;
+        opacity: 1 ;
     }
     100%{
-        transform: translate3d(var(--mtw-drift, 0px), 560px, 0) rotate(720deg) !important;
-        opacity: 0 !important;
+        transform: translate3d(var(--mtw-drift, 0px), 560px, 0) rotate(720deg) ;
+        opacity: 0 ;
     }
 }
 /* =========================================
@@ -964,7 +955,8 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
 ========================================= */
 #block_30{
     width: 100% !important;
-    max-width: 100% !important;
+    max-width: 75% !important;
+    margin: 0 auto !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
@@ -973,7 +965,6 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
 }
 #block_30 #mtw-spin-wheel{
     width: 100% !important;
-    max-width: 980px !important;
     margin: 0 auto !important;
 }
 #block_30 .mtw-spin-wrap{
@@ -1050,9 +1041,15 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 19");
     }
 }
 @media (prefers-reduced-motion: reduce){
-    #mtw-spin-wheel *,
-    #mtw-spin-wheel *::before,
-    #mtw-spin-wheel *::after{
+    #mtw-spin-wheel .mtw-light-ring span,
+    #mtw-spin-wheel .mtw-sheen,
+    #mtw-spin-wheel .mtw-rim-sheen,
+    #mtw-spin-wheel .mtw-hub-orbit,
+    #mtw-spin-wheel .mtw-wheel-centre,
+    #mtw-spin-wheel .mtw-pointer,
+    #mtw-spin-wheel .mtw-spin-button,
+    #mtw-spin-wheel .mtw-spin-button::after,
+    #mtw-spin-wheel .mtw-confetti-layer{
         animation: none !important;
         transition: none !important;
     }
