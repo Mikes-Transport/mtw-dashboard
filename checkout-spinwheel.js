@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL CHANCE VERSION 24");
+console.log("MTW SPIN WHEEL CHANCE VERSION 25");
 
 'use strict';
 
@@ -1735,14 +1735,12 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 24");
           button.querySelector(
             ".mtw-button-top"
           ).textContent =
-            "SPIN AGAIN";
+            "NO PRIZE";
 
           button.querySelector(
             ".mtw-button-bottom"
           ).textContent =
-            "TEST MODE";
-
-          button.disabled = false;
+            "BETTER LUCK NEXT TIME";
 
           clearPrize();
 
