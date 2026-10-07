@@ -12,7 +12,7 @@ const { $, $$ } = window.MTW;
     'mte-config': '.master-list-config',
     'promotion-label': '.et-body-wrapper',
     'barcodes': '.barcode-label-panels',
-    'flyer-checker': '.flyer-checker-panel'
+    'model-tool-access': '.model-access-panel'
   };
 
   const NAMES = {
@@ -23,7 +23,7 @@ const { $, $$ } = window.MTW;
     'mte-config': 'MTE Config',
     'promotion-label': 'Promotional Labels',
     'barcodes': 'Barcode Labels',
-    'flyer-checker': 'Flyer Proof'
+    'model-tool-access': 'Assign Model Tool Access'
   };
 
   function hideAll() {
