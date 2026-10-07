@@ -39,8 +39,8 @@ const {
     style.id = 'model-access-styles';
     style.textContent = [
       '.model-access-panel{max-width:760px;margin-left:auto;margin-right:auto}',
-      '.ma-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}',
-      '.ma-title{font-size:20px;font-weight:800;margin:0}',
+      '.ma-root{margin-top:20px}',
+      '.ma-head{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:14px}',
       '.ma-btn{border:1px solid #ccc;background:#fff;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer}',
       '.ma-btn:hover{background:#f5f5f5}',
       '.ma-btn.primary{background:#111;color:#fff;border-color:#111}',
@@ -74,9 +74,8 @@ const {
 
   function shell() {
     return (
-      '<div data-ma-root>' +
+      '<div class="ma-root" data-ma-root>' +
         '<div class="ma-head">' +
-          '<h2 class="ma-title">Model Access</h2>' +
           '<button type="button" class="ma-btn primary" id="maCreate">Create users</button>' +
         '</div>' +
         '<div class="ma-error" id="maListError"></div>' +
