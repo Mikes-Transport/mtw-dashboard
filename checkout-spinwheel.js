@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL CHANCE VERSION 32");
+console.log("MTW SPIN WHEEL CHANCE VERSION 33");
 
 'use strict';
 
@@ -903,10 +903,16 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 32");
     color: rgba(255,255,255,.45) !important;
 }
 #mtw-spin-wheel .mtw-spin-wrap.mtw-is-locked{
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
     text-align: center !important;
+    min-height: 340px !important;
+    padding: 34px 24px !important;
 }
 #mtw-spin-wheel .mtw-locked-inner{
+    width: 100% !important;
     max-width: 430px !important;
     margin: 0 auto !important;
 }
@@ -1594,7 +1600,8 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 32");
         !database ||
         !fsMod.doc ||
         !fsMod.getDoc ||
-        !fsMod.setDoc
+        !fsMod.setDoc ||
+        !fsMod.arrayUnion
       ) {
         return null;
       }
@@ -1603,7 +1610,8 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 32");
         db: database,
         doc: fsMod.doc,
         getDoc: fsMod.getDoc,
-        setDoc: fsMod.setDoc
+        setDoc: fsMod.setDoc,
+        arrayUnion: fsMod.arrayUnion
       };
 
       return fb.cache;
@@ -1613,6 +1621,29 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 32");
   }
 
   let lastCheck = null;
+
+  function spinsToday(data, today) {
+    const spins =
+      data && Array.isArray(data.spins)
+        ? data.spins
+        : [];
+
+    const hit = spins.filter(function (s) {
+      return s && s.spunDay === today;
+    });
+
+    if (hit.length) return hit;
+
+    if (
+      data &&
+      data.spun === true &&
+      data.spunDay === today
+    ) {
+      return [data];
+    }
+
+    return [];
+  }
 
   async function checkPreviousSpin(tries) {
     tries = tries || 0;
@@ -1659,13 +1690,14 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 32");
         console.error("[mtw-spin-wheel] spin check failed:", e);
       }
 
+      const todaysSpins = spinsToday(prev, today);
+
       if (
         prev &&
-        prev.spun === true &&
-        prev.spunDay === today &&
+        todaysSpins.length &&
         (!prev.fp || prev.fp === id.fp)
       ) {
-        lastCheck = { at: Date.now(), fp: id.fp, found: true, error: null };
+        lastCheck = { at: Date.now(), fp: id.fp, found: true, error: null, spins: todaysSpins.length };
         hideWheel();
         clearStalePrize();
         return;
@@ -1686,7 +1718,8 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 32");
               country: id.country,
               fp: id.fp,
               firstSeenAt: now,
-              spun: false
+              spun: false,
+              spins: []
             },
             { merge: true }
           );
@@ -1847,6 +1880,9 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 32");
     if (!F) return;
 
     try {
+      const stamp = Date.now();
+      const day = nzDayString(stamp);
+
       await F.setDoc(
         F.doc(F.db, "checkout-wheel", identity.fpId),
         {
@@ -1858,13 +1894,21 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 32");
           country: identity.country,
           fp: identity.fp,
           spun: true,
-          spunDay: nzDayString(),
+          spunDay: day,
           label: reward.label,
           value: reward.value,
           code: reward.code || null,
           won: !!reward.code,
-          ts: Date.now(),
-          url: location.href
+          ts: stamp,
+          url: location.href,
+          spins: F.arrayUnion({
+            label: reward.label,
+            value: reward.value,
+            code: reward.code || null,
+            won: !!reward.code,
+            ts: stamp,
+            spunDay: day
+          })
         },
         { merge: true }
       );
