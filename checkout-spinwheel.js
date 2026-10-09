@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL CHANCE VERSION 28");
+console.log("MTW SPIN WHEEL CHANCE VERSION 29");
 
 'use strict';
 
@@ -1602,14 +1602,32 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 28");
     }
   }
 
-  async function checkPreviousSpin() {
+  let lastCheck = null;
+
+  async function checkPreviousSpin(tries) {
+    tries = tries || 0;
+
     const id = getIdentity();
 
-    if (!id) return;
+    if (!id) {
+      if (tries >= 20) {
+        lastCheck = { at: Date.now(), fp: null, found: false, error: "no-address" };
+        return;
+      }
+
+      setTimeout(function () {
+        checkPreviousSpin(tries + 1);
+      }, 500);
+
+      return;
+    }
 
     const F = await fb();
 
-    if (!F) return;
+    if (!F) {
+      lastCheck = { at: Date.now(), fp: id.fp, found: false, error: "no-firebase" };
+      return;
+    }
 
     const now = Date.now();
 
@@ -1618,9 +1636,12 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 28");
         await getSpunDoc(F, id);
 
       if (hit) {
+        lastCheck = { at: Date.now(), fp: id.fp, found: true, error: null };
         hideWheel();
         return;
       }
+
+      lastCheck = { at: Date.now(), fp: id.fp, found: false, error: null };
 
       const ref =
         F.doc(F.db, "checkout-wheel", id.fpId);
@@ -1661,6 +1682,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 28");
         console.error("[mtw-spin-wheel] visit log failed:", e);
       }
     } catch (e) {
+      lastCheck = { at: Date.now(), fp: id ? id.fp : null, found: false, error: String((e && e.message) || e) };
       console.error("[mtw-spin-wheel] spin check failed:", e);
     }
   }
@@ -1954,5 +1976,9 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 28");
   }
 
   checkPreviousSpin();
+
+  window.MTWSpinDebug = function () {
+    return { identity: getIdentity(), lastCheck: lastCheck };
+  };
 
 })();
