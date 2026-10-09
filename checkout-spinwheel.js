@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL CHANCE VERSION 25");
+console.log("MTW SPIN WHEEL CHANCE VERSION 26");
 
 'use strict';
 
@@ -671,6 +671,11 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 25");
 #mtw-spin-wheel .mtw-wheel-centre:hover{
     filter: brightness(1.08) !important;
 }
+#mtw-spin-wheel .mtw-wheel-centre.is-locked,
+#mtw-spin-wheel .mtw-wheel-centre.is-locked:hover{
+    cursor: not-allowed !important;
+    filter: grayscale(.4) brightness(.85) !important;
+}
 #mtw-spin-wheel .mtw-wheel-centre:focus-visible{
     outline: 2px solid #ffffff !important;
     outline-offset: 3px !important;
@@ -1319,6 +1324,24 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 25");
 
     button.disabled = true;
 
+    const hubEl =
+      root.querySelector(
+        ".mtw-wheel-centre"
+      );
+
+    if (hubEl) {
+
+      hubEl.classList.add(
+        "is-locked"
+      );
+
+      hubEl.setAttribute(
+        "aria-disabled",
+        "true"
+      );
+
+    }
+
     status.textContent =
       "🎉 YOU WON: " + prize.label;
 
@@ -1508,6 +1531,283 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 25");
      PRIZE PERSISTENCE
   ========================================= */
 
+  /* =========================================
+     CUSTOMER IDENTITY + FIREBASE SPIN LOG
+     The checkout page renders the customer as:
+       .address > .company/.name/.street/
+         .suburb/.city/.country
+     Fingerprint that into a doc id. One doc per
+     person in `wheel-spinners`: visit logged on
+     arrival, spunAt stamped on spin. Next
+     checkout with a spunAt doc gets locked out.
+  ========================================= */
+
+  function normPart(v) {
+    return String(v == null ? "" : v)
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function fpHash(str) {
+    let h1 = 0x811c9dc5;
+    let h2 = 0x01000193 ^ 0x5bd1e995;
+
+    for (let i = 0; i < str.length; i++) {
+      const c = str.charCodeAt(i);
+
+      h1 = Math.imul(h1 ^ c, 16777619) >>> 0;
+      h2 = Math.imul(h2 ^ c, 16777619) >>> 0;
+    }
+
+    return h1.toString(16).padStart(8, "0") +
+      h2.toString(16).padStart(8, "0");
+  }
+
+  function getIdentity() {
+    const box = document.querySelector(".address");
+
+    if (!box) return null;
+
+    const pick = cls => {
+      const el = box.querySelector("." + cls);
+
+      return el ? el.textContent : "";
+    };
+
+    const company = normPart(pick("company"));
+    const name = normPart(pick("name"));
+    const street = normPart(pick("street"));
+    const suburb = normPart(pick("suburb"));
+    const city = normPart(pick("city"));
+    const country = normPart(pick("country"));
+
+    if (!name || !street) return null;
+
+    const fp = [company, name, street, suburb, city, country].join("|");
+
+    return {
+      company, name, street, suburb, city, country,
+      fp, fpId: "fp-" + fpHash(fp)
+    };
+  }
+
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyA6i9ZVdE1xmSzjebcx1zUJpA-Zuy_DgSs",
+    authDomain: "mtw-lookup.firebaseapp.com",
+    projectId: "mtw-lookup",
+    storageBucket: "mtw-lookup.firebasestorage.app",
+    messagingSenderId: "365628896617",
+    appId: "1:365628896617:web:f3d718fad93b14501679f8"
+  };
+
+  const FIREBASE_APP_URL =
+    "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+
+  const FIREBASE_STORE_URL =
+    "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+  async function fb() {
+    if (fb.cache) return fb.cache;
+
+    try {
+      const mods = await Promise.all([
+        import(FIREBASE_APP_URL),
+        import(FIREBASE_STORE_URL)
+      ]);
+
+      const appMod = mods[0];
+      const fsMod = mods[1];
+
+      let app = null;
+
+      try {
+        const existing =
+          appMod.getApps ? appMod.getApps() : [];
+
+        app = existing && existing.length
+          ? existing[0]
+          : appMod.initializeApp(FIREBASE_CONFIG);
+      } catch (e) {
+        try {
+          app = appMod.getApp();
+        } catch (e2) {
+          return null;
+        }
+      }
+
+      if (!app || !fsMod.getFirestore) {
+        return null;
+      }
+
+      const database = fsMod.getFirestore(app);
+
+      if (
+        !database ||
+        !fsMod.collection ||
+        !fsMod.query ||
+        !fsMod.where ||
+        !fsMod.getDocs ||
+        !fsMod.addDoc
+      ) {
+        return null;
+      }
+
+      fb.cache = {
+        db: database,
+        collection: fsMod.collection,
+        query: fsMod.query,
+        where: fsMod.where,
+        getDocs: fsMod.getDocs,
+        addDoc: fsMod.addDoc
+      };
+
+      return fb.cache;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function findSpunDoc(F, fp) {
+    try {
+      const snap =
+        await F.getDocs(
+          F.query(
+            F.collection(F.db, "checkout-wheel"),
+            F.where("fp", "==", fp)
+          )
+        );
+
+      let hit = null;
+
+      snap.forEach(d => {
+        const data = d.data() || {};
+
+        if (!hit && data.spun === true) {
+          hit = data;
+        }
+      });
+
+      return hit;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function checkPreviousSpin() {
+    const id = getIdentity();
+
+    if (!id) return;
+
+    const F = await fb();
+
+    if (!F) return;
+
+    const now = Date.now();
+
+    try {
+      const hit =
+        await findSpunDoc(F, id.fp);
+
+      try {
+        await F.addDoc(
+          F.collection(F.db, "checkout-wheel"),
+          {
+            company: id.company,
+            name: id.name,
+            street: id.street,
+            suburb: id.suburb,
+            city: id.city,
+            country: id.country,
+            fp: id.fp,
+            spun: false,
+            ts: now,
+            url: location.href
+          }
+        );
+      } catch (e) {}
+
+      if (hit) {
+        applyFirebaseLock(hit);
+      }
+    } catch (e) {}
+  }
+
+  function applyFirebaseLock(data) {
+    const hubEl =
+      root.querySelector(
+        ".mtw-wheel-centre"
+      );
+
+    if (hubEl) {
+
+      hubEl.classList.add(
+        "is-locked"
+      );
+
+      hubEl.setAttribute(
+        "aria-disabled",
+        "true"
+      );
+
+    }
+
+    button.disabled = true;
+
+    button.querySelector(
+      ".mtw-button-top"
+    ).textContent =
+      "ALREADY SPUN";
+
+    button.querySelector(
+      ".mtw-button-bottom"
+    ).textContent =
+      data && data.label
+        ? data.label
+        : "ONE SPIN PER CUSTOMER";
+
+    status.textContent =
+      "You've already spun — one spin per customer.";
+
+    status.classList.remove(
+      "mtw-win"
+    );
+
+    status.classList.add(
+      "mtw-try-again"
+    );
+  }
+
+  async function recordSpin(identity, reward) {
+    if (!identity) return;
+
+    const F = await fb();
+
+    if (!F) return;
+
+    try {
+      await F.addDoc(
+        F.collection(F.db, "checkout-wheel"),
+        {
+          company: identity.company,
+          name: identity.name,
+          street: identity.street,
+          suburb: identity.suburb,
+          city: identity.city,
+          country: identity.country,
+          fp: identity.fp,
+          spun: true,
+          label: reward.label,
+          value: reward.value,
+          code: reward.code || null,
+          won: !!reward.code,
+          ts: Date.now(),
+          url: location.href
+        }
+      );
+    } catch (e) {}
+  }
+
   const STORAGE_KEY = "mtw-spin-wheel-prize-v1";
 
   function savePrize(reward) {
@@ -1579,6 +1879,8 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 25");
 
     if (spinning) return;
 
+    if (button.disabled) return;
+
     spinning = true;
 
     markUsed();
@@ -1593,6 +1895,24 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 25");
     );
 
     button.disabled = true;
+
+    const hubEl =
+      root.querySelector(
+        ".mtw-wheel-centre"
+      );
+
+    if (hubEl) {
+
+      hubEl.classList.add(
+        "is-locked"
+      );
+
+      hubEl.setAttribute(
+        "aria-disabled",
+        "true"
+      );
+
+    }
 
     button.querySelector(
       ".mtw-button-top"
@@ -1695,6 +2015,8 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 25");
         );
 
         savePrize(reward);
+
+        recordSpin(getIdentity(), reward);
 
         if (reward.code) {
 
@@ -1809,5 +2131,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 25");
   };
 
   restorePreviousSpin();
+
+  checkPreviousSpin();
 
 })();
