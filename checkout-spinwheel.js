@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL CHANCE VERSION 29");
+console.log("MTW SPIN WHEEL CHANCE VERSION 30");
 
 'use strict';
 
@@ -1574,34 +1574,6 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 29");
     }
   }
 
-  async function getSpunDoc(F, id) {
-    try {
-      const snap =
-        await F.getDoc(
-          F.doc(F.db, "checkout-wheel", id.fpId)
-        );
-
-      if (!snap || !snap.exists()) {
-        return null;
-      }
-
-      const data = snap.data() || {};
-
-      if (data.spun !== true) {
-        return null;
-      }
-
-      if (data.fp && data.fp !== id.fp) {
-        return null;
-      }
-
-      return data;
-    } catch (e) {
-      console.error("[mtw-spin-wheel] spin check failed:", e);
-      return null;
-    }
-  }
-
   let lastCheck = null;
 
   async function checkPreviousSpin(tries) {
@@ -1632,17 +1604,6 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 29");
     const now = Date.now();
 
     try {
-      const hit =
-        await getSpunDoc(F, id);
-
-      if (hit) {
-        lastCheck = { at: Date.now(), fp: id.fp, found: true, error: null };
-        hideWheel();
-        return;
-      }
-
-      lastCheck = { at: Date.now(), fp: id.fp, found: false, error: null };
-
       const ref =
         F.doc(F.db, "checkout-wheel", id.fpId);
 
@@ -1654,37 +1615,101 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 29");
         if (snap && snap.exists()) {
           prev = snap.data() || {};
         }
-      } catch (e) {}
-
-      try {
-        await F.setDoc(
-          ref,
-          {
-            company: id.company,
-            name: id.name,
-            street: id.street,
-            suburb: id.suburb,
-            city: id.city,
-            country: id.country,
-            fp: id.fp,
-            firstSeenAt:
-              prev && prev.firstSeenAt
-                ? prev.firstSeenAt
-                : now,
-            lastSeenAt: now,
-            visits:
-              (prev && prev.visits ? prev.visits : 0) + 1,
-            spun: false
-          },
-          { merge: true }
-        );
       } catch (e) {
-        console.error("[mtw-spin-wheel] visit log failed:", e);
+        console.error("[mtw-spin-wheel] spin check failed:", e);
+      }
+
+      if (
+        prev &&
+        prev.spun === true &&
+        (!prev.fp || prev.fp === id.fp)
+      ) {
+        lastCheck = { at: Date.now(), fp: id.fp, found: true, error: null };
+        hideWheel();
+        clearStalePrize();
+        return;
+      }
+
+      lastCheck = { at: Date.now(), fp: id.fp, found: false, error: null };
+
+      if (!prev) {
+        try {
+          await F.setDoc(
+            ref,
+            {
+              company: id.company,
+              name: id.name,
+              street: id.street,
+              suburb: id.suburb,
+              city: id.city,
+              country: id.country,
+              fp: id.fp,
+              firstSeenAt: now,
+              spun: false
+            },
+            { merge: true }
+          );
+        } catch (e) {
+          console.error("[mtw-spin-wheel] visit log failed:", e);
+        }
       }
     } catch (e) {
       lastCheck = { at: Date.now(), fp: id ? id.fp : null, found: false, error: String((e && e.message) || e) };
       console.error("[mtw-spin-wheel] spin check failed:", e);
     }
+  }
+
+  function stripPrizeFromComments() {
+    const input = getPrizeInput();
+
+    if (!input) return;
+
+    const value = input.value || "";
+
+    if (
+      !value.startsWith(
+        "MTW SPIN WHEEL PRIZE:"
+      )
+    ) {
+      return;
+    }
+
+    const cleaned = value.replace(
+      /^MTW SPIN WHEEL PRIZE:[^\n]*(?:\n\n)?/,
+      ""
+    );
+
+    if (cleaned === value) {
+      return;
+    }
+
+    input.value = cleaned;
+
+    input.dispatchEvent(
+      new Event("input", {
+        bubbles: true
+      })
+    );
+
+    input.dispatchEvent(
+      new Event("change", {
+        bubbles: true
+      })
+    );
+  }
+
+  function clearStalePrize(tries) {
+    tries = tries || 0;
+
+    stripPrizeFromComments();
+
+    if (tries >= 20) {
+      return;
+    }
+
+    setTimeout(function () {
+      clearStalePrize(tries + 1);
+    }, 500);
   }
 
   function hideWheel() {
