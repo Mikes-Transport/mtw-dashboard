@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL CHANCE VERSION 31");
+console.log("MTW SPIN WHEEL CHANCE VERSION 32");
 
 'use strict';
 
@@ -902,6 +902,23 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 31");
     text-transform: uppercase !important;
     color: rgba(255,255,255,.45) !important;
 }
+#mtw-spin-wheel .mtw-spin-wrap.mtw-is-locked{
+    display: block !important;
+    text-align: center !important;
+}
+#mtw-spin-wheel .mtw-locked-inner{
+    max-width: 430px !important;
+    margin: 0 auto !important;
+}
+#mtw-spin-wheel .mtw-timer{
+    font-size: clamp(34px, 5vw, 52px) !important;
+    font-weight: 1000 !important;
+    letter-spacing: 3px !important;
+    color: #f6d365 !important;
+    text-shadow: 0 0 22px rgba(246,211,101,.5) !important;
+    margin: 14px 0 6px !important;
+    font-variant-numeric: tabular-nums !important;
+}
 /* =========================================
    WINNER LIGHTS
 ========================================= */
@@ -1736,8 +1753,90 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 31");
     }, 500);
   }
 
+  function pad2(n) {
+    return String(n).padStart(2, "0");
+  }
+
+  function msUntilAucklandMidnight() {
+    const now = Date.now();
+
+    let parts = {};
+
+    try {
+      new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Pacific/Auckland",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      }).formatToParts(new Date(now)).forEach(function (p) {
+        parts[p.type] = p.value;
+      });
+    } catch (e) {
+      return null;
+    }
+
+    let h = parseInt(parts.hour, 10) || 0;
+
+    if (h >= 24) h = 0;
+
+    const elapsed =
+      h * 3600 +
+      (parseInt(parts.minute, 10) || 0) * 60 +
+      (parseInt(parts.second, 10) || 0);
+
+    return 86400 * 1000 - elapsed * 1000;
+  }
+
+  function fmtCountdown(ms) {
+    if (ms < 0) ms = 0;
+
+    const s = Math.floor(ms / 1000);
+
+    return pad2(Math.floor(s / 3600)) + ":" +
+      pad2(Math.floor((s % 3600) / 60)) + ":" +
+      pad2(s % 60);
+  }
+
   function hideWheel() {
-    root.style.display = "none";
+    root.innerHTML =
+      '<div class="mtw-spin-wrap mtw-is-locked">' +
+        '<div class="mtw-locked-inner">' +
+          '<div class="mtw-eyebrow">★ Daily spin ★</div>' +
+          '<h2 class="mtw-title">' +
+            '<span class="mtw-title-top">DAILY SPIN</span>' +
+            '<span class="mtw-title-grad">USED UP</span>' +
+          '</h2>' +
+          '<p class="mtw-sub">You have used your daily spin</p>' +
+          '<div class="mtw-timer" id="mtwSpinTimer">--:--:--</div>' +
+          '<p class="mtw-sub">Come back tomorrow for another spin</p>' +
+          '<p class="mtw-fine">Get what you get · no returns or substitutions</p>' +
+        '</div>' +
+      '</div>';
+
+    const tick = function () {
+      const el = document.getElementById("mtwSpinTimer");
+
+      if (!el) return;
+
+      const left = msUntilAucklandMidnight();
+
+      if (left == null) {
+        el.textContent = "tomorrow";
+        return;
+      }
+
+      if (left <= 0) {
+        el.textContent = "00:00:00";
+        location.reload();
+        return;
+      }
+
+      el.textContent = fmtCountdown(left);
+    };
+
+    tick();
+    setInterval(tick, 1000);
   }
 
   async function recordSpin(identity, reward) {
