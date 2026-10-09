@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL CHANCE VERSION 30");
+console.log("MTW SPIN WHEEL CHANCE VERSION 31");
 
 'use strict';
 
@@ -1474,6 +1474,27 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 30");
       h2.toString(16).padStart(8, "0");
   }
 
+  function nzDayString(when) {
+    try {
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Pacific/Auckland",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).format(
+        when instanceof Date
+          ? when
+          : new Date(when == null ? Date.now() : when)
+      );
+    } catch (e) {
+      const d = new Date(when == null ? Date.now() : when);
+
+      return d.getFullYear() + "-" +
+        String(d.getMonth() + 1).padStart(2, "0") + "-" +
+        String(d.getDate()).padStart(2, "0");
+    }
+  }
+
   function getIdentity() {
     const box = document.querySelector(".address");
 
@@ -1603,6 +1624,8 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 30");
 
     const now = Date.now();
 
+    const today = nzDayString(now);
+
     try {
       const ref =
         F.doc(F.db, "checkout-wheel", id.fpId);
@@ -1622,6 +1645,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 30");
       if (
         prev &&
         prev.spun === true &&
+        prev.spunDay === today &&
         (!prev.fp || prev.fp === id.fp)
       ) {
         lastCheck = { at: Date.now(), fp: id.fp, found: true, error: null };
@@ -1735,6 +1759,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 30");
           country: identity.country,
           fp: identity.fp,
           spun: true,
+          spunDay: nzDayString(),
           label: reward.label,
           value: reward.value,
           code: reward.code || null,
