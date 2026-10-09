@@ -1,4 +1,4 @@
-console.log("MTW SPIN WHEEL CHANCE VERSION 26");
+console.log("MTW SPIN WHEEL CHANCE VERSION 28");
 
 'use strict';
 
@@ -1306,96 +1306,6 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 26");
 
   
 
-  function restorePreviousSpin() {
-
-    const prize = readPrize();
-
-    if (!prize) return;
-
-    button.querySelector(
-      ".mtw-button-top"
-    ).textContent =
-      "YOU WON!";
-
-    button.querySelector(
-      ".mtw-button-bottom"
-    ).textContent =
-      prize.label;
-
-    button.disabled = true;
-
-    const hubEl =
-      root.querySelector(
-        ".mtw-wheel-centre"
-      );
-
-    if (hubEl) {
-
-      hubEl.classList.add(
-        "is-locked"
-      );
-
-      hubEl.setAttribute(
-        "aria-disabled",
-        "true"
-      );
-
-    }
-
-    status.textContent =
-      "🎉 YOU WON: " + prize.label;
-
-    status.classList.add(
-      "mtw-win"
-    );
-
-    const stage =
-      root.querySelector(
-        ".mtw-wheel-stage"
-      );
-
-    if (stage && prize.code) {
-
-      stage.classList.add(
-        "mtw-winner"
-      );
-
-    }
-
-    /*
-     * The checkout comments box can render
-     * after this script, so keep trying
-     * until it shows up (or give up).
-     */
-
-    let tries = 0;
-
-    const timer =
-      setInterval(
-        function () {
-
-          tries++;
-
-          if (getPrizeInput()) {
-
-            clearInterval(timer);
-
-            protectPrizeInTextarea(
-              prize
-            );
-
-          } else if (tries >= 30) {
-
-            clearInterval(timer);
-
-          }
-
-        },
-        500
-      );
-
-  }
-
   // function restorePreviousSpin() {
 
   //   if (!alreadyUsed()) return;
@@ -1582,9 +1492,9 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 26");
     const city = normPart(pick("city"));
     const country = normPart(pick("country"));
 
-    if (!name || !street) return null;
+    if (!company || !name) return null;
 
-    const fp = [company, name, street, suburb, city, country].join("|");
+    const fp = [company, name].join("|");
 
     return {
       company, name, street, suburb, city, country,
@@ -1644,22 +1554,18 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 26");
 
       if (
         !database ||
-        !fsMod.collection ||
-        !fsMod.query ||
-        !fsMod.where ||
-        !fsMod.getDocs ||
-        !fsMod.addDoc
+        !fsMod.doc ||
+        !fsMod.getDoc ||
+        !fsMod.setDoc
       ) {
         return null;
       }
 
       fb.cache = {
         db: database,
-        collection: fsMod.collection,
-        query: fsMod.query,
-        where: fsMod.where,
-        getDocs: fsMod.getDocs,
-        addDoc: fsMod.addDoc
+        doc: fsMod.doc,
+        getDoc: fsMod.getDoc,
+        setDoc: fsMod.setDoc
       };
 
       return fb.cache;
@@ -1668,28 +1574,30 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 26");
     }
   }
 
-  async function findSpunDoc(F, fp) {
+  async function getSpunDoc(F, id) {
     try {
       const snap =
-        await F.getDocs(
-          F.query(
-            F.collection(F.db, "checkout-wheel"),
-            F.where("fp", "==", fp)
-          )
+        await F.getDoc(
+          F.doc(F.db, "checkout-wheel", id.fpId)
         );
 
-      let hit = null;
+      if (!snap || !snap.exists()) {
+        return null;
+      }
 
-      snap.forEach(d => {
-        const data = d.data() || {};
+      const data = snap.data() || {};
 
-        if (!hit && data.spun === true) {
-          hit = data;
-        }
-      });
+      if (data.spun !== true) {
+        return null;
+      }
 
-      return hit;
+      if (data.fp && data.fp !== id.fp) {
+        return null;
+      }
+
+      return data;
     } catch (e) {
+      console.error("[mtw-spin-wheel] spin check failed:", e);
       return null;
     }
   }
@@ -1707,11 +1615,29 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 26");
 
     try {
       const hit =
-        await findSpunDoc(F, id.fp);
+        await getSpunDoc(F, id);
+
+      if (hit) {
+        hideWheel();
+        return;
+      }
+
+      const ref =
+        F.doc(F.db, "checkout-wheel", id.fpId);
+
+      let prev = null;
 
       try {
-        await F.addDoc(
-          F.collection(F.db, "checkout-wheel"),
+        const snap = await F.getDoc(ref);
+
+        if (snap && snap.exists()) {
+          prev = snap.data() || {};
+        }
+      } catch (e) {}
+
+      try {
+        await F.setDoc(
+          ref,
           {
             company: id.company,
             name: id.name,
@@ -1720,62 +1646,27 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 26");
             city: id.city,
             country: id.country,
             fp: id.fp,
-            spun: false,
-            ts: now,
-            url: location.href
-          }
+            firstSeenAt:
+              prev && prev.firstSeenAt
+                ? prev.firstSeenAt
+                : now,
+            lastSeenAt: now,
+            visits:
+              (prev && prev.visits ? prev.visits : 0) + 1,
+            spun: false
+          },
+          { merge: true }
         );
-      } catch (e) {}
-
-      if (hit) {
-        applyFirebaseLock(hit);
+      } catch (e) {
+        console.error("[mtw-spin-wheel] visit log failed:", e);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error("[mtw-spin-wheel] spin check failed:", e);
+    }
   }
 
-  function applyFirebaseLock(data) {
-    const hubEl =
-      root.querySelector(
-        ".mtw-wheel-centre"
-      );
-
-    if (hubEl) {
-
-      hubEl.classList.add(
-        "is-locked"
-      );
-
-      hubEl.setAttribute(
-        "aria-disabled",
-        "true"
-      );
-
-    }
-
-    button.disabled = true;
-
-    button.querySelector(
-      ".mtw-button-top"
-    ).textContent =
-      "ALREADY SPUN";
-
-    button.querySelector(
-      ".mtw-button-bottom"
-    ).textContent =
-      data && data.label
-        ? data.label
-        : "ONE SPIN PER CUSTOMER";
-
-    status.textContent =
-      "You've already spun — one spin per customer.";
-
-    status.classList.remove(
-      "mtw-win"
-    );
-
-    status.classList.add(
-      "mtw-try-again"
-    );
+  function hideWheel() {
+    root.style.display = "none";
   }
 
   async function recordSpin(identity, reward) {
@@ -1786,8 +1677,8 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 26");
     if (!F) return;
 
     try {
-      await F.addDoc(
-        F.collection(F.db, "checkout-wheel"),
+      await F.setDoc(
+        F.doc(F.db, "checkout-wheel", identity.fpId),
         {
           company: identity.company,
           name: identity.name,
@@ -1803,72 +1694,12 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 26");
           won: !!reward.code,
           ts: Date.now(),
           url: location.href
-        }
+        },
+        { merge: true }
       );
-    } catch (e) {}
-  }
-
-  const STORAGE_KEY = "mtw-spin-wheel-prize-v1";
-
-  function savePrize(reward) {
-
-    try {
-
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          value: reward.value,
-          label: reward.label,
-          code: reward.code
-        })
-      );
-
     } catch (e) {
-      /* storage unavailable — session-only */
+      console.error("[mtw-spin-wheel] spin log failed:", e);
     }
-
-  }
-
-  function clearPrize() {
-
-    try {
-
-      localStorage.removeItem(
-        STORAGE_KEY
-      );
-
-    } catch (e) {
-      /* ignore */
-    }
-
-  }
-
-  function readPrize() {
-
-    try {
-
-      const raw =
-        localStorage.getItem(
-          STORAGE_KEY
-        );
-
-      if (!raw) return null;
-
-      const prize =
-        JSON.parse(raw);
-
-      if (!prize || !prize.value) {
-        return null;
-      }
-
-      return prize;
-
-    } catch (e) {
-
-      return null;
-
-    }
-
   }
 
   /* =========================================
@@ -2014,8 +1845,6 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 26");
           reward
         );
 
-        savePrize(reward);
-
         recordSpin(getIdentity(), reward);
 
         if (reward.code) {
@@ -2063,8 +1892,6 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 26");
             ".mtw-button-bottom"
           ).textContent =
             "BETTER LUCK NEXT TIME";
-
-          clearPrize();
 
         }
 
@@ -2125,12 +1952,6 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 26");
     );
 
   }
-
-  window.MTWSpinReset = function () {
-    clearPrize();
-  };
-
-  restorePreviousSpin();
 
   checkPreviousSpin();
 
