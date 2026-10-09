@@ -915,14 +915,18 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 33");
     width: 100% !important;
     max-width: 430px !important;
     margin: 0 auto !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
+
 #mtw-spin-wheel .mtw-timer{
     font-size: clamp(34px, 5vw, 52px) !important;
     font-weight: 1000 !important;
     letter-spacing: 3px !important;
     color: #f6d365 !important;
     text-shadow: 0 0 22px rgba(246,211,101,.5) !important;
-    margin: 14px 0 6px !important;
+    margin: 40px 0 40px !important;
     font-variant-numeric: tabular-nums !important;
 }
 /* =========================================
