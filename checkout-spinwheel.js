@@ -9,7 +9,7 @@ console.log("MTW SPIN WHEEL CHANCE VERSION 33");
     { label: "x2 AIR FRESHENERS", value: "X2 AIR FRESHENERS", code: "SPIN-AIRFRESHENER", chance: "20.0%" },
     { label: "X1 MTW COFFEE MUG", value: "X1 MTW COFFEE MUG", code: "SPIN-TWMUG", chance: "12.5%" },
     { label: "X1 RANDOM EXTE MERCH", value: "X1 EXTE MERCH", code: "SPIN-EXTE", chance: "2.0%" },
-    { label: "X1 PARLOK BUNDLE", value: "X1 PARLOK BUNDLE", code: "SPIN-PARLOK", chance: "2.0%" },
+    { label: "X1 MYSTERY GIFT", value: "X1 MYSTERY GIFT", code: "SPIN-MYSTERY", chance: "2.0%" },
     { label: "X1 WICKED PACK", value: "X1 WICKED PACK", code: "SPIN-WICKED", chance: "22.0%" },
     { label: "X1 RANDOM SNACK", value: "X1 RANDOM SNACK", code: "SPIN-SNACK", chance: "22.0%" },
     { label: "X1 WC COFFEE MUG", value: "X1 WC COFFEE MUG", code: "SPIN-WCMUG", chance: "11.5%" }
