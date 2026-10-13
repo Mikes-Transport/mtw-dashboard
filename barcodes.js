@@ -982,7 +982,7 @@ gap: 12px;
 .barcode-card[data-barcode-template="medium"] .barcode-multi-parts,
 .barcode-card[data-barcode-template="large"] .barcode-multi-parts,
 .barcode-card[data-barcode-template="xlarge"] .barcode-multi-parts {
-gap: 15px;
+gap: 1px;
 }
 
 .barcode-card[data-barcode-template="xlarge"] .barcode-multi-row {
