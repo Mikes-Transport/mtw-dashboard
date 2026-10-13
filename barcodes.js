@@ -971,8 +971,31 @@ display: flex;
 flex-direction: column;
 align-items: stretch;
 justify-content: center;
-gap: 80px;
+gap: 8px;
 box-sizing: border-box;
+}
+
+.barcode-card[data-barcode-template="standard"] .barcode-multi-parts {
+gap: 12px;
+}
+
+.barcode-card[data-barcode-template="medium"] .barcode-multi-parts,
+.barcode-card[data-barcode-template="large"] .barcode-multi-parts,
+.barcode-card[data-barcode-template="xlarge"] .barcode-multi-parts {
+gap: 15px;
+}
+
+.barcode-card[data-barcode-template="xlarge"] .barcode-multi-row {
+gap: 6px;
+}
+
+.barcode-ka .barcode-extra-fields {
+flex-direction: row;
+gap: 10px;
+}
+
+.barcode-ka .barcode-output-row {
+justify-content: flex-end;
 }
 
 .barcode-multi-row {
@@ -3219,13 +3242,30 @@ container.innerHTML = '';
 const parts =
 getCardParts(data);
 
+/*
+Two or more part rows share one label, so shrink
+text sizes slightly to keep everything fitting.
+Single-part cards render at full size.
+*/
+const fit =
+parts.length > 1
+? 0.85
+: 1;
+
 const barcodeSize =
+Math.max(
+1,
+Math.round(
+(
 Number(
 data.barcodeSize
 ) ||
 getTemplateDefaults(
 data.template
-).barcodeSize;
+).barcodeSize
+) * fit
+)
+);
 
 const barcodeIds = new Set();
 
@@ -3274,11 +3314,21 @@ number.textContent =
 part.partNumber || '';
 
 number.style.fontSize =
-data.partNumberSize +
+Math.max(
+1,
+Math.round(
+data.partNumberSize * fit
+)
+) +
 'px';
 
 number.style.lineHeight =
-data.partNumberSize +
+Math.max(
+1,
+Math.round(
+data.partNumberSize * fit
+)
+) +
 'px';
 
 const description =
@@ -3293,11 +3343,21 @@ description.textContent =
 part.subtext || '';
 
 description.style.fontSize =
-data.subtextSize +
+Math.max(
+1,
+Math.round(
+data.subtextSize * fit
+)
+) +
 'px';
 
 description.style.lineHeight =
-data.subtextSize +
+Math.max(
+1,
+Math.round(
+data.subtextSize * fit
+)
+) +
 'px';
 
 text.append(
@@ -3438,6 +3498,10 @@ if (
 isKeyAccounts()
 ) {
 
+card.classList.add(
+'barcode-ka'
+);
+
 if (header) {
 
 header.style.display =
@@ -3479,6 +3543,10 @@ return;
 const multi =
 card.querySelector(
 '.barcode-multi-parts'
+);
+
+card.classList.remove(
+'barcode-ka'
 );
 
 if (multi) {
