@@ -10,7 +10,9 @@ $,
 $$,
 collection,
 getDocs,
-addDoc
+addDoc,
+doc,
+deleteDoc
 } = window.MTW;
 
 const LABEL = '.barcode-text-input-wrapper';
@@ -74,8 +76,8 @@ barcodeSize: 20
 },
 
 xlarge: {
-partNumberSize: 18,
-subtextSize: 8,
+partNumberSize: 20,
+subtextSize: 12,
 barcodeSize: 13
 }
 
@@ -1109,6 +1111,91 @@ font: inherit;
 font-size: 12px;
 }
 
+.barcode-template-picker {
+position: relative;
+min-width: 220px;
+}
+
+.barcode-template-picker-trigger {
+width: 100%;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 10px;
+padding: 8px 10px;
+border: 1px solid #ccc;
+border-radius: 5px;
+background: #fff;
+color: #111;
+font: inherit;
+font-size: 12px;
+text-align: left;
+cursor: pointer;
+}
+
+.barcode-template-picker-trigger:disabled {
+color: #777;
+cursor: not-allowed;
+}
+
+.barcode-template-picker-menu {
+position: absolute;
+z-index: 1000;
+top: calc(100% + 4px);
+left: 0;
+right: 0;
+max-height: 260px;
+overflow-y: auto;
+border: 1px solid #ccc;
+border-radius: 5px;
+background: #fff;
+box-shadow: 0 4px 12px rgba(0,0,0,.16);
+}
+
+.barcode-template-picker-menu[hidden] {
+display: none;
+}
+
+.barcode-template-picker-option {
+flex: 1;
+min-width: 0;
+padding: 9px 10px;
+border: 0;
+background: transparent;
+color: #111;
+font: inherit;
+font-size: 12px;
+text-align: left;
+cursor: pointer;
+}
+
+.barcode-template-picker-option:hover {
+background: #f2f2f2;
+}
+
+.barcode-template-picker-row {
+display: flex;
+align-items: center;
+border-bottom: 1px solid #eee;
+}
+
+.barcode-template-picker-delete {
+width: 34px;
+height: 34px;
+flex: 0 0 auto;
+margin-right: 4px;
+border: 0;
+border-radius: 4px;
+background: transparent;
+color: #900;
+font-size: 18px;
+cursor: pointer;
+}
+
+.barcode-template-picker-delete:hover {
+background: #fee;
+}
+
 .barcode-template-name-input {
 width: 100%;
 box-sizing: border-box;
@@ -1220,12 +1307,12 @@ overscroll-behavior:contain!important;
 overscroll-behavior-y:contain!important;
 }
 
-.db-left-content.editing .barcode-edit-panel {
+.barcode-edit-panel {
 flex: 1 1 auto !important;
 width: 100% !important;
-height: 50% !important;
+height: 100% !important;
 min-height: 0 !important;
-max-height: 50% !important;
+max-height: 100% !important;
 overflow-y: auto !important;
 overflow-x: hidden !important;
 box-sizing: border-box !important;
@@ -1298,6 +1385,36 @@ text-transform: uppercase;
 letter-spacing: .06em;
 margin-bottom: 10px;
 opacity: .7;
+}
+
+.barcode-edit-section-title.collapsible {
+width: 100%;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0;
+border: 0;
+background: transparent;
+color: inherit;
+font: inherit;
+font-size: 11px;
+font-weight: 700;
+text-align: left;
+cursor: pointer;
+}
+
+.barcode-edit-section-title.collapsible::after {
+content: '−';
+font-size: 16px;
+line-height: 1;
+}
+
+.barcode-edit-section.collapsed .barcode-edit-section-title.collapsible::after {
+content: '+';
+}
+
+.barcode-edit-section-content[hidden] {
+display: none;
 }
 
 .barcode-field-group {
@@ -4158,7 +4275,8 @@ return wrap;
 
 function section(
 title,
-children
+children,
+options = {}
 ) {
 
 const s =
@@ -4168,6 +4286,76 @@ document.createElement(
 
 s.className =
 'barcode-edit-section';
+
+if (options.collapsible) {
+
+const collapsed =
+Boolean(options.collapsed);
+
+const h =
+button(
+title,
+'barcode-edit-section-title collapsible',
+() => {
+
+s.classList.toggle(
+'collapsed'
+);
+
+const isCollapsed =
+s.classList.contains(
+'collapsed'
+);
+
+content.hidden =
+isCollapsed;
+
+h.setAttribute(
+'aria-expanded',
+String(!isCollapsed)
+);
+
+}
+);
+
+const content =
+document.createElement(
+'div'
+);
+
+s.dataset.collapsible =
+'true';
+
+s.dataset.sectionTitle =
+title;
+
+h.setAttribute(
+'aria-expanded',
+String(!collapsed)
+);
+
+s.classList.toggle(
+'collapsed',
+collapsed
+);
+
+content.className =
+'barcode-edit-section-content';
+
+content.hidden =
+collapsed;
+
+children.forEach(
+x =>
+content.appendChild(x)
+);
+
+s.append(
+h,
+content
+);
+
+} else {
 
 const h =
 document.createElement(
@@ -4188,6 +4376,8 @@ children.forEach(
 x =>
 s.appendChild(x)
 );
+
+}
 
 return s;
 
@@ -4366,7 +4556,8 @@ return wrap;
 }
 
 function buildEditPanel(
-card
+card,
+sectionStates = {}
 ) {
 
 const panel =
@@ -4702,6 +4893,13 @@ live(card);
 )
 
 ]
+,
+{
+collapsible: true,
+collapsed:
+sectionStates['Optional Fields'] ??
+true
+}
 )
 );
 
@@ -4768,6 +4966,13 @@ live(card);
 )
 
 ]
+,
+{
+collapsible: true,
+collapsed:
+sectionStates.Size ??
+true
+}
 )
 );
 
@@ -4978,6 +5183,37 @@ host.querySelector(
 '.barcode-edit-panel'
 );
 
+const isSameCard =
+old &&
+old.dataset.cardId ===
+String(card.id);
+
+const scrollTop =
+isSameCard
+? old.scrollTop
+: 0;
+
+const sectionStates = {};
+
+if (isSameCard) {
+
+old.querySelectorAll(
+'.barcode-edit-section[data-collapsible]'
+).forEach(
+item => {
+
+sectionStates[
+item.dataset.sectionTitle
+] =
+item.classList.contains(
+'collapsed'
+);
+
+}
+);
+
+}
+
 if (old) {
 old.remove();
 }
@@ -5002,7 +5238,8 @@ els.left.classList.add(
 
 const panel =
 buildEditPanel(
-card
+card,
+sectionStates
 );
 
 host.appendChild(
@@ -5013,7 +5250,7 @@ requestAnimationFrame(
 () => {
 
 panel.scrollTop =
-0;
+scrollTop;
 
 }
 );
@@ -6860,6 +7097,337 @@ if (!list) {
 return;
 }
 
+function renderPicker(placeholder) {
+
+let picker =
+list.parentElement.querySelector(
+'.barcode-template-picker'
+);
+
+if (!picker) {
+
+picker =
+document.createElement(
+'div'
+);
+
+picker.className =
+'barcode-template-picker';
+
+list.insertAdjacentElement(
+'afterend',
+picker
+);
+
+list.hidden =
+true;
+
+list.setAttribute(
+'aria-hidden',
+'true'
+);
+
+const trigger =
+document.createElement(
+'button'
+);
+
+trigger.type =
+'button';
+
+trigger.className =
+'barcode-template-picker-trigger';
+
+trigger.setAttribute(
+'aria-haspopup',
+'menu'
+);
+
+trigger.setAttribute(
+'aria-expanded',
+'false'
+);
+
+const triggerLabel =
+document.createElement(
+'span'
+);
+
+trigger.append(
+triggerLabel,
+document.createTextNode('▾')
+);
+
+const menu =
+document.createElement(
+'div'
+);
+
+menu.className =
+'barcode-template-picker-menu';
+
+menu.setAttribute(
+'role',
+'menu'
+);
+
+menu.hidden =
+true;
+
+trigger.addEventListener(
+'click',
+() => {
+
+menu.hidden =
+!menu.hidden;
+
+trigger.setAttribute(
+'aria-expanded',
+String(!menu.hidden)
+);
+
+}
+);
+
+document.addEventListener(
+'click',
+event => {
+
+if (
+!picker.contains(
+event.target
+)
+) {
+
+menu.hidden =
+true;
+
+trigger.setAttribute(
+'aria-expanded',
+'false'
+);
+
+}
+
+}
+);
+
+picker.addEventListener(
+'keydown',
+event => {
+
+if (
+event.key ===
+'Escape'
+) {
+
+menu.hidden =
+true;
+
+trigger.setAttribute(
+'aria-expanded',
+'false'
+);
+
+trigger.focus();
+
+}
+
+}
+);
+
+picker.append(
+trigger,
+menu
+);
+
+}
+
+const trigger =
+picker.querySelector(
+'.barcode-template-picker-trigger'
+);
+
+const triggerLabel =
+trigger.querySelector(
+'span'
+);
+
+const menu =
+picker.querySelector(
+'.barcode-template-picker-menu'
+);
+
+trigger.disabled =
+list.disabled;
+
+triggerLabel.textContent =
+placeholder;
+
+menu.replaceChildren();
+
+labelTemplates.forEach(
+item => {
+
+const row =
+document.createElement(
+'div'
+);
+
+row.className =
+'barcode-template-picker-row';
+
+row.setAttribute(
+'role',
+'presentation'
+);
+
+const option =
+document.createElement(
+'button'
+);
+
+option.type =
+'button';
+
+option.className =
+'barcode-template-picker-option';
+
+option.setAttribute(
+'role',
+'menuitem'
+);
+
+option.textContent =
+String(
+item.name ||
+'Untitled'
+);
+
+option.addEventListener(
+'click',
+() => {
+
+menu.hidden =
+true;
+
+trigger.setAttribute(
+'aria-expanded',
+'false'
+);
+
+applyLabelTemplateById(
+item.id
+);
+
+}
+);
+
+const remove =
+document.createElement(
+'button'
+);
+
+remove.type =
+'button';
+
+remove.className =
+'barcode-template-picker-delete';
+
+remove.setAttribute(
+'role',
+'menuitem'
+);
+
+remove.textContent =
+'×';
+
+remove.setAttribute(
+'aria-label',
+'Delete saved template ' +
+String(
+item.name ||
+'Untitled'
+)
+);
+
+remove.addEventListener(
+'click',
+async event => {
+
+event.preventDefault();
+event.stopPropagation();
+
+if (
+!window.confirm(
+'Delete saved template "' +
+String(
+item.name ||
+'Untitled'
+) +
+'"? This cannot be undone.'
+)
+) {
+
+return;
+
+}
+
+remove.disabled =
+true;
+
+try {
+
+await deleteDoc(
+doc(
+db,
+'label-templates',
+item.id
+)
+);
+
+labelTemplates =
+labelTemplates.filter(
+entry =>
+entry.id !==
+item.id
+);
+
+await refreshTemplateSelector();
+
+} catch (error) {
+
+console.error(
+'[barcode] Failed to delete saved template:',
+error
+);
+
+window.alert(
+'Could not delete the saved template. Please try again.'
+);
+
+remove.disabled =
+false;
+
+}
+
+}
+);
+
+row.append(
+option,
+remove
+);
+
+menu.appendChild(
+row
+);
+
+}
+);
+
+}
+
 const templateType =
 state.current;
 
@@ -6877,6 +7445,12 @@ list.innerHTML =
 list.disabled =
 true;
 
+labelTemplates = [];
+
+renderPicker(
+'Select a label template first'
+);
+
 return;
 
 }
@@ -6888,6 +7462,12 @@ list.innerHTML =
 
 list.disabled =
 true;
+
+labelTemplates = [];
+
+renderPicker(
+'Database unavailable'
+);
 
 return;
 
@@ -6938,6 +7518,10 @@ list.innerHTML =
 list.disabled =
 true;
 
+renderPicker(
+'No saved templates for this label type'
+);
+
 return;
 
 }
@@ -6969,6 +7553,10 @@ option
 }
 );
 
+renderPicker(
+'Select a saved template...'
+);
+
 } catch (error) {
 
 console.error(
@@ -6981,6 +7569,12 @@ list.innerHTML =
 
 list.disabled =
 true;
+
+labelTemplates = [];
+
+renderPicker(
+'Could not load templates'
+);
 
 }
 
