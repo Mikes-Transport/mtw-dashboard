@@ -108,6 +108,7 @@ cards: []
 
 let counter = 0;
 let editing = null;
+const editSectionStates = {};
 let ready = false;
 let quickImportModal = null;
 let csvModal = null;
@@ -4311,6 +4312,9 @@ s.classList.contains(
 'collapsed'
 );
 
+editSectionStates[title] =
+isCollapsed;
+
 content.hidden =
 isCollapsed;
 
@@ -5197,9 +5201,11 @@ isSameCard
 ? old.scrollTop
 : 0;
 
-const sectionStates = {};
+const sectionStates = {
+...editSectionStates
+};
 
-if (isSameCard) {
+if (old) {
 
 old.querySelectorAll(
 '.barcode-edit-section[data-collapsible]'
@@ -5212,6 +5218,13 @@ item.dataset.sectionTitle
 item.classList.contains(
 'collapsed'
 );
+
+editSectionStates[
+item.dataset.sectionTitle
+] =
+sectionStates[
+item.dataset.sectionTitle
+];
 
 }
 );
@@ -7357,25 +7370,14 @@ item.name ||
 
 remove.addEventListener(
 'click',
-async event => {
+event => {
 
 event.preventDefault();
 event.stopPropagation();
 
-if (
-!window.confirm(
-'Delete saved template "' +
-String(
-item.name ||
-'Untitled'
-) +
-'"? This cannot be undone.'
-)
-) {
-
-return;
-
-}
+openDeleteLabelTemplateConfirm(
+item,
+async () => {
 
 remove.disabled =
 true;
@@ -7414,6 +7416,9 @@ remove.disabled =
 false;
 
 }
+
+}
+);
 
 }
 );
@@ -7581,6 +7586,246 @@ renderPicker(
 );
 
 }
+
+}
+
+function openDeleteLabelTemplateConfirm(
+item,
+onConfirm
+) {
+
+const modal =
+document.createElement(
+'div'
+);
+
+modal.className =
+'barcode-clear-confirm-modal';
+
+modal.setAttribute(
+'role',
+'dialog'
+);
+
+modal.setAttribute(
+'aria-modal',
+'true'
+);
+
+const box =
+document.createElement(
+'div'
+);
+
+box.className =
+'barcode-clear-confirm-box';
+
+const header =
+document.createElement(
+'div'
+);
+
+header.className =
+'barcode-clear-confirm-header';
+
+const title =
+document.createElement(
+'h2'
+);
+
+title.className =
+'barcode-clear-confirm-title';
+
+title.textContent =
+'Delete Saved Template';
+
+const closeButton =
+document.createElement(
+'button'
+);
+
+closeButton.type =
+'button';
+
+closeButton.className =
+'barcode-clear-confirm-close';
+
+closeButton.textContent =
+'×';
+
+closeButton.setAttribute(
+'aria-label',
+'Close'
+);
+
+const close = () => {
+
+modal.classList.remove(
+'is-visible'
+);
+
+setTimeout(
+() => modal.remove(),
+180
+);
+
+};
+
+closeButton.addEventListener(
+'click',
+close
+);
+
+header.append(
+title,
+closeButton
+);
+
+const body =
+document.createElement(
+'div'
+);
+
+body.className =
+'barcode-clear-confirm-body';
+
+const message =
+document.createElement(
+'p'
+);
+
+message.className =
+'barcode-clear-confirm-message';
+
+message.textContent =
+'Are you sure you want to delete "' +
+String(
+item.name ||
+'Untitled'
+) +
+'"? This cannot be undone.';
+
+body.appendChild(
+message
+);
+
+const footer =
+document.createElement(
+'div'
+);
+
+footer.className =
+'barcode-clear-confirm-footer';
+
+const cancel =
+document.createElement(
+'button'
+);
+
+cancel.type =
+'button';
+
+cancel.className =
+'barcode-clear-confirm-button';
+
+cancel.textContent =
+'Cancel';
+
+cancel.addEventListener(
+'click',
+close
+);
+
+const confirm =
+document.createElement(
+'button'
+);
+
+confirm.type =
+'button';
+
+confirm.className =
+'barcode-clear-confirm-button danger';
+
+confirm.textContent =
+'Delete Template';
+
+confirm.addEventListener(
+'click',
+async () => {
+
+close();
+
+await onConfirm();
+
+}
+);
+
+footer.append(
+cancel,
+confirm
+);
+
+box.append(
+header,
+body,
+footer
+);
+
+modal.appendChild(
+box
+);
+
+modal.addEventListener(
+'click',
+event => {
+
+if (
+event.target ===
+modal
+) {
+
+close();
+
+}
+
+}
+);
+
+modal.addEventListener(
+'keydown',
+event => {
+
+if (
+event.key ===
+'Escape'
+) {
+
+close();
+
+}
+
+}
+);
+
+document.body.appendChild(
+modal
+);
+
+requestAnimationFrame(
+() => {
+
+modal.classList.add(
+'is-visible'
+);
+
+}
+);
+
+setTimeout(
+() => confirm.focus(),
+50
+);
 
 }
 
