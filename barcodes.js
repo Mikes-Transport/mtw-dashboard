@@ -1312,7 +1312,7 @@ flex: 1 1 auto !important;
 width: 100% !important;
 height: 0 !important;
 min-height: 0 !important;
-max-height: 100% !important;
+max-height: 68% !important;
 box-sizing: border-box !important;
 overflow-x: hidden !important;
 overflow-y: auto !important;
