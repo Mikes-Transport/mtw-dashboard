@@ -5069,6 +5069,18 @@ button(
 'barcode-edit-button',
 () => {
 
+const currentPanel =
+(els.left || els.panel)
+? (els.left || els.panel).querySelector(
+'.barcode-edit-panel'
+)
+: null;
+
+const scrollTop =
+currentPanel
+? currentPanel.scrollTop
+: 0;
+
 const duplicate =
 add({
 template:
@@ -5131,7 +5143,8 @@ card.barcodeSize
 });
 
 openEdit(
-duplicate
+duplicate,
+scrollTop
 );
 
 }
@@ -5168,7 +5181,7 @@ return panel;
 
 }
 
-function openEdit(card) {
+function openEdit(card, scrollTopOverride) {
 
 if (!card) {
 return;
@@ -5197,7 +5210,9 @@ old.dataset.cardId ===
 String(card.id);
 
 const scrollTop =
-isSameCard
+Number.isFinite(scrollTopOverride)
+? scrollTopOverride
+: isSameCard
 ? old.scrollTop
 : 0;
 
