@@ -1104,8 +1104,8 @@ background: #f5f5f5;
 .label-template-selector {
 min-width: 160px;
 padding: 6px;
-border: 1px solid #ccc;
-border-radius: 5px;
+border: 0;
+border-radius: 0;
 background: #fff;
 font: inherit;
 font-size: 12px;
@@ -1295,28 +1295,27 @@ text-align: center;
 align-self: center;
 }
 
-.db-left-content.editing{
-width:100%!important;
-height: 100% !important;
-min-height:0!important;
-max-height: 100% !important;
+.db-left-content.editing {
+display: flex !important;
 flex: 1 1 0% !important;
-overflow:hidden!important;
-display:flex!important;
-flex-direction:column!important;
-overscroll-behavior:contain!important;
-overscroll-behavior-y:contain!important;
+flex-direction: column !important;
+width: 100% !important;
+height: 100% !important;
+min-height: 0 !important;
+max-height: 100% !important;
+overflow: hidden !important;
+overscroll-behavior: contain !important;
 }
 
 .barcode-edit-panel {
-flex: 1 1 0% !important;
+flex: 1 1 auto !important;
 width: 100% !important;
-height: auto !important;
+height: 0 !important;
 min-height: 0 !important;
-max-height: none !important;
-overflow-y: auto !important;
-overflow-x: hidden !important;
+max-height: 100% !important;
 box-sizing: border-box !important;
+overflow-x: hidden !important;
+overflow-y: auto !important;
 padding-right: 10px !important;
 overscroll-behavior: contain !important;
 -webkit-overflow-scrolling: touch !important;
@@ -1328,23 +1327,19 @@ touch-action: pan-y;
 width: 6px;
 }
 
-.barcode-edit-panel::-webkit-scrollbar-track {
-background: transparent;
-}
-
 .barcode-edit-panel::-webkit-scrollbar-thumb {
-background: #ccc;
-border-radius: 10px;
+border-radius: 3px;
+background: #c5cbd1;
 }
 
 .barcode-edit-panel::-webkit-scrollbar-thumb:hover {
-background: #aaa;
+background: #aeb6bf;
 }
 
 .barcode-edit-panel-header {
 display: flex;
-justify-content: space-between;
 align-items: center;
+justify-content: space-between;
 flex: 0 0 auto;
 margin-bottom: 14px;
 padding-bottom: 12px;
@@ -1357,15 +1352,15 @@ letter-spacing: .01em;
 }
 
 .barcode-edit-panel-close {
-border: 0;
-background: transparent;
-font-size: 24px;
-cursor: pointer;
-line-height: 1;
 width: 32px;
 height: 32px;
+border: 0;
 border-radius: 8px;
+background: transparent;
 color: inherit;
+font-size: 24px;
+line-height: 1;
+cursor: pointer;
 }
 
 .barcode-edit-panel-close:hover {
@@ -1373,50 +1368,54 @@ background: rgba(127,127,127,.18);
 }
 
 .barcode-edit-section {
-padding-top: 14px;
 margin-top: 14px;
+padding-top: 14px;
 }
 
 .barcode-edit-section-title {
+margin-bottom: 10px;
 font-size: 11px;
 font-weight: 700;
-text-transform: uppercase;
 letter-spacing: .06em;
-margin-bottom: 10px;
-opacity: 1;
+text-transform: uppercase;
 }
 
 .barcode-edit-section-title.collapsible {
-width: 100%;
 display: flex;
 align-items: center;
 justify-content: space-between;
-border: 0;
+width: 100%;
 padding: 8px 10px;
+border: 0;
 border-radius: 6px;
-background: #333;
-color: #fff !important;
+background: #edf0f2;
+color: #263238;
 font: inherit;
 font-size: 11px;
 font-weight: 700;
-opacity: 1 !important;
 text-align: left;
 appearance: none;
 cursor: pointer;
 }
 
 .barcode-edit-section-title.collapsible:hover {
-background: #444;
+background: #e2e7eb;
 }
 
 .barcode-edit-section-title.collapsible::after {
 content: '−';
 font-size: 16px;
+font-weight: 700;
 line-height: 1;
 }
 
 .barcode-edit-section.collapsed .barcode-edit-section-title.collapsible::after {
 content: '+';
+}
+
+.barcode-edit-section-title.collapsible:focus-visible {
+outline: 2px solid #697782;
+outline-offset: 2px;
 }
 
 .barcode-edit-section-content[hidden] {
